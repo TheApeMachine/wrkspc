@@ -3,6 +3,10 @@
 > This is very much a work in progress.
 > Exactly zero of this is to be considered "stable" or has any intention to be so for the moment
 
+**ALSO PLEASE PUT ?ts=4 BEHIND THE URL TO VIEW THE CODE IN THE FORMAT IT WAS MEANT TO BE VIEWED IN** 
+
+(You can use `requestly` on Chrome to automate that in the future).
+
 Workspace tries to be a single binary "full-stack". It combines infrastructure, clustering,
 containerization, services, CI/CD pipelines, and development environment into a singular
 end-to-end experience.
