@@ -11,12 +11,12 @@ Fork it, make it your own. It has an `Unlicense`.
 
  Features
 
-[x] Built-in Kubernetes Distribution:
+- [x] Built-in Kubernetes Distribution:
     It can deploy itself as a cluster or connect to an existing cluster so all your tools,
 	services, and anything else can run on Kubernetes.
- [x] Deploy local Kind cluster when no existing `~/.kube/config` is found.
- [x] Connect to existing cluster is config file is found.
- [x] Include selection of open source package manifests:
+  - [x] Deploy local Kind cluster when no existing `~/.kube/config` is found.
+  - [x] Connect to existing cluster is config file is found.
+  - [x] Include selection of open source package manifests:
 		- [x] Weavenet & Weave Scope
 		- [x] MetalLB
 		- [x] OpenEBS & Min IO
@@ -52,8 +52,10 @@ Fork it, make it your own. It has an `Unlicense`.
       Backend is a fully featured ETL pipeline that is highly opinionated. It uses an approach
 			based on a data lake, schemaless data, no databases, a mono type request path, streams,
 			dynamic projections, and a single endpoint. It should cover a lot of use-cases.
-	- [ ]
-
+  - [x] Setup Ingress and Egress.
+	- [x] Accept Datagram format in.
+	- [x] Push Datagram format out.
+	- [x] Send `topic key` on Egress triggering request.
 
 ## How it Works
 
