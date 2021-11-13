@@ -11,6 +11,7 @@ Node is an interface objects can implement to describe a Kube Node.
 */
 type Node interface {
 	Initialize() Node
+	Provision() Node
 }
 
 /*
@@ -26,6 +27,7 @@ Controller is a Kube Node type that provides a control plane for Workers.
 */
 type Controller struct {
 	Connection contempt.Connection
+	provider   *cluster.Provider
 }
 
 /*
@@ -34,27 +36,20 @@ Initialize the Node.
 func (node Controller) Initialize() Node {
 	errnie.Traces()
 
-	provider := cluster.NewProvider()
+	node.provider = cluster.NewProvider()
 
 	// Build a Kind Cluster running inside a Container.
 	errnie.Logs("building local Kubernetes cluster").With(errnie.INFO)
-	errnie.Handles(provider.Create("kind")).With(errnie.KILL)
+	errnie.Handles(node.provider.Create("kind")).With(errnie.KILL)
 	errnie.Logs("cluster has gone up").With(errnie.INFO)
 
 	return node
 }
 
 /*
-Worker is a Kube Node type that only does Worker.
+Provision the Node.
 */
-type Worker struct {
-	Connection contempt.Connection
-}
-
-/*
-Initialize the Node.
-*/
-func (node Worker) Initialize() Node {
+func (node Controller) Provision() Node {
 	errnie.Traces()
 	return node
 }

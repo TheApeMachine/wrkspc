@@ -44,6 +44,11 @@ AddNode connects a Node to this Cluster instance.
 */
 func (cluster *Cluster) AddNode(node Node) *Cluster {
 	errnie.Traces()
-	cluster.nodes = append(cluster.nodes, node)
+
+	go func() {
+		node.Provision()
+		cluster.nodes = append(cluster.nodes, node)
+	}()
+
 	return cluster
 }

@@ -24,14 +24,14 @@ spec:
           kind:
             type: string
           metadata:
-            type: object
-          spec:
-            type: object
-            x-kubernetes-map-type: atomic
-            x-kubernetes-preserve-unknown-fields: true
-        required:
-        - metadata
-        - spec
+           type: object
+         spec:
+           type: object
+           x-kubernetes-map-type: atomic
+           x-kubernetes-preserve-unknown-fields: true
+       required:
+       - metadata
+       - spec
         type: object
     served: true
     storage: true
@@ -61,18 +61,18 @@ spec:
           kind:
             type: string
           metadata:
-            type: object
-          spec:
-            type: object
-            x-kubernetes-map-type: atomic
-            x-kubernetes-preserve-unknown-fields: true
-          status:
-            type: object
-            x-kubernetes-map-type: atomic
-            x-kubernetes-preserve-unknown-fields: true
-        required:
-        - metadata
-        - spec
+           type: object
+         spec:
+           type: object
+           x-kubernetes-map-type: atomic
+           x-kubernetes-preserve-unknown-fields: true
+         status:
+           type: object
+           x-kubernetes-map-type: atomic
+           x-kubernetes-preserve-unknown-fields: true
+       required:
+       - metadata
+       - spec
         type: object
     served: true
     storage: true
@@ -101,14 +101,14 @@ spec:
           kind:
             type: string
           metadata:
-            type: object
-          spec:
-            type: object
-            x-kubernetes-map-type: atomic
-            x-kubernetes-preserve-unknown-fields: true
-        required:
-        - metadata
-        - spec
+           type: object
+         spec:
+           type: object
+           x-kubernetes-map-type: atomic
+           x-kubernetes-preserve-unknown-fields: true
+       required:
+       - metadata
+       - spec
         type: object
     served: true
     storage: true
@@ -147,18 +147,18 @@ spec:
           kind:
             type: string
           metadata:
-            type: object
-          spec:
-            type: object
-            x-kubernetes-map-type: atomic
-            x-kubernetes-preserve-unknown-fields: true
-          status:
-            type: object
-            x-kubernetes-map-type: atomic
-            x-kubernetes-preserve-unknown-fields: true
-        required:
-        - metadata
-        - spec
+           type: object
+         spec:
+           type: object
+           x-kubernetes-map-type: atomic
+           x-kubernetes-preserve-unknown-fields: true
+         status:
+           type: object
+           x-kubernetes-map-type: atomic
+           x-kubernetes-preserve-unknown-fields: true
+       required:
+       - metadata
+       - spec
         type: object
     served: true
     storage: true
@@ -188,18 +188,18 @@ spec:
           kind:
             type: string
           metadata:
-            type: object
-          spec:
-            type: object
-            x-kubernetes-map-type: atomic
-            x-kubernetes-preserve-unknown-fields: true
-          status:
-            type: object
-            x-kubernetes-map-type: atomic
-            x-kubernetes-preserve-unknown-fields: true
-        required:
-        - metadata
-        - spec
+           type: object
+         spec:
+           type: object
+           x-kubernetes-map-type: atomic
+           x-kubernetes-preserve-unknown-fields: true
+         status:
+           type: object
+           x-kubernetes-map-type: atomic
+           x-kubernetes-preserve-unknown-fields: true
+       required:
+       - metadata
+       - spec
         type: object
     served: true
     storage: true
@@ -228,14 +228,14 @@ spec:
           kind:
             type: string
           metadata:
-            type: object
-          spec:
-            type: object
-            x-kubernetes-map-type: atomic
-            x-kubernetes-preserve-unknown-fields: true
-        required:
-        - metadata
-        - spec
+           type: object
+         spec:
+           type: object
+           x-kubernetes-map-type: atomic
+           x-kubernetes-preserve-unknown-fields: true
+       required:
+       - metadata
+       - spec
         type: object
     served: true
     storage: true
@@ -621,13 +621,13 @@ spec:
             drop:
             - ALL
         volumeMounts:
-        - mountPath: /tmp
-          name: tmp
-      nodeSelector:
-        kubernetes.io/os: linux
-      securityContext:
-        runAsNonRoot: true
-      serviceAccountName: argo-server
+       - mountPath: /tmp
+         name: tmp
+     nodeSelector:
+       kubernetes.io/os: linux
+     securityContext:
+       runAsNonRoot: true
+     serviceAccountName: argo-server
       volumes:
       - emptyDir: {}
         name: tmp
@@ -678,10 +678,10 @@ spec:
           capabilities:
             drop:
             - ALL
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-      nodeSelector:
-        kubernetes.io/os: linux
-      securityContext:
-        runAsNonRoot: true
-      serviceAccountName: argo
+         readOnlyRootFilesystem: true
+         runAsNonRoot: true
+     nodeSelector:
+       kubernetes.io/os: linux
+     securityContext:
+       runAsNonRoot: true
+     serviceAccountName: argo

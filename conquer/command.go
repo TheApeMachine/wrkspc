@@ -63,7 +63,7 @@ func (command *Command) Execute() chan error {
 			os.Exit(1)
 		}
 
-		// Start a new Scanner so we can gather the network client we have access to.
+		// Start a new Scanner so we can gather the network hosts we have access to.
 		scanner := contempt.NewScanner(&contempt.Range{From: 1, To: 255})
 
 		for connection := range scanner.Sweep() {

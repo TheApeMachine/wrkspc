@@ -380,18 +380,18 @@ spec:
             - NET_RAW
             drop:
             - ALL
-          readOnlyRootFilesystem: true
-      hostNetwork: true
-      nodeSelector:
-        kubernetes.io/os: linux
-      serviceAccountName: speaker
-      terminationGracePeriodSeconds: 2
-      tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
-        operator: Exists
----
-apiVersion: apps/v1
+        readOnlyRootFilesystem: true
+    hostNetwork: true
+    nodeSelector:
+      kubernetes.io/os: linux
+    serviceAccountName: speaker
+    terminationGracePeriodSeconds: 2
+    tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists
+-
+iVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -432,12 +432,12 @@ spec:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
-            - all
-          readOnlyRootFilesystem: true
-      nodeSelector:
-        kubernetes.io/os: linux
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65534
+          - all
+        readOnlyRootFilesystem: true
+    nodeSelector:
+      kubernetes.io/os: linux
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
       serviceAccountName: controller
       terminationGracePeriodSeconds: 0

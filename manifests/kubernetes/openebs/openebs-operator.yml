@@ -182,22 +182,22 @@ spec:
                     description: 'If referring to a piece of an object instead of an entire object, this string should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2]. For example, if the object reference is to a container within a pod, this would take on a value like: "spec.containers{name}" (where "name" refers to the name of the container that triggered the event) or if no container name is specified "spec.containers[2]" (container with index 2 in this pod). This syntax is chosen only to have some well-defined way of referencing a part of an object. TODO: this design is not final and this field is subject to change in the future.'
                     type: string
                   kind:
-                    description: 'Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-                    type: string
-                  name:
-                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
-                    type: string
-                  namespace:
-                    description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/'
-                    type: string
-                  resourceVersion:
-                    description: 'Specific resourceVersion to which this reference is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency'
-                    type: string
-                  uid:
-                    description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
-                    type: string
-                type: object
-              details:
+                  description: 'Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+                  type: string
+                name:
+                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                  type: string
+                namespace:
+                  description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/'
+                  type: string
+                resourceVersion:
+                  description: 'Specific resourceVersion to which this reference is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency'
+                  type: string
+                uid:
+                  description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
+                  type: string
+              type: object
+            details:
                 description: Details contain static attributes of BD like model,serial, and so forth
                 properties:
                   compliance:
@@ -277,13 +277,13 @@ spec:
                     type: string
                 type: object
               nodeAttributes:
-                description: NodeAttributes has the details of the node on which BD is attached
-                properties:
-                  nodeName:
-                    description: NodeName is the name of the Kubernetes node resource on which the device is attached
-                    type: string
-                type: object
-              parentDevice:
+              description: NodeAttributes has the details of the node on which BD is attached
+              properties:
+                nodeName:
+                  description: NodeName is the name of the Kubernetes node resource on which the device is attached
+                  type: string
+              type: object
+            parentDevice:
                 description: "ParentDevice was intended to store the UUID of the parent Block Device as is the case for partitioned block devices. \n For example: /dev/sda is the parent for /dev/sda1 To be deprecated"
                 type: string
               partitioned:
@@ -382,16 +382,16 @@ spec:
                 description: BlockDeviceName is the reference to the block-device backing this claim
                 type: string
               blockDeviceNodeAttributes:
-                description: BlockDeviceNodeAttributes is the attributes on the node from which a BD should be selected for this claim. It can include nodename, failure domain etc.
-                properties:
-                  hostName:
-                    description: HostName represents the hostname of the Kubernetes node resource where the BD should be present
-                    type: string
-                  nodeName:
-                    description: NodeName represents the name of the Kubernetes node resource where the BD should be present
-                    type: string
-                type: object
-              deviceClaimDetails:
+              description: BlockDeviceNodeAttributes is the attributes on the node from which a BD should be selected for this claim. It can include nodename, failure domain etc.
+              properties:
+                hostName:
+                  description: HostName represents the hostname of the Kubernetes node resource where the BD should be present
+                  type: string
+                nodeName:
+                  description: NodeName represents the name of the Kubernetes node resource where the BD should be present
+                  type: string
+              type: object
+            deviceClaimDetails:
                 description: Details of the device to be claimed
                 properties:
                   allowPartition:
@@ -417,13 +417,13 @@ spec:
                   requests:
                     additionalProperties:
                       anyOf:
-                      - type: integer
-                      - type: string
-                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                      x-kubernetes-int-or-string: true
-                    description: 'Requests describes the minimum resources required. eg: if storage resource of 10G is requested minimum capacity of 10G should be available TODO for validating'
-                    type: object
-                required:
+                    - type: integer
+                    - type: string
+                    pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                    x-kubernetes-int-or-string: true
+                  description: 'Requests describes the minimum resources required. eg: if storage resource of 10G is requested minimum capacity of 10G should be available TODO for validating'
+                  type: object
+              required:
                 - requests
                 type: object
               selector:
@@ -537,13 +537,13 @@ spec:
     metadata:
       labels:
         name: openebs-ndm
-        openebs.io/component-name: ndm
-        openebs.io/version: 3.0.0
-    spec:
-      # By default the node-disk-manager will be run on all kubernetes nodes
-      # If you would like to limit this to only some nodes, say the nodes
-      # that have storage attached, you could label those node and use
-      # nodeSelector.
+      openebs.io/component-name: ndm
+      openebs.io/version: 3.0.0
+  spec:
+    # By default the node-disk-manager will be run on all kubernetes nodes
+    # If you would like to limit this to only some nodes, say the nodes
+    # that have storage attached, you could label those node and use
+    # nodeSelector.
       #
       # e.g. label the storage nodes with - "openebs.io/nodegroup"="storage-node"
       # kubectl label node <node-name> "openebs.io/nodegroup"="storage-node"

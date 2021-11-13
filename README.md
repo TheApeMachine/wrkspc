@@ -9,14 +9,14 @@ end-to-end experience.
 
 Fork it, make it your own. It has an `Unlicense`.
 
-## Features
+ Features
 
-- [x] Built-in Kubernetes Distribution:
-      It can deploy itself as a cluster or connect to an existing cluster so all your tools,
-			services, and anything else can run on Kubernetes.
-	- [x] Deploy local Kind cluster when no existing `~/.kube/config` is found.
-	- [x] Connect to existing cluster is config file is found.
-	- [x] Include selection of open source package manifests:
+[x] Built-in Kubernetes Distribution:
+    It can deploy itself as a cluster or connect to an existing cluster so all your tools,
+	services, and anything else can run on Kubernetes.
+ [x] Deploy local Kind cluster when no existing `~/.kube/config` is found.
+ [x] Connect to existing cluster is config file is found.
+ [x] Include selection of open source package manifests:
 		- [x] Weavenet & Weave Scope
 		- [x] MetalLB
 		- [x] OpenEBS & Min IO
@@ -40,13 +40,13 @@ Fork it, make it your own. It has an `Unlicense`.
 	- [ ] Commands are automatically aliased on subsequent runs.
 - [x] Dynamically Building Development Environment:
       All commands on the terminal are proxied through `wrkspc`, whether they exist or not on
-			the local machine. A containerized version of that command (if you first create that image
-			of course) is pulled from a registry and executed that way.
-- [x] stck:
-      Stack is a connection with the Docker and Kubernetes APIs through which we can build and
-			run Dockerfiles, and deploy yaml based manifest files respectively.
-			manifest files. The local path `~/.wrkspc/stck` is created automatically and the default
-			config of the cluster distribution is written in there. Anything added or removed from
+	the local machine. A containerized version of that command (if you first create that image
+	of course) is pulled from a registry and executed that way.
+[x] stck:
+    Stack is a connection with the Docker and Kubernetes APIs through which we can build and
+	run Dockerfiles, and deploy yaml based manifest files respectively.
+	manifest files. The local path `~/.wrkspc/stck` is created automatically and the default
+	config of the cluster distribution is written in there. Anything added or removed from
 			that path will be reflected in the cluster.
 - [ ] bcknd:
       Backend is a fully featured ETL pipeline that is highly opinionated. It uses an approach
@@ -165,13 +165,13 @@ That means that you can always predict the first type when retrieving stored byt
 storage solution, which when unmarshaled back to a `datagram` will reveal the inner type through
 the `context` header which you can use to unmarshal the `payload`.
 
-## Step 4: Deployment
+ Step 4: Deployment
 
-If you are using all or mostly defaults, some form of cluster is already running. Either it was
-built as a Kind (Kubernetes in Docker) cluster locally, or an existing config was found and used
-to run the development environment.
+ you are using all or mostly defaults, some form of cluster is already running. Either it was
+ilt as a Kind (Kubernetes in Docker) cluster locally, or an existing config was found and used
+ run the development environment.
 
-There are a few ways in which you can deploy a more production ready version.
+ere are a few ways in which you can deploy a more production ready version.
 
 ```zsh
 # Automatic Network Replication will scan any network you are connected to for live hosts and
