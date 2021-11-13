@@ -1,0 +1,28 @@
+systemd:
+  units:
+    - name: installer.service
+      enabled: true
+      contents: |
+        [Unit]
+        Requires=network-online.target
+        After=network-online.target
+        [Service]
+        Type=forking
+        TimeoutStartSec=600
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/sh -c "flatcar-install -d /dev/sda -i /opt/ignition.json && udevadm settle && systemctl reboot"
+        [Install]
+        WantedBy=multi-user.target
+passwd:
+  users:
+    - name: danny
+      ssh_authorized_keys:
+        - ""
+storage:
+  files:
+    - path: /opt/ignition.json
+      filesystem: root
+      mode: 777
+      contents:
+        remote:
+          url: http://192.168.0.164:8080/allied-mastercomputer-ignite-boot.ign

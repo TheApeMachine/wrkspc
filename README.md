@@ -9,7 +9,34 @@ end-to-end experience.
 
 Fork it, make it your own. It has an `Unlicense`.
 
- Features
+## TL;DR
+
+- amsh      : Ape Machine Shell, an interactive terminal environment with TUI to use wrkspc.
+- auth      : Ssh authenticaion (to be removed).
+- bcknd     : Default built-in backend service.
+- berrt     : Terminal UI styles.
+- brazil    : File system management.
+- cmd       : Cobra Commander CLI (usually good to start there, it's the real entrypoint). (Also contains the embedded config file written to `~/.wrkspc` on first run).
+- conquer   : Command orchestrator
+- contempt  : Network abuse.
+- docs      : Auto generated docs from Cobra Commander CLI.
+- errnie    : Custom error and logging package.
+- fellini   : Terminal UI templates and components.
+- git       : Git functionality.
+- hefner    : Experimental and unfinished concurrency and distribution abstraction.
+- hello     : Possibly will oprchestrate hefner pipes.
+- kube      : All things Kubernetes.
+- kubrick   : Terminal UI core.
+- machine   : Abstraction of a network machine.
+- manifests : Dockerfiles (built-in tools) and Kubernetes manifests (distro). (Check out the Grafana folder for 3 bonus templates that kick-start custom plugin development).
+- matrix    : All things container, including ContainerD daemon.
+- please    : (Network) requests.
+- spdg      : Custom (cloud native) datatype that makes everything easy, and essential to the `bcknd` design.
+- twoface   : Custom concurrency "primitives" and other helpers for making complicated workflows easier to manage.
+
+> Documentation below is a moving target. Some of it is done, some of it is already changed, some of it is just notes.
+
+ ## Features
 
 - [x] Built-in Kubernetes Distribution:
     It can deploy itself as a cluster or connect to an existing cluster so all your tools,
@@ -38,24 +65,26 @@ Fork it, make it your own. It has an `Unlicense`.
 			a daemon will be started when needed.
 	- [ ] Commands are proxied through binary to run in containers.
 	- [ ] Commands are automatically aliased on subsequent runs.
-- [x] Dynamically Building Development Environment:
+- [ ] Dynamically Building Development Environment:
       All commands on the terminal are proxied through `wrkspc`, whether they exist or not on
-	the local machine. A containerized version of that command (if you first create that image
-	of course) is pulled from a registry and executed that way.
-[x] stck:
-    Stack is a connection with the Docker and Kubernetes APIs through which we can build and
-	run Dockerfiles, and deploy yaml based manifest files respectively.
-	manifest files. The local path `~/.wrkspc/stck` is created automatically and the default
-	config of the cluster distribution is written in there. Anything added or removed from
-			that path will be reflected in the cluster.
+	  the local machine. A containerized version of that command (if you first create that image
+	  of course) is pulled from a registry and executed that way.
+- [ ] stck:
+      Stack is a connection with the Docker and Kubernetes APIs through which we can build and
+      run Dockerfiles, and deploy yaml based manifest files respectively.
+	  manifest files. The local path `~/.wrkspc/stck` is created automatically and the default
+	  config of the cluster distribution is written in there. Anything added or removed from
+	  that path will be reflected in the cluster.
 - [ ] bcknd:
       Backend is a fully featured ETL pipeline that is highly opinionated. It uses an approach
-			based on a data lake, schemaless data, no databases, a mono type request path, streams,
-			dynamic projections, and a single endpoint. It should cover a lot of use-cases.
+	  based on a data lake, schemaless data, no databases, a mono type request path, streams,
+	  dynamic projections, and a single endpoint. It should cover a lot of use-cases.
   - [x] Setup Ingress and Egress.
 	- [x] Accept Datagram format in.
 	- [x] Push Datagram format out.
 	- [x] Send `topic key` on Egress triggering request.
+	- [ ] Add immutable Radix Tree in-memory lookup index.
+	- [ ] Add automated breakdown of data structures, mutators, and synthesizers.
 
 ## How it Works
 
@@ -67,7 +96,7 @@ code and infrastructure the same. Not `Infrastructure as Code`, but `infra == co
 
 Let's look at the functionality from the development side upwards.
 
-## Step 1: Preparing a New Machine
+### Step 1: Preparing a New Machine
 
 Install (or build) the binary for the platform of the machine you are working on.
 
@@ -90,7 +119,7 @@ Done.
 
 I call it "the last fresh install you'll ever need to do."
 
-## Step 2: Development
+### Step 2: Development
 
 Depending on how you want to approach things, you can either clear out, or customize `bcknd`
 and work in there to have your code integrate more deeply with `wrkspc` and its features.
@@ -121,7 +150,7 @@ A tty will be attached when needed.
 
 You can either customize the included configs, or build your own entirely.
 
-## Step 3: Running Services
+### Step 3: Running Services
 
 Using the features of the Cobra CLI package `wrkspc` can run in various "modes".
 
@@ -192,7 +221,7 @@ into (by default) `staging`, `qa`, `production`, and `hotfix` environments.
 > the `serve` command documentations in `./docs/` to get an understanding on how to deploy a built-in
 > service manually.
 
-## Step 5: Operations
+### Step 5: Operations
 
 By default you get a monitoring and logging stack, for which below is a list of frontends you
 can visit.
@@ -208,7 +237,7 @@ can visit.
 You can find everything you need should you want to customize things to your needs in the
 `~/.wrkspc/` path and the `~/wrkspc.yml`.
 
-## Step 6: Cleanup
+### Step 6: Cleanup
 
 If you want to leave the machine you are working on in a clean state it was previously in, you
 can use the command below.
@@ -228,7 +257,7 @@ shape as much as possible.
 $ wrkspc tidy
 ```
 
-## Frequently Asked Questions
+### Frequently Asked Questions
 
 - So it is monolithic?
   It is yes. But only from a code perspective I suppose. I does break the "no shared resources" idea

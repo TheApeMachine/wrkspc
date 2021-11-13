@@ -1,0 +1,29 @@
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - ""
+    - name: danny
+      password_hash: ""
+      ssh_authorized_keys:
+        - ""
+      groups: [ sudo, docker ]
+storage:
+  files:
+    - path: /etc/hostname
+      filesystem: root
+      mode: 0644      
+      contents:
+        inline: deep-thought
+
+networkd:
+  units:
+    - name: 00-eth0.network
+      contents: |
+        [Match]
+        Name=enp4s0
+
+        [Network]
+        DNS=8.8.8.8
+        Address=192.168.0.144/24
+        Gateway=192.168.0.1

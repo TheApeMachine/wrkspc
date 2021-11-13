@@ -1,4 +1,4 @@
-FROM rocsys/alpine
+FROM theapemachine/alpine
 
 # Add a very minimal root filesystem.
 ADD alpine-minirootfs-3.14.0-x86_64.tar.gz /

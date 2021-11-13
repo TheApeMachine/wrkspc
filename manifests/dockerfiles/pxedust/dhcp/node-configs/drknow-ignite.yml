@@ -1,0 +1,26 @@
+etcd:
+  discovery: https://discovery.etcd.io/57659e39923a80faf80751bda1c155e6
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - ""
+storage:
+  files:
+    - path: /etc/hostname
+      filesystem: root
+      mode: 0644      
+      contents:
+        inline: drknow
+
+networkd:
+  units:
+    - name: 00-eth0.network
+      contents: |
+        [Match]
+        Name=enp4s0
+
+        [Network]
+        DNS=8.8.8.8
+        Address=192.168.0.143/24
+        Gateway=192.168.0.1

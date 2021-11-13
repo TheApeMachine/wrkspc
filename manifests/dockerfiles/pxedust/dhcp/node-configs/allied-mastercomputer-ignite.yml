@@ -1,0 +1,12 @@
+passwd:
+  users:
+    - name: danny
+      ssh_authorized_keys:
+        - ""
+storage:
+  files:
+    - path: /etc/hostname
+      filesystem: root
+      mode: 0644      
+      contents:
+        inline: allied-mastercomputer

@@ -11,4 +11,4 @@ spec:
   http:
     tls:
       certificate:
-        secretName: rocsys-dev-cert
+        secretName: theapemachine-dev-cert

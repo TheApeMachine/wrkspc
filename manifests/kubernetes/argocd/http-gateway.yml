@@ -15,4 +15,4 @@ spec:
       mode: SIMPLE
       credentialName: gateway-cert
     hosts:
-    - "argocd.rocsys-dev.com"
+    - "argocd.cluster.local"

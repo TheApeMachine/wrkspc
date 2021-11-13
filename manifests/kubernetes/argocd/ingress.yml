@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   hosts:
-  - "argocd.rocsys.dev"
+  - "argocd.cluster.local"
   gateways:
   - istio-system/istio-system-gateway
   http:

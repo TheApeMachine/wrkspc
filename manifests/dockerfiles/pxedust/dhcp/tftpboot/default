@@ -1,0 +1,30 @@
+DEFAULT flatcar
+  SAY Now booting in the PXE Boot MENU...
+
+LABEL drknow
+  MENU LABEL flatcar
+  KERNEL flatcar_production_pxe.vmlinuz
+  INITRD flatcar_production_pxe_image.cpio.gz
+
+MENU CMDLINEROW 15
+MENU COLOR title 1;34;49 #eea0a0ff #cc333355 std
+MENU COLOR sel 7;37;40 #ff000000 #bb9999aa all
+MENU COLOR border 30;44 #ffffffff #00000000 std
+MENU COLOR pwdheader 31;47 #eeff1010 #20ffffff std
+MENU COLOR hotkey 35;40 #90ffff00 #00000000 std
+MENU COLOR hotsel 35;40 #90000000 #bb9999aa all
+MENU COLOR timeout_msg 35;40 #90ffffff #00000000 none
+MENU COLOR timeout 31;47 #eeff1010 #00000000 none
+MENU ENDROW 24
+MENU MARGIN 10
+MENU PASSWORDMARGIN 3
+MENU PASSWORDROW 11
+MENU ROWS 10
+MENU TABMSGROW 15
+MENU TIMEOUTROW 16
+MENU TITLE PXE Boot MENU
+MENU WIDTH 80
+
+PROMPT 1
+TIMEOUT 50
+UI menu.c32

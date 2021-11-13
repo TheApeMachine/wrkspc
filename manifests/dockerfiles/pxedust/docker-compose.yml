@@ -1,0 +1,53 @@
+version: "3"
+
+networks:
+  secure-net:
+
+services:
+  # This service provides both the PXE server and the
+  # web server that hosts the config files for flatcar linux
+  # first boot OS configuration. Have to build from scratch as
+  # during provision there may not be a private container
+  # registry for us to use yet.
+  dhcp:
+    build: ./dhcp
+    environment:
+      VAULT_ADDR: "http://vault-server:8200"
+    networks:
+      - secure-net
+    ports:
+      - "67:67"
+      - "69:69"
+      - "4011:4011"
+      - "8000:8000"
+
+  # We run a temporary vault services to secure the installation
+  # process and take care of any credentials needed during.
+  # This ensures an fully secure process from the beginning and
+  # no person will have any knowledge of active keys in the system.
+  # WARNING: DO NOT TAKE THIS DOWN UNTIL KEYS ARE MIGRATED TO THE
+  #          IN-CLUSTER VAULT, OR YOU CAN START OVER!
+  vault-server:
+    image: vault:latest -config /etc/vault
+    cap_add:
+      - IPC_LOCK # Prevent memory swapping, no creds on the fs!
+    environment:
+      VAULT_ADDR: "http://0.0.0.0:8200"
+      VAULT_DEV_ROOT_TOKEN_ID: "vault-plaintext-root-token"
+    volumes:
+      - ./config:/etc/vault
+    networks:
+      - secure-net
+    ports:
+      - "8200:8200"
+
+  # Unfortunately they do not provide an official Dockerfile, so we are
+  # building from source here, because in provisioning we can also not
+  # guarantee our private container registry is running. We are using this
+  # to distribute the key fragments from vault to a selection of key holders.
+  lastpass-cli:
+    build: ./lastpass
+    networks:
+      - secure-net
+    ports:
+      - "8090:8090"
