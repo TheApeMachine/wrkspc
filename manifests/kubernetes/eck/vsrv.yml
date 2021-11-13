@@ -1,0 +1,60 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: https-gateway
+  namespace: logging
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https-443
+      protocol: HTTPS
+    tls:
+      mode: PASSTHROUGH
+    hosts:
+    - "elastic.cluster.local"
+    - "kibana.cluster.local"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: kibana-vsrv
+  namespace: logging
+spec:
+  hosts:
+  - "kibana.cluster.local"
+  gateways:
+    - logging/https-gateway
+  tls:
+  - match:
+    - port: 443
+      sniHosts:
+      - "kibana.cluster.local"
+    route:
+    - destination:
+        host: elastic-kb-http
+        port:
+          number: 5601
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: elastic-vsrv
+  namespace: logging
+spec:
+  hosts:
+  - "elastic.cluster.local"
+  gateways:
+    - logging/https-gateway
+  tls:
+  - match:
+    - port: 443
+      sniHosts:
+      - "elastic.cluster.local"
+    route:
+    - destination:
+        host: elastic-es-http
+        port:
+          number: 9200

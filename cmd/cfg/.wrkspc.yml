@@ -1,0 +1,35 @@
+program: wrkspc
+
+wrkspc:
+  # The current stage to run under.
+  stage: local
+
+  # Stage specific configurations.
+  stages:
+    local:
+      debug: true
+      trace: true
+
+  # Configure various elements for the `run` command.
+  run:
+    pre: |
+      # This is just a shell script.
+    post: |
+      # This is just a shell script.
+
+  bcknd:
+    port: 8008
+    read-timeout: 10
+    writeTimeout: 10
+
+  # Configure the automatic cluster propagation. Using this feature
+  # will automatically take over any machine you have access to on
+  # the local network and provision it as a cluster node.
+  contempt:
+    # All usernames and passwords to try during the making of
+    # connections to machines found on the network. These will
+    # be tried in all possible combinations. To avoid spamming your
+    # ssh daemons with failed logins, have a keypair setup in the
+    # default location on your host OS as this will be tried first.
+    usernames: []
+    passwords: []
