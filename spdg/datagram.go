@@ -2,10 +2,7 @@ package spdg
 
 import (
 	"bytes"
-	"encoding/json"
 	"time"
-
-	"github.com/theapemachine/wrkspc/errnie"
 )
 
 /*
@@ -49,13 +46,4 @@ func ContextDatagram(role ContextRole, annotations ...Annotation) *Datagram {
 			Annotations: annotations,
 		}, nil,
 	)
-}
-
-/*
-Marshal the Datagram.
-*/
-func (datagram *Datagram) Marshal() []byte {
-	out, err := json.Marshal(datagram)
-	errnie.Handles(err).With(errnie.NOOP)
-	return out
 }

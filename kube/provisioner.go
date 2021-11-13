@@ -1,4 +1,4 @@
-package infrastructure
+package kube
 
 import (
 	"bytes"
@@ -6,25 +6,28 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/viper"
+	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/kube"
 	"gopkg.in/yaml.v2"
 )
 
+/*
+Provisioner brings clusters up.
+*/
 type Provisioner struct {
-	cfg            kube.Config
-	client         kube.RestClient
-	extendedClient kube.ExtendedClient
-	ebsclient      kube.OpenEBSClient
+	cfg            Config
+	client         RestClient
+	extendedClient ExtendedClient
+	ebsclient      OpenEBSClient
 	config         string
 	rootpath       string
-	stack          []kube.MigratableKind
+	stack          []MigratableKind
 }
 
 /*
-KubeKind is a wrapper around the file data of a manifest.
+Kind is a wrapper around the file data of a manifest.
 */
-type KubeKind struct {
+type Kind struct {
 	Kind string `yaml:"kind"`
 	Path string
 	File []byte
@@ -32,19 +35,20 @@ type KubeKind struct {
 }
 
 /*
-NewwProvisioner constructs an object that can be used to configure and run
+NewProvisioner constructs an object that can be used to configure and run
 full deployment plan, designed to bring up a Kubernetes cluster.
 */
 func NewProvisioner(config string) Provisioner {
-	cfg := kube.NewConfig()
+	errnie.Traces()
+	cfg := NewConfig()
 
 	return Provisioner{
 		cfg:            cfg,
-		client:         kube.NewRestClient(),
-		extendedClient: kube.NewExtendedClient(cfg),
-		ebsclient:      kube.NewOpenEBSClient(cfg),
+		client:         NewRestClient(),
+		extendedClient: NewExtendedClient(cfg),
+		ebsclient:      NewOpenEBSClient(cfg),
 		config:         config,
-		stack:          make([]kube.MigratableKind, 0),
+		stack:          make([]MigratableKind, 0),
 	}
 }
 
@@ -53,19 +57,27 @@ Deploy reads in the cluster configuration referenced by name in the ~/.wrkspc.ym
 file and deploys an exact version of that configuration. It keeps an internal
 stack of deployed cluster Kinds so it can be gracefully torn down.
 */
-func (infra Provisioner) Deploy() error {
-	plan := viper.GetStringMapStringSlice("infrastructures." + infra.config)
-	infra.rootpath = plan["rootpath"][0]
+func (infra Provisioner) Deploy() Provisioner {
+	errnie.Traces()
+	plan := viper.GetStringSlice("wrkspc.kube.distro")
+	infra.rootpath = brazil.Workdir() + "/manifests/kubernetes/"
 
 	// Let's bring the entire cluster up.
-	for _, step := range plan["config"] {
+	for _, step := range plan {
 		// Append the new cluster Kind to the provisioner stack so we have a
 		// reference should we want to tear things back down if we have too
 		// many critical errors during up.
-		infra.stack = append(infra.stack, infra.nextStep(infra.rootpath+step, true)...)
+		for _, fi := range brazil.ReadPath(infra.rootpath + step) {
+			if fi.IsDir() {
+				continue
+			}
+			path := infra.rootpath + step + "/" + fi.Name()
+			errnie.Logs("open file ", path).With(errnie.INFO)
+			infra.stack = append(infra.stack, infra.nextStep(path, false)...)
+		}
 	}
 
-	return nil
+	return infra
 }
 
 /*
@@ -75,6 +87,7 @@ TODO: Save the provisioner stack to a yml file so it can be used after the fact.
       Don't be stupid, just load the initial config and reverse it, duh.
 */
 func (infra Provisioner) Teardown() error {
+	errnie.Traces()
 	plan := viper.GetStringMapStringSlice("infrastructures." + infra.config)
 
 	// Load the plan in the stack format so we can reverse it.
@@ -82,7 +95,13 @@ func (infra Provisioner) Teardown() error {
 		// Append the new cluster Kind to the provisioner stack so we have a
 		// reference should we want to tear things back down if we have too
 		// many critical errors during up.
-		infra.stack = append(infra.stack, infra.nextStep(infra.rootpath+step, false)...)
+
+		for _, fi := range brazil.ReadPath(infra.rootpath + step) {
+			infra.stack = append(
+				infra.stack,
+				infra.nextStep(infra.rootpath+step+"/"+fi.Name(), false)...,
+			)
+		}
 	}
 
 	// Tear it all back down in reverse order.
@@ -102,14 +121,15 @@ func (infra Provisioner) Teardown() error {
 	return nil
 }
 
-func (infra Provisioner) nextStep(step string, direction bool) []kube.MigratableKind {
+func (infra Provisioner) nextStep(step string, direction bool) []MigratableKind {
+	errnie.Traces()
 	switch filepath.Ext(step) {
 	case ".yml", ".yaml":
 		// Since many manifest files are built up of individually creatable items
 		// we need to separate those and collect them in a sub stack that we can
 		// merge with the overal stack that describes the deployment plan upstream.
 		subs := infra.splitTypes(step, "---")
-		subStack := make([]kube.MigratableKind, len(subs))
+		subStack := make([]MigratableKind, len(subs))
 
 		for idx, t := range subs {
 			kind, _ := infra.getKind(step, t, true)
@@ -131,7 +151,7 @@ func (infra Provisioner) nextStep(step string, direction bool) []kube.Migratable
 		// Similarly shell scipts will be lines of individual commands we want to
 		// pass to our provisioner to execute.
 		subs := infra.splitTypes(step, "\n")
-		subStack := make([]kube.MigratableKind, len(subs))
+		subStack := make([]MigratableKind, len(subs))
 
 		for idx, t := range subs {
 			// This needs no unmarshaling, so pass false as the final argument.
@@ -150,43 +170,44 @@ func (infra Provisioner) nextStep(step string, direction bool) []kube.Migratable
 		return subStack
 	}
 
-	return []kube.MigratableKind{}
+	return []MigratableKind{}
 }
 
-func (infra Provisioner) provisionForKind(kind KubeKind, direction bool) kube.MigratableKind {
-	var module kube.MigratableKind
+func (infra Provisioner) provisionForKind(kind Kind, direction bool) MigratableKind {
+	errnie.Traces()
+	var module MigratableKind
 
 	switch kind.Kind {
 	case "Namespace":
-		module = kube.NewNamespace(infra.client, kind.File)
+		module = NewNamespace(infra.client, kind.File)
 	case "ServiceAccount":
-		module = kube.NewServiceAccount(infra.client, kind.File)
+		module = NewServiceAccount(infra.client, kind.File)
 	case "ClusterRole":
-		module = kube.NewClusterRole(infra.client, kind.File)
+		module = NewClusterRole(infra.client, kind.File)
 	case "ClusterRoleBinding":
-		module = kube.NewClusterRoleBinding(infra.client, kind.File)
+		module = NewClusterRoleBinding(infra.client, kind.File)
 	case "CustomResourceDefinition":
-		module = kube.NewCustomResourceDefinition(infra.extendedClient, kind.File)
+		module = NewCustomResourceDefinition(infra.extendedClient, kind.File)
 	case "CSIDriver":
-		module = kube.NewCSIDriver(infra.client, kind.File)
+		module = NewCSIDriver(infra.client, kind.File)
 	case "PriorityClass":
-		module = kube.NewPriorityClass(infra.client, kind.File)
+		module = NewPriorityClass(infra.client, kind.File)
 	case "StatefulSet":
-		module = kube.NewStatefulSet(infra.client, kind.File)
+		module = NewStatefulSet(infra.client, kind.File)
 	case "ConfigMap":
-		module = kube.NewConfigMap(infra.client, kind.File)
+		module = NewConfigMap(infra.client, kind.File)
 	case "DaemonSet":
-		module = kube.NewDaemonSet(infra.client, kind.File)
+		module = NewDaemonSet(infra.client, kind.File)
 	case "Deployment":
-		module = kube.NewDeployment(infra.client, kind.File)
+		module = NewDeployment(infra.client, kind.File)
 	case "Service":
-		module = kube.NewService(infra.client, kind.File)
+		module = NewService(infra.client, kind.File)
 	case "CStorPoolCluster":
-		module = kube.NewCStorPoolCluster(infra.ebsclient, kind.File)
+		module = NewCStorPoolCluster(infra.ebsclient, kind.File)
 	case "PersistentVolumeClaim":
-		module = kube.NewPersistentVolumeClaim(infra.client, kind.File)
+		module = NewPersistentVolumeClaim(infra.client, kind.File)
 	case "StorageClass":
-		module = kube.NewStorageClass(infra.client, kind.File)
+		module = NewStorageClass(infra.client, kind.File)
 	case "sh":
 	// 	module = kube.NewShellExecutor(shell.NewPosh(), kind.Line)
 	default:
@@ -200,18 +221,21 @@ func (infra Provisioner) provisionForKind(kind KubeKind, direction bool) kube.Mi
 }
 
 func (infra Provisioner) splitTypes(step string, seperator string) [][]byte {
+	errnie.Traces()
 	fd, err := ioutil.ReadFile(filepath.FromSlash(step))
 	errnie.Handles(err).With(errnie.KILL)
 	return bytes.Split(fd, []byte(seperator))
 }
 
-func (infra Provisioner) getKind(step string, fd []byte, isMarshaled bool) (KubeKind, error) {
-	var kind KubeKind
+func (infra Provisioner) getKind(step string, fd []byte, isMarshaled bool) (Kind, error) {
+	errnie.Traces()
+	var kind Kind
 	var err error
 
 	if isMarshaled {
+		errnie.Logs(string(fd)).With(errnie.DEBUG)
 		err := yaml.Unmarshal(fd, &kind)
-		errnie.Handles(err).With(errnie.KILL)
+		errnie.Handles(err).With(errnie.NOOP)
 		kind.File = fd
 	} else {
 		kind.Kind = "sh"

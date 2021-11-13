@@ -1,13 +1,13 @@
 # This is an auto-generated file. DO NOT EDIT
 apiVersion: apiextensions.k8s.io/v1
-ind: CustomResourceDefinition
-etadata:
- labels:
-   app.kubernetes.io/name: applications.argoproj.io
-   app.kubernetes.io/part-of: argocd
- name: applications.argoproj.io
-pec:
- group: argoproj.io
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    app.kubernetes.io/name: applications.argoproj.io
+    app.kubernetes.io/part-of: argocd
+  name: applications.argoproj.io
+spec:
+  group: argoproj.io
   names:
     kind: Application
     listKind: ApplicationList
@@ -422,13 +422,13 @@ pec:
           spec:
             description: ApplicationSpec represents desired application state. Contains
               link to repository with application definition and additional parameters
-             link definition revision.
-           properties:
-             destination:
-               description: Destination is a reference to the target Kubernetes server
-                 and namespace
-               properties:
-                 name:
+              link definition revision.
+            properties:
+              destination:
+                description: Destination is a reference to the target Kubernetes server
+                  and namespace
+                properties:
+                  name:
                     description: Name is an alternate way of specifying the target
                       cluster by its symbolic name
                     type: string
@@ -436,13 +436,13 @@ pec:
                     description: Namespace specifies the target namespace for the
                       application's resources. The namespace will only be set for
                       namespace-scoped resources that have not set a value for .metadata.namespace
-                   type: string
-                 server:
-                   description: Server specifies the URL of the target cluster and
-                     must be set to the Kubernetes control plane API
-                   type: string
-               type: object
-             ignoreDifferences:
+                    type: string
+                  server:
+                    description: Server specifies the URL of the target cluster and
+                      must be set to the Kubernetes control plane API
+                    type: string
+                type: object
+              ignoreDifferences:
                 description: IgnoreDifferences is a list of resources and their fields
                   which should be ignored during comparison
                 items:
@@ -1859,13 +1859,13 @@ pec:
               reconciledAt:
                 description: ReconciledAt indicates when the application state was
                   reconciled using the latest git version
-               format: date-time
-               type: string
-             resources:
-               description: Resources is a list of Kubernetes resources managed by
-                 this application
-               items:
-                 description: 'ResourceStatus holds the current sync and health status
+                format: date-time
+                type: string
+              resources:
+                description: Resources is a list of Kubernetes resources managed by
+                  this application
+                items:
+                  description: 'ResourceStatus holds the current sync and health status
                     of a resource TODO: describe members of this type'
                   properties:
                     group:
@@ -1941,13 +1941,13 @@ pec:
                               for the application's resources. The namespace will
                               only be set for namespace-scoped resources that have
                               not set a value for .metadata.namespace
-                           type: string
-                         server:
-                           description: Server specifies the URL of the target cluster
-                             and must be set to the Kubernetes control plane API
-                           type: string
-                       type: object
-                     source:
+                            type: string
+                          server:
+                            description: Server specifies the URL of the target cluster
+                              and must be set to the Kubernetes control plane API
+                            type: string
+                        type: object
+                      source:
                         description: Source is a reference to the application's source
                           used for comparison
                         properties:
@@ -2219,14 +2219,14 @@ pec:
     subresources: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
-ind: CustomResourceDefinition
-etadata:
- labels:
-   app.kubernetes.io/name: appprojects.argoproj.io
-   app.kubernetes.io/part-of: argocd
- name: appprojects.argoproj.io
-pec:
- group: argoproj.io
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    app.kubernetes.io/name: appprojects.argoproj.io
+    app.kubernetes.io/part-of: argocd
+  name: appprojects.argoproj.io
+spec:
+  group: argoproj.io
   names:
     kind: AppProject
     listKind: AppProjectList
@@ -2314,13 +2314,13 @@ pec:
                       description: Namespace specifies the target namespace for the
                         application's resources. The namespace will only be set for
                         namespace-scoped resources that have not set a value for .metadata.namespace
-                     type: string
-                   server:
-                     description: Server specifies the URL of the target cluster
-                       and must be set to the Kubernetes control plane API
-                     type: string
-                 type: object
-               type: array
+                      type: string
+                    server:
+                      description: Server specifies the URL of the target cluster
+                        and must be set to the Kubernetes control plane API
+                      type: string
+                  type: object
+                type: array
               namespaceResourceBlacklist:
                 description: NamespaceResourceBlacklist contains list of blacklisted
                   namespace level resources
@@ -2528,51 +2528,51 @@ pec:
     storage: true
 ---
 apiVersion: v1
-ind: ServiceAccount
-etadata:
- labels:
-   app.kubernetes.io/component: application-controller
-   app.kubernetes.io/name: argocd-application-controller
-   app.kubernetes.io/part-of: argocd
- name: argocd-application-controller
---
-piVersion: v1
-ind: ServiceAccount
-etadata:
- labels:
-   app.kubernetes.io/component: dex-server
-   app.kubernetes.io/name: argocd-dex-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-dex-server
---
-piVersion: v1
-ind: ServiceAccount
-etadata:
- labels:
-   app.kubernetes.io/component: redis
-   app.kubernetes.io/name: argocd-redis
-   app.kubernetes.io/part-of: argocd
- name: argocd-redis
---
-piVersion: v1
-ind: ServiceAccount
-etadata:
- labels:
-   app.kubernetes.io/component: server
-   app.kubernetes.io/name: argocd-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-server
---
-piVersion: rbac.authorization.k8s.io/v1
-ind: Role
-etadata:
- labels:
-   app.kubernetes.io/component: application-controller
-   app.kubernetes.io/name: argocd-application-controller
-   app.kubernetes.io/part-of: argocd
- name: argocd-application-controller
-ules:
- apiGroups:
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+  name: argocd-application-controller
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-dex-server
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: redis
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/part-of: argocd
+  name: argocd-redis
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-server
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+  name: argocd-application-controller
+rules:
+- apiGroups:
   - ""
   resources:
   - secrets
@@ -2603,15 +2603,15 @@ ules:
   - list
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-ind: Role
-etadata:
- labels:
-   app.kubernetes.io/component: dex-server
-   app.kubernetes.io/name: argocd-dex-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-dex-server
-ules:
- apiGroups:
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-dex-server
+rules:
+- apiGroups:
   - ""
   resources:
   - secrets
@@ -2622,15 +2622,15 @@ ules:
   - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-ind: Role
-etadata:
- labels:
-   app.kubernetes.io/component: server
-   app.kubernetes.io/name: argocd-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-server
-ules:
- apiGroups:
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-server
+rules:
+- apiGroups:
   - ""
   resources:
   - secrets
@@ -2665,15 +2665,15 @@ ules:
   - list
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-ind: ClusterRole
-etadata:
- labels:
-   app.kubernetes.io/component: application-controller
-   app.kubernetes.io/name: argocd-application-controller
-   app.kubernetes.io/part-of: argocd
- name: argocd-application-controller
-ules:
- apiGroups:
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+  name: argocd-application-controller
+rules:
+- apiGroups:
   - '*'
   resources:
   - '*'
@@ -2685,15 +2685,15 @@ ules:
   - '*'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-ind: ClusterRole
-etadata:
- labels:
-   app.kubernetes.io/component: server
-   app.kubernetes.io/name: argocd-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-server
-ules:
- apiGroups:
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-server
+rules:
+- apiGroups:
   - '*'
   resources:
   - '*'
@@ -2716,15 +2716,15 @@ ules:
   - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-ind: RoleBinding
-etadata:
- labels:
-   app.kubernetes.io/component: application-controller
-   app.kubernetes.io/name: argocd-application-controller
-   app.kubernetes.io/part-of: argocd
- name: argocd-application-controller
-oleRef:
- apiGroup: rbac.authorization.k8s.io
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+  name: argocd-application-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: argocd-application-controller
 subjects:
@@ -2732,15 +2732,15 @@ subjects:
   name: argocd-application-controller
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-ind: RoleBinding
-etadata:
- labels:
-   app.kubernetes.io/component: dex-server
-   app.kubernetes.io/name: argocd-dex-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-dex-server
-oleRef:
- apiGroup: rbac.authorization.k8s.io
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-dex-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: argocd-dex-server
 subjects:
@@ -2748,15 +2748,15 @@ subjects:
   name: argocd-dex-server
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-ind: RoleBinding
-etadata:
- labels:
-   app.kubernetes.io/component: redis
-   app.kubernetes.io/name: argocd-redis
-   app.kubernetes.io/part-of: argocd
- name: argocd-redis
-oleRef:
- apiGroup: rbac.authorization.k8s.io
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: redis
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/part-of: argocd
+  name: argocd-redis
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: argocd-redis
 subjects:
@@ -2764,15 +2764,15 @@ subjects:
   name: argocd-redis
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-ind: RoleBinding
-etadata:
- labels:
-   app.kubernetes.io/component: server
-   app.kubernetes.io/name: argocd-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-server
-oleRef:
- apiGroup: rbac.authorization.k8s.io
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: argocd-server
 subjects:
@@ -2780,15 +2780,15 @@ subjects:
   name: argocd-server
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-ind: ClusterRoleBinding
-etadata:
- labels:
-   app.kubernetes.io/component: application-controller
-   app.kubernetes.io/name: argocd-application-controller
-   app.kubernetes.io/part-of: argocd
- name: argocd-application-controller
-oleRef:
- apiGroup: rbac.authorization.k8s.io
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+  name: argocd-application-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: argocd-application-controller
 subjects:
@@ -2797,15 +2797,15 @@ subjects:
   namespace: argocd
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-ind: ClusterRoleBinding
-etadata:
- labels:
-   app.kubernetes.io/component: server
-   app.kubernetes.io/name: argocd-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-server
-oleRef:
- apiGroup: rbac.authorization.k8s.io
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: argocd-server
 subjects:
@@ -2814,38 +2814,38 @@ subjects:
   namespace: argocd
 ---
 apiVersion: v1
-ind: ConfigMap
-etadata:
- labels:
-   app.kubernetes.io/name: argocd-cm
-   app.kubernetes.io/part-of: argocd
- name: argocd-cm
---
-piVersion: v1
-ind: ConfigMap
-etadata:
- labels:
-   app.kubernetes.io/name: argocd-cmd-params-cm
-   app.kubernetes.io/part-of: argocd
- name: argocd-cmd-params-cm
---
-piVersion: v1
-ind: ConfigMap
-etadata:
- labels:
-   app.kubernetes.io/name: argocd-gpg-keys-cm
-   app.kubernetes.io/part-of: argocd
- name: argocd-gpg-keys-cm
---
-piVersion: v1
-ind: ConfigMap
-etadata:
- labels:
-   app.kubernetes.io/name: argocd-rbac-cm
-   app.kubernetes.io/part-of: argocd
- name: argocd-rbac-cm
---
-piVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+  name: argocd-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: argocd-cmd-params-cm
+    app.kubernetes.io/part-of: argocd
+  name: argocd-cmd-params-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: argocd-gpg-keys-cm
+    app.kubernetes.io/part-of: argocd
+  name: argocd-gpg-keys-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: argocd-rbac-cm
+    app.kubernetes.io/part-of: argocd
+  name: argocd-rbac-cm
+---
+apiVersion: v1
 data:
   ssh_known_hosts: |
     bitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAubiN81eDcafrgMeLzaFPsw2kNvEcqTKl/VqLat/MaB33pZy0y3rJZtnqwR2qOOvbwKZYKiEO1O6VqNEBxKvJJelCq0dTXWT5pbO2gDXC6h6QDXCaHo6pOHGPUy+YBaGQRGuSusMEASYiWunYN0vCAI8QaXnWMXNMdFP3jHAJH0eDsoiGnLPBlBp4TNm6rYI74nMzgz3B9IikW4WVK+dc8KZJZWYjAuORU3jc1c/NPskD2ASinf8v3xnfXeukU0sJ5N6m5E8VLjObPEO+mN2t/FZTMZLiFqPWc/ALSqnMnnhwrNi2rbfg/rd/IpL8Le3pSBne8+seeFVBoGqzHM9yXw==
@@ -2855,41 +2855,41 @@ data:
     gitlab.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsj2bNKTBSpIYDEGk9KxsGh3mySTRgMtXL583qmBpzeQ+jqCMRgBqB98u3z++J1sKlXHWfM9dyhSevkMwSbhoR8XIq/U0tCNyokEi/ueaBMCvbcTHhO7FcwzY92WK4Yt0aGROY5qX2UKSeOvuP4D6TPqKF1onrSzH9bx9XUf2lEdWT/ia1NEKjunUqu1xOB/StKDHMoX4/OKyIzuS0q/T1zOATthvasJFoPrAjkohTyaDUz2LN5JoH839hViyEG82yB+MjcFV5MU3N1l1QL3cVUCh93xSaua1N85qivl+siMkPGbO5xR/En4iEY6K2XPASUEMaieWVNTRCtJ4S8H+9
     ssh.dev.azure.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7Hr1oTWqNqOlzGJOfGJ4NakVyIzf1rXYd4d7wo6jBlkLvCA4odBlL0mDUyZ0/QUfTTqeu+tm22gOsv+VrVTMk6vwRU75gY/y9ut5Mb3bR5BV58dKXyq9A9UeB5Cakehn5Zgm6x1mKoVyf+FFn26iYqXJRgzIZZcZ5V6hrE0Qg39kZm4az48o0AUbf6Sp4SLdvnuMa2sVNwHBboS7EJkm57XQPVU3/QpyNLHbWDdzwtrlS+ez30S3AdYhLKEOxAG8weOnyrtLJAUen9mTkol8oII1edf7mWWbWVf0nBmly21+nZcmCTISQBtdcyPaEno7fFQMDD26/s0lfKob4Kw8H
     vs-ssh.visualstudio.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7Hr1oTWqNqOlzGJOfGJ4NakVyIzf1rXYd4d7wo6jBlkLvCA4odBlL0mDUyZ0/QUfTTqeu+tm22gOsv+VrVTMk6vwRU75gY/y9ut5Mb3bR5BV58dKXyq9A9UeB5Cakehn5Zgm6x1mKoVyf+FFn26iYqXJRgzIZZcZ5V6hrE0Qg39kZm4az48o0AUbf6Sp4SLdvnuMa2sVNwHBboS7EJkm57XQPVU3/QpyNLHbWDdzwtrlS+ez30S3AdYhLKEOxAG8weOnyrtLJAUen9mTkol8oII1edf7mWWbWVf0nBmly21+nZcmCTISQBtdcyPaEno7fFQMDD26/s0lfKob4Kw8H
-ind: ConfigMap
-etadata:
- labels:
-   app.kubernetes.io/name: argocd-ssh-known-hosts-cm
-   app.kubernetes.io/part-of: argocd
- name: argocd-ssh-known-hosts-cm
---
-piVersion: v1
-data: null
-ind: ConfigMap
-etadata:
- labels:
-   app.kubernetes.io/name: argocd-tls-certs-cm
-   app.kubernetes.io/part-of: argocd
- name: argocd-tls-certs-cm
---
-piVersion: v1
-ind: Secret
-etadata:
- labels:
-   app.kubernetes.io/name: argocd-secret
-   app.kubernetes.io/part-of: argocd
- name: argocd-secret
-ype: Opaque
---
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: argocd-ssh-known-hosts-cm
+    app.kubernetes.io/part-of: argocd
+  name: argocd-ssh-known-hosts-cm
+---
 apiVersion: v1
-ind: Service
-etadata:
- labels:
-   app.kubernetes.io/component: dex-server
-   app.kubernetes.io/name: argocd-dex-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-dex-server
-pec:
- ports:
+data: null
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: argocd-tls-certs-cm
+    app.kubernetes.io/part-of: argocd
+  name: argocd-tls-certs-cm
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/name: argocd-secret
+    app.kubernetes.io/part-of: argocd
+  name: argocd-secret
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-dex-server
+spec:
+  ports:
   - name: http
     port: 5556
     protocol: TCP
@@ -2900,131 +2900,131 @@ pec:
     targetPort: 5557
   - name: metrics
     port: 5558
-   protocol: TCP
-   targetPort: 5558
- selector:
-   app.kubernetes.io/name: argocd-dex-server
---
-piVersion: v1
-ind: Service
-etadata:
- labels:
-   app.kubernetes.io/component: metrics
-   app.kubernetes.io/name: argocd-metrics
-   app.kubernetes.io/part-of: argocd
- name: argocd-metrics
-pec:
- ports:
+    protocol: TCP
+    targetPort: 5558
+  selector:
+    app.kubernetes.io/name: argocd-dex-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/name: argocd-metrics
+    app.kubernetes.io/part-of: argocd
+  name: argocd-metrics
+spec:
+  ports:
   - name: metrics
     port: 8082
-   protocol: TCP
-   targetPort: 8082
- selector:
-   app.kubernetes.io/name: argocd-application-controller
---
-piVersion: v1
-ind: Service
-etadata:
- labels:
-   app.kubernetes.io/component: redis
-   app.kubernetes.io/name: argocd-redis
-   app.kubernetes.io/part-of: argocd
- name: argocd-redis
-pec:
- ports:
+    protocol: TCP
+    targetPort: 8082
+  selector:
+    app.kubernetes.io/name: argocd-application-controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: redis
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/part-of: argocd
+  name: argocd-redis
+spec:
+  ports:
   - name: tcp-redis
-   port: 6379
-   targetPort: 6379
- selector:
-   app.kubernetes.io/name: argocd-redis
---
-piVersion: v1
-ind: Service
-etadata:
- labels:
-   app.kubernetes.io/component: repo-server
-   app.kubernetes.io/name: argocd-repo-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-repo-server
-pec:
- ports:
+    port: 6379
+    targetPort: 6379
+  selector:
+    app.kubernetes.io/name: argocd-redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-repo-server
+spec:
+  ports:
   - name: server
     port: 8081
     protocol: TCP
     targetPort: 8081
   - name: metrics
     port: 8084
-   protocol: TCP
-   targetPort: 8084
- selector:
-   app.kubernetes.io/name: argocd-repo-server
---
-piVersion: v1
-ind: Service
-etadata:
- labels:
-   app.kubernetes.io/component: server
-   app.kubernetes.io/name: argocd-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-server
-pec:
- ports:
+    protocol: TCP
+    targetPort: 8084
+  selector:
+    app.kubernetes.io/name: argocd-repo-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-server
+spec:
+  ports:
   - name: http
     port: 80
     protocol: TCP
     targetPort: 8080
   - name: https
     port: 443
-   protocol: TCP
-   targetPort: 8080
- selector:
-   app.kubernetes.io/name: argocd-server
---
-piVersion: v1
-ind: Service
-etadata:
- labels:
-   app.kubernetes.io/component: server
-   app.kubernetes.io/name: argocd-server-metrics
-   app.kubernetes.io/part-of: argocd
- name: argocd-server-metrics
-pec:
- ports:
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: argocd-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/name: argocd-server-metrics
+    app.kubernetes.io/part-of: argocd
+  name: argocd-server-metrics
+spec:
+  ports:
   - name: metrics
     port: 8083
-   protocol: TCP
-   targetPort: 8083
- selector:
-   app.kubernetes.io/name: argocd-server
---
-piVersion: apps/v1
-ind: Deployment
-etadata:
- labels:
-   app.kubernetes.io/component: dex-server
-   app.kubernetes.io/name: argocd-dex-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-dex-server
-pec:
- selector:
-   matchLabels:
-     app.kubernetes.io/name: argocd-dex-server
- template:
-   metadata:
-     labels:
-       app.kubernetes.io/name: argocd-dex-server
-   spec:
-     affinity:
-       podAntiAffinity:
+    protocol: TCP
+    targetPort: 8083
+  selector:
+    app.kubernetes.io/name: argocd-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: dex-server
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-dex-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-dex-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-dex-server
+    spec:
+      affinity:
+        podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-         - podAffinityTerm:
-             labelSelector:
-               matchLabels:
-                 app.kubernetes.io/part-of: argocd
-             topologyKey: kubernetes.io/hostname
-           weight: 5
-     containers:
-     - command:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/part-of: argocd
+              topologyKey: kubernetes.io/hostname
+            weight: 5
+      containers:
+      - command:
         - /shared/argocd-dex
         - rundex
         image: ghcr.io/dexidp/dex:v2.27.0
@@ -3065,39 +3065,39 @@ pec:
         name: dexconfig
 ---
 apiVersion: apps/v1
-ind: Deployment
-etadata:
- labels:
-   app.kubernetes.io/component: redis
-   app.kubernetes.io/name: argocd-redis
-   app.kubernetes.io/part-of: argocd
- name: argocd-redis
-pec:
- selector:
-   matchLabels:
-     app.kubernetes.io/name: argocd-redis
- template:
-   metadata:
-     labels:
-       app.kubernetes.io/name: argocd-redis
-   spec:
-     affinity:
-       podAntiAffinity:
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: redis
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/part-of: argocd
+  name: argocd-redis
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-redis
+    spec:
+      affinity:
+        podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-         - podAffinityTerm:
-             labelSelector:
-               matchLabels:
-                 app.kubernetes.io/name: argocd-redis
-             topologyKey: kubernetes.io/hostname
-           weight: 100
-         - podAffinityTerm:
-             labelSelector:
-               matchLabels:
-                 app.kubernetes.io/part-of: argocd
-             topologyKey: kubernetes.io/hostname
-           weight: 5
-     containers:
-     - args:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: argocd-redis
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/part-of: argocd
+              topologyKey: kubernetes.io/hostname
+            weight: 5
+      containers:
+      - args:
         - --save
         - ""
         - --appendonly
@@ -3113,39 +3113,39 @@ pec:
       serviceAccountName: argocd-redis
 ---
 apiVersion: apps/v1
-ind: Deployment
-etadata:
- labels:
-   app.kubernetes.io/component: repo-server
-   app.kubernetes.io/name: argocd-repo-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-repo-server
-pec:
- selector:
-   matchLabels:
-     app.kubernetes.io/name: argocd-repo-server
- template:
-   metadata:
-     labels:
-       app.kubernetes.io/name: argocd-repo-server
-   spec:
-     affinity:
-       podAntiAffinity:
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-repo-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-repo-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-repo-server
+    spec:
+      affinity:
+        podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-         - podAffinityTerm:
-             labelSelector:
-               matchLabels:
-                 app.kubernetes.io/name: argocd-repo-server
-             topologyKey: kubernetes.io/hostname
-           weight: 100
-         - podAffinityTerm:
-             labelSelector:
-               matchLabels:
-                 app.kubernetes.io/part-of: argocd
-             topologyKey: kubernetes.io/hostname
-           weight: 5
-     automountServiceAccountToken: false
-     containers:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: argocd-repo-server
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/part-of: argocd
+              topologyKey: kubernetes.io/hostname
+            weight: 5
+      automountServiceAccountToken: false
+      containers:
       - command:
         - entrypoint.sh
         - argocd-repo-server
@@ -3300,39 +3300,39 @@ pec:
           secretName: argocd-repo-server-tls
 ---
 apiVersion: apps/v1
-ind: Deployment
-etadata:
- labels:
-   app.kubernetes.io/component: server
-   app.kubernetes.io/name: argocd-server
-   app.kubernetes.io/part-of: argocd
- name: argocd-server
-pec:
- selector:
-   matchLabels:
-     app.kubernetes.io/name: argocd-server
- template:
-   metadata:
-     labels:
-       app.kubernetes.io/name: argocd-server
-   spec:
-     affinity:
-       podAntiAffinity:
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-server
+    spec:
+      affinity:
+        podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-         - podAffinityTerm:
-             labelSelector:
-               matchLabels:
-                 app.kubernetes.io/name: argocd-server
-             topologyKey: kubernetes.io/hostname
-           weight: 100
-         - podAffinityTerm:
-             labelSelector:
-               matchLabels:
-                 app.kubernetes.io/part-of: argocd
-             topologyKey: kubernetes.io/hostname
-           weight: 5
-     containers:
-     - command:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: argocd-server
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/part-of: argocd
+              topologyKey: kubernetes.io/hostname
+            weight: 5
+      containers:
+      - command:
         - argocd-server
         - --insecure
         env:
@@ -3543,41 +3543,41 @@ pec:
           secretName: argocd-repo-server-tls
 ---
 apiVersion: apps/v1
-ind: StatefulSet
-etadata:
- labels:
-   app.kubernetes.io/component: application-controller
-   app.kubernetes.io/name: argocd-application-controller
-   app.kubernetes.io/part-of: argocd
- name: argocd-application-controller
-pec:
- replicas: 1
- selector:
-   matchLabels:
-     app.kubernetes.io/name: argocd-application-controller
- serviceName: argocd-application-controller
- template:
-   metadata:
-     labels:
-       app.kubernetes.io/name: argocd-application-controller
-   spec:
-     affinity:
-       podAntiAffinity:
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: application-controller
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/part-of: argocd
+  name: argocd-application-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-application-controller
+  serviceName: argocd-application-controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-application-controller
+    spec:
+      affinity:
+        podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-         - podAffinityTerm:
-             labelSelector:
-               matchLabels:
-                 app.kubernetes.io/name: argocd-application-controller
-             topologyKey: kubernetes.io/hostname
-           weight: 100
-         - podAffinityTerm:
-             labelSelector:
-               matchLabels:
-                 app.kubernetes.io/part-of: argocd
-             topologyKey: kubernetes.io/hostname
-           weight: 5
-     containers:
-     - command:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: argocd-application-controller
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/part-of: argocd
+              topologyKey: kubernetes.io/hostname
+            weight: 5
+      containers:
+      - command:
         - argocd-application-controller
         env:
         - name: ARGOCD_RECONCILIATION_TIMEOUT
@@ -3725,102 +3725,102 @@ spec:
   - from:
     - namespaceSelector: {}
     ports:
-   - port: 8082
- podSelector:
-   matchLabels:
-     app.kubernetes.io/name: argocd-application-controller
- policyTypes:
- - Ingress
---
+    - port: 8082
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-application-controller
+  policyTypes:
+  - Ingress
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: argocd-dex-server-network-policy
 spec:
   ingress:
- - from:
-   - podSelector:
-       matchLabels:
-         app.kubernetes.io/name: argocd-server
-   ports:
-   - port: 5556
-     protocol: TCP
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argocd-server
+    ports:
+    - port: 5556
+      protocol: TCP
     - port: 5557
       protocol: TCP
   - from:
     - namespaceSelector: {}
     ports:
     - port: 5558
-     protocol: TCP
- podSelector:
-   matchLabels:
-     app.kubernetes.io/name: argocd-dex-server
- policyTypes:
- - Ingress
---
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-dex-server
+  policyTypes:
+  - Ingress
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: argocd-redis-network-policy
 spec:
   ingress:
- - from:
-   - podSelector:
-       matchLabels:
-         app.kubernetes.io/name: argocd-server
-   - podSelector:
-       matchLabels:
-         app.kubernetes.io/name: argocd-repo-server
-   - podSelector:
-       matchLabels:
-         app.kubernetes.io/name: argocd-application-controller
-   ports:
-   - port: 6379
-     protocol: TCP
- podSelector:
-   matchLabels:
-     app.kubernetes.io/name: argocd-redis
- policyTypes:
- - Ingress
---
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argocd-server
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argocd-repo-server
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argocd-application-controller
+    ports:
+    - port: 6379
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-redis
+  policyTypes:
+  - Ingress
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: argocd-repo-server-network-policy
 spec:
   ingress:
- - from:
-   - podSelector:
-       matchLabels:
-         app.kubernetes.io/name: argocd-server
-   - podSelector:
-       matchLabels:
-         app.kubernetes.io/name: argocd-application-controller
-   - podSelector:
-       matchLabels:
-         app.kubernetes.io/name: argocd-notifications-controller
-   ports:
-   - port: 8081
-     protocol: TCP
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argocd-server
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argocd-application-controller
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argocd-notifications-controller
+    ports:
+    - port: 8081
+      protocol: TCP
   - from:
     - namespaceSelector: {}
     ports:
-   - port: 8084
- podSelector:
-   matchLabels:
-     app.kubernetes.io/name: argocd-repo-server
- policyTypes:
- - Ingress
---
+    - port: 8084
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-repo-server
+  policyTypes:
+  - Ingress
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: argocd-server-network-policy
 spec:
   ingress:
- - {}
- podSelector:
-   matchLabels:
-     app.kubernetes.io/name: argocd-server
- policyTypes:
- - Ingress
+  - {}
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-server
+  policyTypes:
+  - Ingress

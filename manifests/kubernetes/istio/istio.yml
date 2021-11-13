@@ -1,7 +1,7 @@
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
-  namespace: istio-system
+  namespace: default
 spec:
   hub: docker.io/istio
   tag: 1.11.2
@@ -42,7 +42,7 @@ spec:
   # Please keep this in sync with manifests/charts/global.yaml
   values:
     global:
-      istioNamespace: istio-system
+      istioNamespace: default
       istiod:
         enableAnalysis: false
       logging:

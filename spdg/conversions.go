@@ -3,6 +3,7 @@ package spdg
 import (
 	"bytes"
 	"encoding/gob"
+	"encoding/json"
 
 	"github.com/theapemachine/wrkspc/errnie"
 )
@@ -25,12 +26,19 @@ func (datagram *Datagram) Encode() *bytes.Buffer {
 Decode the Datagram from a bytes.Buffer, so we have a predictable type that holds the string
 name of the type that is wrapped inside the Payload.
 */
-func (datagram *Datagram) Decode() *bytes.Buffer {
-	dgBytes := bytes.NewBuffer([]byte{})
-
+func (datagram *Datagram) Decode() *Datagram {
 	errnie.Handles(
-		gob.NewDecoder(dgBytes).Decode(datagram),
+		gob.NewDecoder(bytes.NewBuffer(datagram.Data.Payload)).Decode(datagram),
 	).With(errnie.KILL)
 
-	return dgBytes
+	return datagram
+}
+
+/*
+Marshal the Datagram.
+*/
+func (datagram *Datagram) Marshal() []byte {
+	out, err := json.Marshal(datagram)
+	errnie.Handles(err).With(errnie.NOOP)
+	return out
 }

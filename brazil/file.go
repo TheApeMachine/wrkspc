@@ -23,8 +23,10 @@ type File struct {
 NewFile constructs a new file wrapper.
 */
 func NewFile(path string) *File {
+	errnie.Logs("opening path ", path).With(errnie.INFO)
+
 	buf, err := ioutil.ReadFile(
-		strings.Replace(path, "~/", HomePath(), -1),
+		strings.Replace(path, "~", HomePath(), -1),
 	)
 
 	errnie.Handles(err).With(errnie.KILL)

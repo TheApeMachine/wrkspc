@@ -1,6 +1,8 @@
 package brazil
 
 import (
+	"io/fs"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -49,4 +51,13 @@ GetFileFromPrefix extracts the filename from a path.
 func GetFileFromPrefix(prefix string) string {
 	frags := strings.Split(prefix, "/")
 	return frags[len(frags)-1]
+}
+
+/*
+ReadPath returns everything in path.
+*/
+func ReadPath(path string) []fs.FileInfo {
+	files, err := ioutil.ReadDir(path)
+	errnie.Handles(err).With(errnie.KILL)
+	return files
 }

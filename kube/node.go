@@ -40,7 +40,7 @@ func (node Controller) Initialize() Node {
 
 	// Build a Kind Cluster running inside a Container.
 	errnie.Logs("building local Kubernetes cluster").With(errnie.INFO)
-	errnie.Handles(node.provider.Create("kind")).With(errnie.KILL)
+	errnie.Handles(node.provider.Create("kind")).With(errnie.NOOP)
 	errnie.Logs("cluster has gone up").With(errnie.INFO)
 
 	return node
@@ -51,5 +51,9 @@ Provision the Node.
 */
 func (node Controller) Provision() Node {
 	errnie.Traces()
+
+	provisioner := NewProvisioner("kind")
+	provisioner.Deploy()
+
 	return node
 }

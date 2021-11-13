@@ -36,6 +36,7 @@ LogChannel is an interface that allows logs to be sent to various solutions.
 */
 type LogChannel interface {
 	Error(...interface{}) *Error
+	Warning(...interface{}) *Error
 	Info(...interface{})
 	Debug(...interface{})
 }
@@ -79,6 +80,42 @@ func (logger ConsoleLogger) Error(events ...interface{}) *Error {
 	fmt.Printf(
 		"%s %s\n",
 		berrt.NewLabel(" ERROR ").ToString(),
+		berrt.NewText(fmt.Sprintf("%v", events...)).ToString(),
+	)
+
+	// Since internally we're a bit deeper in the stack, pass in an extra true to make
+	// sure the tracing process jumps back far enough to reach the actual relevant code.
+	Traces(true, true)
+
+	return NewError(errs...)
+}
+
+/*
+Warning logs the line with an error indicator and converts the slice of interfaces to Go's
+strongly typed errors.
+*/
+func (logger ConsoleLogger) Warning(events ...interface{}) *Error {
+	if len(events) == 0 {
+		return nil
+	}
+
+	var errs []error
+
+	for _, err := range events {
+		if err == nil {
+			break
+		}
+
+		errs = append(errs, err.(error))
+	}
+
+	if len(errs) == 0 {
+		return nil
+	}
+
+	fmt.Printf(
+		"%s %s\n",
+		berrt.NewLabel("WARNING").ToString(),
 		berrt.NewText(fmt.Sprintf("%v", events...)).ToString(),
 	)
 

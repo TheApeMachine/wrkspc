@@ -66,6 +66,8 @@ func (ambctx *AmbientContext) With(logLevel LogLevel) *AmbientContext {
 	switch logLevel {
 	case ERROR:
 		err = ambctx.logger.Error(ambctx.msgs...)
+	case WARNING:
+		err = ambctx.logger.Warning(ambctx.msgs...)
 	case INFO:
 		ambctx.logger.Info(ambctx.msgs...)
 	case DEBUG:

@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: argocd-gw
+  namespace: argocd
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https-argocd
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: gateway-cert
+    hosts:
+    - "argocd.rocsys-dev.com"

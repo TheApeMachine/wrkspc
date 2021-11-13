@@ -9,6 +9,12 @@ var labelmap = map[string]func(string) string{
 		lipgloss.Color("#FF0000"),
 	).Bold(true).Padding(0, 1).Render,
 
+	"WARNING": lipgloss.NewStyle().Foreground(
+		lipgloss.Color("#333333"),
+	).Background(
+		lipgloss.Color("#FFAF00"),
+	).Bold(true).Padding(0, 1).Render,
+
 	" INFO  ": lipgloss.NewStyle().Foreground(
 		lipgloss.Color("#EEEEEE"),
 	).Background(

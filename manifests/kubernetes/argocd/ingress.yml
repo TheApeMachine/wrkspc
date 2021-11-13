@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: argocd-vsrv
+  namespace: argocd
+spec:
+  hosts:
+  - "argocd.rocsys.dev"
+  gateways:
+  - istio-system/istio-system-gateway
+  http:
+  - route:
+    - destination:
+        host: argocd-server
+        port:
+          number: 443

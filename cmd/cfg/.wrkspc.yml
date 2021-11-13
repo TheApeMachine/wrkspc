@@ -17,6 +17,11 @@ wrkspc:
     post: |
       # This is just a shell script.
 
+  kube:
+    config: ~/.kube/kind
+    distro:
+      - metallb
+
   bcknd:
     port: 8008
     read-timeout: 10

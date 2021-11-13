@@ -35,7 +35,7 @@ func NewRestClient() RestClient {
 
 	cfg, err := clientcmd.RESTConfigFromKubeConfig(
 		brazil.NewFile(
-			viper.GetString("kubernetes.config"),
+			viper.GetString("wrkspc.kube.config"),
 		).Data.Bytes(),
 	)
 
