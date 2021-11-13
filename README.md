@@ -17,14 +17,14 @@ Fork it, make it your own. It has an `Unlicense`.
   - [x] Deploy local Kind cluster when no existing `~/.kube/config` is found.
   - [x] Connect to existing cluster is config file is found.
   - [x] Include selection of open source package manifests:
-		- [x] Weavenet & Weave Scope
-		- [x] MetalLB
-		- [x] OpenEBS & Min IO
-		- [x] Istio & Kiali
-		- [x] ArgoCD & Argo Rollouts
-		- [x] Argo Workflows & Argo Events
-		- [x] Prometheus & Grafana
-		- [x] ECK operator & ElasticSearch & Kibana
+	- [x] Weavenet & Weave Scope
+	- [x] MetalLB
+	- [x] OpenEBS & Min IO
+	- [x] Istio & Kiali
+	- [x] ArgoCD & Argo Rollouts
+	- [x] Argo Workflows & Argo Events
+	- [x] Prometheus & Grafana
+	- [x] ECK operator & ElasticSearch & Kibana
 	- [ ] Deploy production grade cluster.
 - [ ] Automatic Replication:
       It can scan any network it is connected to for live hosts in a variety of ways, and use
