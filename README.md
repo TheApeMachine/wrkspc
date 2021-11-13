@@ -15,7 +15,7 @@ Fork it, make it your own. It has an `Unlicense`.
     It can deploy itself as a cluster or connect to an existing cluster so all your tools,
 	services, and anything else can run on Kubernetes.
   - [x] Deploy local Kind cluster when no existing `~/.kube/config` is found.
-  - [x] Connect to existing cluster is config file is found.
+  - [x] Connect to existing cluster if config file is found.
   - [x] Include selection of open source package manifests:
 	- [x] Weavenet & Weave Scope
 	- [x] MetalLB
@@ -76,7 +76,7 @@ For convenience make sure it is somewhere in your `$PATH` so you do not need to 
 Run `wrkspc --version` to get the version and also write the default config file to your home
 path. You can have a look at `~/.wrkspc.yml` to see what you can and need to configure.
 
-Then if you don't need anything else than the premade tools in the `./dockerfiles` path of this
+Then if you don't need anything else than the premade tools in the `./manifests` path of this
 repository, there is nothing left to do.
 
 It is more likely though that you will need to wrap whatever tools you use in a Dockerfile and
