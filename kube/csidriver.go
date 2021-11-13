@@ -9,47 +9,51 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+/*
+CSIDriver storage something something...
+*/
 type CSIDriver struct {
-	base   Base
-	client RestClient
-	spec   *storev1.CSIDriver
-	file   []byte
-	handle *storev1.CSIDriver
+	base *Base
+	spec *storev1.CSIDriver
 }
 
+/*
+NewCSIDriver ...
+*/
 func NewCSIDriver(client RestClient, file []byte) MigratableKind {
-	return &CSIDriver{
-		client: client,
-		file:   file,
-	}
+	kind := &CSIDriver{}
+	kind.base = NewBase(file, kind, client)
+	return kind
 }
 
-func (kind *CSIDriver) Up() error {
-	err := yaml.Unmarshal(kind.file, &kind.spec)
-	errnie.Handles(err).With(errnie.KILL)
+/*
+Up ...
+*/
+func (kind *CSIDriver) Up() {
+	errnie.Handles(yaml.Unmarshal(kind.base.file, &kind.spec)).With(errnie.KILL)
 
-	kind.handle, err = kind.client.conn.StorageV1().CSIDrivers().Create(context.Background(), kind.spec, v1.CreateOptions{})
-	errnie.Handles(err).With(errnie.KILL)
+	kind.spec, kind.base.err = kind.base.client.conn.StorageV1().CSIDrivers().Create(
+		context.Background(), kind.spec, v1.CreateOptions{},
+	)
 
-	kind.base = NewBase(kind)
-	kind.base.waiter(true)
-
-	return err
+	kind.base.waiter()
 }
 
+/*
+Check ...
+*/
 func (kind *CSIDriver) Check() bool {
-	check, _ := kind.client.conn.StorageV1().CSIDrivers().Get(context.Background(), kind.spec.Name, v1.GetOptions{})
-	return check != nil
+	check, err := kind.base.client.conn.StorageV1().CSIDrivers().Get(
+		context.Background(), kind.spec.Name, v1.GetOptions{},
+	)
+	return check != nil && err == nil
 }
 
-func (kind *CSIDriver) Down() error {
-	return kind.base.teardown()
-}
-
+/*
+Delete ...
+*/
 func (kind *CSIDriver) Delete() error {
-	return kind.client.conn.StorageV1().CSIDrivers().Delete(context.TODO(), kind.handle.Name, v1.DeleteOptions{})
-}
-
-func (kind *CSIDriver) Name() string {
-	return kind.handle.Name
+	return kind.base.client.conn.StorageV1().CSIDrivers().Delete(
+		context.TODO(), kind.spec.Name, v1.DeleteOptions{},
+	)
 }

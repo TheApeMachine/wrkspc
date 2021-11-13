@@ -1,50 +1,53 @@
 package kube
 
 import (
-	"time"
-
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/twoface"
 )
 
+/*
+MigratableKind I do not remember why I called it this.
+*/
 type MigratableKind interface {
-	Up() error
+	Up()
 	Check() bool
-	Down() error
 	Delete() error
-	Name() string
 }
 
+/*
+Base holds some shared functionality for Kinds.
+*/
 type Base struct {
-	kind MigratableKind
+	file   []byte
+	kind   MigratableKind
+	client RestClient
+	err    error
 }
 
-func NewBase(kind MigratableKind) Base {
-	return Base{
-		kind: kind,
+/*
+NewBase constructs a new Base for a Kind.
+*/
+func NewBase(file []byte, kind MigratableKind, client RestClient) *Base {
+	return &Base{
+		file:   file,
+		kind:   kind,
+		client: client,
 	}
 }
 
-func (base Base) waiter(direction bool) {
-	count := 0
-
-	// We needed some form of backoff and give up thingy, otherwise when there is
-	// a problem we're essentially stuck, and I don't like being stuck.
-	// TODO: Needs some way to determine if the deployment is significantly compromised
-	//       or reporting on a minor error is enough and it can be fixed later.
-	for {
-		//count++
-		count = 1 // temp override for testing.
-		time.Sleep(time.Duration(count) * time.Second)
-
-		if base.kind.Check() == direction || count == 10 {
-			break
-		}
-	}
+/*
+waiter hangs around until it either finds the kind fully deployed and working, or it times out.
+*/
+func (base *Base) waiter() {
+	// Run the liveness check as a retrying process.
+	twoface.NewRepeater(10, twoface.NewRetryStrategy(
+		twoface.Fibonacci{MaxTries: 10},
+	)).Attempt(1, base.kind.Check)
 }
 
-func (base Base) teardown() error {
+func (base *Base) teardown() error {
 	err := base.kind.Delete()
 	errnie.Handles(err).With(errnie.KILL)
-	base.waiter(false)
+	base.waiter()
 	return err
 }

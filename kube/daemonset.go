@@ -10,47 +10,53 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+/*
+DaemonSet ...
+*/
 type DaemonSet struct {
-	base   Base
-	client RestClient
-	spec   *appsv1.DaemonSet
-	file   []byte
-	handle *appsv1.DaemonSet
+	base *Base
+	spec *appsv1.DaemonSet
 }
 
+/*
+NewDaemonSet ....
+*/
 func NewDaemonSet(client RestClient, file []byte) MigratableKind {
-	return &DaemonSet{
-		client: client,
-		file:   file,
-	}
+	errnie.Traces()
+	kind := &DaemonSet{}
+	kind.base = NewBase(file, kind, client)
+	return kind
 }
 
-func (kind *DaemonSet) Up() error {
-	err := yaml.Unmarshal(kind.file, &kind.spec)
-	errnie.Handles(err).With(errnie.KILL)
+/*
+Up ...
+*/
+func (kind *DaemonSet) Up() {
+	errnie.Traces()
+	errnie.Handles(yaml.Unmarshal(kind.base.file, &kind.spec)).With(errnie.KILL)
 
-	kind.handle, err = kind.client.conn.AppsV1().DaemonSets(kind.spec.Namespace).Create(context.Background(), kind.spec, v1.CreateOptions{})
-	errnie.Handles(err).With(errnie.KILL)
+	kind.spec, kind.base.err = kind.base.client.conn.AppsV1().DaemonSets(kind.spec.Namespace).Create(
+		context.Background(), kind.spec, v1.CreateOptions{},
+	)
 
-	kind.base = NewBase(kind)
-	kind.base.waiter(true)
-
-	return err
+	kind.base.waiter()
 }
 
+/*
+Check ...
+*/
 func (kind *DaemonSet) Check() bool {
-	check, _ := kind.client.conn.AppsV1().DaemonSets(kind.spec.Namespace).Get(context.Background(), kind.spec.Name, v1.GetOptions{})
-	return check != nil
+	check, err := kind.base.client.conn.AppsV1().DaemonSets(kind.spec.Namespace).Get(
+		context.Background(), kind.spec.Name, v1.GetOptions{},
+	)
+	return check != nil || err == nil
 }
 
-func (kind *DaemonSet) Down() error {
-	return kind.base.teardown()
-}
-
+/*
+Delete ...
+*/
 func (kind *DaemonSet) Delete() error {
-	return kind.client.conn.AppsV1().DaemonSets(kind.spec.Namespace).Delete(context.TODO(), kind.handle.Name, v1.DeleteOptions{})
-}
-
-func (kind *DaemonSet) Name() string {
-	return kind.handle.Name
+	return kind.base.client.conn.AppsV1().DaemonSets(kind.spec.Namespace).Delete(
+		context.TODO(), kind.spec.Name, v1.DeleteOptions{},
+	)
 }

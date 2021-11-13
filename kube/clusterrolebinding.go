@@ -9,47 +9,51 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+/*
+ClusterRoleBinding ...
+*/
 type ClusterRoleBinding struct {
-	base   Base
-	client RestClient
-	spec   *rbac.ClusterRoleBinding
-	file   []byte
-	handle *rbac.ClusterRoleBinding
+	base *Base
+	spec *rbac.ClusterRoleBinding
 }
 
+/*
+NewClusterRoleBinding ...
+*/
 func NewClusterRoleBinding(client RestClient, file []byte) MigratableKind {
-	return &ClusterRoleBinding{
-		client: client,
-		file:   file,
-	}
+	kind := &ClusterRoleBinding{}
+	kind.base = NewBase(file, kind, client)
+	return kind
 }
 
-func (kind *ClusterRoleBinding) Up() error {
-	err := yaml.Unmarshal(kind.file, &kind.spec)
-	errnie.Handles(err).With(errnie.KILL)
+/*
+Up ...
+*/
+func (kind *ClusterRoleBinding) Up() {
+	errnie.Handles(yaml.Unmarshal(kind.base.file, &kind.spec)).With(errnie.KILL)
 
-	kind.handle, err = kind.client.conn.RbacV1().ClusterRoleBindings().Create(context.Background(), kind.spec, v1.CreateOptions{})
-	errnie.Handles(err).With(errnie.KILL)
+	kind.spec, kind.base.err = kind.base.client.conn.RbacV1().ClusterRoleBindings().Create(
+		context.Background(), kind.spec, v1.CreateOptions{},
+	)
 
-	kind.base = NewBase(kind)
-	kind.base.waiter(true)
-
-	return err
+	kind.base.waiter()
 }
 
+/*
+Check ...
+*/
 func (kind *ClusterRoleBinding) Check() bool {
-	check, _ := kind.client.conn.RbacV1().ClusterRoleBindings().Get(context.Background(), kind.spec.Name, v1.GetOptions{})
-	return check != nil
+	check, err := kind.base.client.conn.RbacV1().ClusterRoleBindings().Get(
+		context.Background(), kind.spec.Name, v1.GetOptions{},
+	)
+	return check != nil && err == nil
 }
 
-func (kind *ClusterRoleBinding) Down() error {
-	return kind.base.teardown()
-}
-
+/*
+Delete ...
+*/
 func (kind *ClusterRoleBinding) Delete() error {
-	return kind.client.conn.CoreV1().ServiceAccounts(kind.handle.Namespace).Delete(context.TODO(), kind.handle.Name, v1.DeleteOptions{})
-}
-
-func (kind *ClusterRoleBinding) Name() string {
-	return kind.handle.Name
+	return kind.base.client.conn.CoreV1().ServiceAccounts(kind.spec.Namespace).Delete(
+		context.TODO(), kind.spec.Name, v1.DeleteOptions{},
+	)
 }

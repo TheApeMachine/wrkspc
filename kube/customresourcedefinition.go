@@ -10,53 +10,54 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+/*
+CustomResourceDefinition ...
+*/
 type CustomResourceDefinition struct {
-	base   Base
+	base   *Base
 	client ExtendedClient
 	spec   *apiextensionsv1.CustomResourceDefinition
-	file   []byte
-	handle *apiextensionsv1.CustomResourceDefinition
 }
 
+/*
+NewCustomResourceDefinition ...
+*/
 func NewCustomResourceDefinition(client ExtendedClient, file []byte) MigratableKind {
-	return &CustomResourceDefinition{
-		client: client,
-		file:   file,
-	}
+	errnie.Traces()
+	kind := &CustomResourceDefinition{client: client}
+	kind.base = NewBase(file, kind, RestClient{})
+	return kind
 }
 
-func (kind *CustomResourceDefinition) Up() error {
-	err := yaml.Unmarshal(kind.file, &kind.spec)
-	errnie.Handles(err).With(errnie.KILL)
+/*
+Up ...
+*/
+func (kind *CustomResourceDefinition) Up() {
+	errnie.Traces()
+	errnie.Handles(yaml.Unmarshal(kind.base.file, &kind.spec)).With(errnie.KILL)
 
-	kind.handle, err = kind.client.conn.ApiextensionsV1().CustomResourceDefinitions().Create(
+	kind.spec, kind.base.err = kind.client.conn.ApiextensionsV1().CustomResourceDefinitions().Create(
 		context.Background(), kind.spec, v1.CreateOptions{},
 	)
-	errnie.Handles(err).With(errnie.KILL)
 
-	kind.base = NewBase(kind)
-	kind.base.waiter(true)
-
-	return err
+	kind.base.waiter()
 }
 
+/*
+Check ...
+*/
 func (kind *CustomResourceDefinition) Check() bool {
-	check, _ := kind.client.conn.ApiextensionsV1().CustomResourceDefinitions().Get(
+	check, err := kind.client.conn.ApiextensionsV1().CustomResourceDefinitions().Get(
 		context.Background(), kind.spec.Name, v1.GetOptions{},
 	)
-	return check != nil
+	return check != nil && err == nil
 }
 
-func (kind *CustomResourceDefinition) Down() error {
-	return kind.base.teardown()
-}
-
+/*
+Delete ...
+*/
 func (kind *CustomResourceDefinition) Delete() error {
 	return kind.client.conn.ApiextensionsV1().CustomResourceDefinitions().Delete(
-		context.TODO(), kind.handle.Name, v1.DeleteOptions{},
+		context.TODO(), kind.spec.Name, v1.DeleteOptions{},
 	)
-}
-
-func (kind *CustomResourceDefinition) Name() string {
-	return kind.handle.Name
 }

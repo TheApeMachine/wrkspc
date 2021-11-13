@@ -10,49 +10,60 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+/*
+ConfigMap represent a Kubernetes Kind.
+*/
 type ConfigMap struct {
-	base   Base
+	base   *Base
 	client RestClient
 	spec   *apiv1.ConfigMap
 	file   []byte
 	handle *apiv1.ConfigMap
 }
 
+/*
+NewConfigMap prepares the Kubernetes Kind.
+*/
 func NewConfigMap(client RestClient, file []byte) MigratableKind {
-	return &ConfigMap{
-		client: client,
-		file:   file,
-	}
+	errnie.Traces()
+	kind := &ConfigMap{}
+	kind.base = NewBase(file, kind, client)
+	return kind
 }
 
-func (kind *ConfigMap) Up() error {
-	err := yaml.Unmarshal(kind.file, &kind.spec)
-	errnie.Handles(err).With(errnie.KILL)
+/*
+Up deployes the Kubernetes Kind.
+*/
+func (kind *ConfigMap) Up() {
+	errnie.Traces()
+	errnie.Handles(yaml.Unmarshal(kind.base.file, &kind.spec)).With(errnie.KILL)
 
-	kind.handle, err = kind.client.conn.CoreV1().ConfigMaps(kind.spec.Namespace).Create(
+	kind.handle, kind.base.err = kind.client.conn.CoreV1().ConfigMaps(kind.spec.Namespace).Create(
 		context.Background(), kind.spec, v1.CreateOptions{},
 	)
-	errnie.Handles(err).With(errnie.KILL)
 
-	kind.base = NewBase(kind)
-	kind.base.waiter(true)
-
-	return err
+	kind.base.waiter()
 }
 
+/*
+Check to see if the deployment was a success.
+*/
 func (kind *ConfigMap) Check() bool {
-	check, _ := kind.client.conn.CoreV1().ConfigMaps(kind.spec.Namespace).Get(context.Background(), kind.spec.Name, v1.GetOptions{})
+	errnie.Traces()
+
+	check, _ := kind.client.conn.CoreV1().ConfigMaps(kind.spec.Namespace).Get(
+		context.Background(), kind.spec.Name, v1.GetOptions{},
+	)
 	return check != nil
 }
 
-func (kind *ConfigMap) Down() error {
-	return kind.base.teardown()
-}
-
+/*
+Delete removes the Kubernetes Kind.
+*/
 func (kind *ConfigMap) Delete() error {
-	return kind.client.conn.CoreV1().ConfigMaps(kind.handle.Namespace).Delete(context.TODO(), kind.handle.Name, v1.DeleteOptions{})
-}
+	errnie.Traces()
 
-func (kind *ConfigMap) Name() string {
-	return kind.handle.Name
+	return kind.client.conn.CoreV1().ConfigMaps(kind.spec.Namespace).Delete(
+		context.TODO(), kind.spec.Name, v1.DeleteOptions{},
+	)
 }

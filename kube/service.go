@@ -10,49 +10,52 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+/*
+Service ...
+*/
 type Service struct {
-	base   Base
-	client RestClient
-	spec   *apiv1.Service
-	file   []byte
-	handle *apiv1.Service
+	base *Base
+	spec *apiv1.Service
 }
 
+/*
+NewService ...
+*/
 func NewService(client RestClient, file []byte) MigratableKind {
-	return &Service{
-		client: client,
-		file:   file,
-	}
+	errnie.Traces()
+	kind := &Service{}
+	kind.base = NewBase(file, kind, client)
+	return kind
 }
 
-func (kind *Service) Up() error {
-	err := yaml.Unmarshal(kind.file, &kind.spec)
-	errnie.Handles(err).With(errnie.KILL)
+/*
+Up ...
+*/
+func (kind *Service) Up() {
+	errnie.Handles(yaml.Unmarshal(kind.base.file, &kind.spec)).With(errnie.KILL)
 
-	kind.handle, err = kind.client.conn.CoreV1().Services(kind.spec.Namespace).Create(
+	kind.spec, kind.base.err = kind.base.client.conn.CoreV1().Services(kind.spec.Namespace).Create(
 		context.Background(), kind.spec, v1.CreateOptions{},
 	)
-	errnie.Handles(err).With(errnie.KILL)
 
-	kind.base = NewBase(kind)
-	kind.base.waiter(true)
-
-	return err
+	kind.base.waiter()
 }
 
+/*
+Check ...
+*/
 func (kind *Service) Check() bool {
-	check, _ := kind.client.conn.CoreV1().Services(kind.spec.Namespace).Get(context.Background(), kind.spec.Name, v1.GetOptions{})
-	return check != nil
+	check, err := kind.base.client.conn.CoreV1().Services(kind.spec.Namespace).Get(
+		context.Background(), kind.spec.Name, v1.GetOptions{},
+	)
+	return check != nil && err == nil
 }
 
-func (kind *Service) Down() error {
-	return kind.base.teardown()
-}
-
+/*
+Delete ...
+*/
 func (kind *Service) Delete() error {
-	return kind.client.conn.CoreV1().Services(kind.handle.Namespace).Delete(context.TODO(), kind.handle.Name, v1.DeleteOptions{})
-}
-
-func (kind *Service) Name() string {
-	return kind.handle.Name
+	return kind.base.client.conn.CoreV1().Services(kind.spec.Namespace).Delete(
+		context.TODO(), kind.spec.Name, v1.DeleteOptions{},
+	)
 }

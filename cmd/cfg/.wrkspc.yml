@@ -5,10 +5,11 @@ wrkspc:
   stage: local
 
   # Stage specific configurations.
-  stages:
-    local:
-      debug: true
-      trace: true
+  stages: {}
+
+  errnie:
+    debug: true
+    trace: false
 
   # Configure various elements for the `run` command.
   run:
@@ -18,7 +19,7 @@ wrkspc:
       # This is just a shell script.
 
   kube:
-    config: ~/.kube/kind
+    config: ~/.kube/config
     distro:
       - metallb
 

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/berrt"
 )
 
@@ -58,6 +59,10 @@ Runtime retrieves runtime information periodically and outputs this to the termi
 It takes an interval (in seconds) to determine the time between updates.
 */
 func (tracer *Tracer) Runtime(interval int) {
+	if !viper.GetBool("wrkspc.errnie.trace") {
+		return
+	}
+
 	for {
 		fmt.Printf(
 			"%s %s\n",
@@ -73,6 +78,10 @@ func (tracer *Tracer) Runtime(interval int) {
 Inspect the Stack and print the tracing output.
 */
 func (tracer *Tracer) Inspect(flags ...bool) {
+	if !viper.GetBool("wrkspc.errnie.trace") {
+		return
+	}
+
 	// Collect stack data.
 	pc := make([]uintptr, 15)
 	var n int

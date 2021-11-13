@@ -104,20 +104,6 @@ func (infra Provisioner) Teardown() error {
 		}
 	}
 
-	// Tear it all back down in reverse order.
-	for i := len(infra.stack) - 1; i > 0; i-- {
-		// Guard against modules that did not come up and produced a nil value
-		// in the provisioner reference stack.
-		if infra.stack[i] == nil {
-			continue
-		}
-
-		// Call the down method in the MigratableKind.
-		if err := infra.stack[i].Down(); err != nil {
-			errnie.Handles(err).With(errnie.KILL)
-		}
-	}
-
 	return nil
 }
 
@@ -214,7 +200,7 @@ func (infra Provisioner) provisionForKind(kind Kind, direction bool) MigratableK
 	}
 
 	if module != nil && direction {
-		errnie.Handles(module.Up()).With(errnie.KILL)
+		module.Up()
 	}
 
 	return module

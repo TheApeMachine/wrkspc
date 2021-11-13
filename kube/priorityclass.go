@@ -10,47 +10,52 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+/*
+PriorityClass ...
+*/
 type PriorityClass struct {
-	base   Base
-	client RestClient
-	spec   *schedulingv1.PriorityClass
-	file   []byte
-	handle *schedulingv1.PriorityClass
+	base *Base
+	spec *schedulingv1.PriorityClass
 }
 
+/*
+NewPriorityClass ...
+*/
 func NewPriorityClass(client RestClient, file []byte) MigratableKind {
-	return &PriorityClass{
-		client: client,
-		file:   file,
-	}
+	errnie.Traces()
+	kind := &PriorityClass{}
+	kind.base = NewBase(file, kind, client)
+	return kind
 }
 
-func (kind *PriorityClass) Up() error {
-	err := yaml.Unmarshal(kind.file, &kind.spec)
-	errnie.Handles(err).With(errnie.KILL)
+/*
+Up ...
+*/
+func (kind *PriorityClass) Up() {
+	errnie.Handles(yaml.Unmarshal(kind.base.file, &kind.spec)).With(errnie.KILL)
 
-	kind.handle, err = kind.client.conn.SchedulingV1().PriorityClasses().Create(context.Background(), kind.spec, v1.CreateOptions{})
-	errnie.Handles(err).With(errnie.KILL)
+	kind.spec, kind.base.err = kind.base.client.conn.SchedulingV1().PriorityClasses().Create(
+		context.Background(), kind.spec, v1.CreateOptions{},
+	)
 
-	kind.base = NewBase(kind)
-	kind.base.waiter(true)
-
-	return err
+	kind.base.waiter()
 }
 
+/*
+Check ...
+*/
 func (kind *PriorityClass) Check() bool {
-	check, _ := kind.client.conn.SchedulingV1().PriorityClasses().Get(context.Background(), kind.spec.Name, v1.GetOptions{})
-	return check != nil
+	check, err := kind.base.client.conn.SchedulingV1().PriorityClasses().Get(
+		context.Background(), kind.spec.Name, v1.GetOptions{},
+	)
+	return check != nil && err == nil
 }
 
-func (kind *PriorityClass) Down() error {
-	return kind.base.teardown()
-}
-
+/*
+Delete ...
+*/
 func (kind *PriorityClass) Delete() error {
-	return kind.client.conn.SchedulingV1().PriorityClasses().Delete(context.TODO(), kind.handle.Name, v1.DeleteOptions{})
-}
-
-func (kind *PriorityClass) Name() string {
-	return kind.handle.Name
+	return kind.base.client.conn.SchedulingV1().PriorityClasses().Delete(
+		context.TODO(), kind.spec.Name, v1.DeleteOptions{},
+	)
 }

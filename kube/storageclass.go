@@ -10,47 +10,52 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+/*
+StorageClass ...
+*/
 type StorageClass struct {
-	base   Base
-	client RestClient
-	spec   *storev1.StorageClass
-	file   []byte
-	handle *storev1.StorageClass
+	base *Base
+	spec *storev1.StorageClass
 }
 
+/*
+NewStorageClass ...
+*/
 func NewStorageClass(client RestClient, file []byte) MigratableKind {
-	return &StorageClass{
-		client: client,
-		file:   file,
-	}
+	errnie.Traces()
+	kind := &StorageClass{}
+	kind.base = NewBase(file, kind, client)
+	return kind
 }
 
-func (kind *StorageClass) Up() error {
-	err := yaml.Unmarshal(kind.file, &kind.spec)
-	errnie.Handles(err).With(errnie.KILL)
+/*
+Up ...
+*/
+func (kind *StorageClass) Up() {
+	errnie.Handles(yaml.Unmarshal(kind.base.file, &kind.spec)).With(errnie.KILL)
 
-	kind.handle, err = kind.client.conn.StorageV1().StorageClasses().Create(context.Background(), kind.spec, v1.CreateOptions{})
-	errnie.Handles(err).With(errnie.KILL)
+	kind.spec, kind.base.err = kind.base.client.conn.StorageV1().StorageClasses().Create(
+		context.Background(), kind.spec, v1.CreateOptions{},
+	)
 
-	kind.base = NewBase(kind)
-	kind.base.waiter(true)
-
-	return err
+	kind.base.waiter()
 }
 
+/*
+Check ...
+*/
 func (kind *StorageClass) Check() bool {
-	check, _ := kind.client.conn.StorageV1().StorageClasses().Get(context.Background(), kind.spec.Name, v1.GetOptions{})
-	return check != nil
+	check, err := kind.base.client.conn.StorageV1().StorageClasses().Get(
+		context.Background(), kind.spec.Name, v1.GetOptions{},
+	)
+	return check != nil && err == nil
 }
 
-func (kind *StorageClass) Down() error {
-	return kind.base.teardown()
-}
-
+/*
+Delete ...
+*/
 func (kind *StorageClass) Delete() error {
-	return kind.client.conn.StorageV1().StorageClasses().Delete(context.TODO(), kind.handle.Name, v1.DeleteOptions{})
-}
-
-func (kind *StorageClass) Name() string {
-	return kind.handle.Name
+	return kind.base.client.conn.StorageV1().StorageClasses().Delete(
+		context.TODO(), kind.spec.Name, v1.DeleteOptions{},
+	)
 }

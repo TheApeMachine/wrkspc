@@ -10,55 +10,53 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+/*
+PersistentVolumeClaim ...
+*/
 type PersistentVolumeClaim struct {
-	base   Base
-	client RestClient
-	spec   *apiv1.PersistentVolumeClaim
-	file   []byte
-	handle *apiv1.PersistentVolumeClaim
+	base *Base
+	spec *apiv1.PersistentVolumeClaim
 }
 
+/*
+NewPersistentVolumeClaim ...
+*/
 func NewPersistentVolumeClaim(client RestClient, file []byte) MigratableKind {
-	return &PersistentVolumeClaim{
-		client: client,
-		file:   file,
-	}
+	errnie.Traces()
+	kind := &PersistentVolumeClaim{}
+	kind.base = NewBase(file, kind, client)
+	return kind
 }
 
-func (kind *PersistentVolumeClaim) Up() error {
-	err := yaml.Unmarshal(kind.file, &kind.spec)
-	errnie.Handles(err).With(errnie.KILL)
+/*
+Up ...
+*/
+func (kind *PersistentVolumeClaim) Up() {
+	errnie.Handles(yaml.Unmarshal(kind.base.file, &kind.spec)).With(errnie.KILL)
 
-	kind.handle, err = kind.client.conn.CoreV1().PersistentVolumeClaims(kind.spec.Namespace).Create(
+	kind.spec, kind.base.err = kind.base.client.conn.CoreV1().PersistentVolumeClaims(kind.spec.Namespace).Create(
 		context.Background(), kind.spec, v1.CreateOptions{},
 	)
 
-	errnie.Handles(err).With(errnie.KILL)
-
-	kind.base = NewBase(kind)
-	kind.base.waiter(true)
-
-	return err
+	kind.base.waiter()
 }
 
+/*
+Check ...
+*/
 func (kind *PersistentVolumeClaim) Check() bool {
-	check, _ := kind.client.conn.CoreV1().PersistentVolumeClaims(kind.spec.Namespace).Get(
+	check, err := kind.base.client.conn.CoreV1().PersistentVolumeClaims(kind.spec.Namespace).Get(
 		context.Background(), kind.spec.Name, v1.GetOptions{},
 	)
 
-	return check != nil
+	return check != nil && err == nil
 }
 
-func (kind *PersistentVolumeClaim) Down() error {
-	return kind.base.teardown()
-}
-
+/*
+Delete ...
+*/
 func (kind *PersistentVolumeClaim) Delete() error {
-	return kind.client.conn.CoreV1().PersistentVolumeClaims(kind.spec.Namespace).Delete(
-		context.TODO(), kind.handle.Name, v1.DeleteOptions{},
+	return kind.base.client.conn.CoreV1().PersistentVolumeClaims(kind.spec.Namespace).Delete(
+		context.TODO(), kind.spec.Name, v1.DeleteOptions{},
 	)
-}
-
-func (kind *PersistentVolumeClaim) Name() string {
-	return kind.handle.Name
 }

@@ -9,12 +9,20 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
+/*
+Config represents the rest API configuration needed to interact with the Kubernetes API.
+*/
 type Config struct {
 	restCfg *rest.Config
 }
 
+/*
+NewConfig generates a new Config for us to pass to a Rest client.
+*/
 func NewConfig() Config {
-	config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(homedir.HomeDir(), ".kube", "config"))
+	config, err := clientcmd.BuildConfigFromFlags(
+		"", filepath.Join(homedir.HomeDir(), ".kube", "config"),
+	)
 	errnie.Handles(err).With(errnie.KILL)
 
 	return Config{

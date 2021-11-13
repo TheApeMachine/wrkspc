@@ -9,37 +9,42 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+/*
+CStorPoolCluster ...
+*/
 type CStorPoolCluster struct {
-	base   Base
-	client OpenEBSClient
+	base   *Base
 	spec   *openebsapiv1.CStorPoolCluster
-	file   []byte
-	handle *openebsapiv1.CStorPoolCluster
+	client OpenEBSClient
 }
 
+/*
+NewCStorPoolCluster ...
+*/
 func NewCStorPoolCluster(client OpenEBSClient, file []byte) MigratableKind {
-	return &CStorPoolCluster{
-		client: client,
-		file:   file,
-	}
+	errnie.Traces()
+	kind := &CStorPoolCluster{client: client}
+	kind.base = NewBase(file, kind, RestClient{})
+	return kind
 }
 
-func (kind *CStorPoolCluster) Up() error {
-	err := yaml.Unmarshal(kind.file, &kind.spec)
-	errnie.Handles(err).With(errnie.KILL)
+/*
+Up ...
+*/
+func (kind *CStorPoolCluster) Up() {
+	errnie.Traces()
+	errnie.Handles(yaml.Unmarshal(kind.base.file, &kind.spec)).With(errnie.KILL)
 
-	kind.handle, err = kind.client.conn.CstorV1().CStorPoolClusters(kind.spec.Namespace).Create(
+	kind.spec, kind.base.err = kind.client.conn.CstorV1().CStorPoolClusters(kind.spec.Namespace).Create(
 		context.Background(), kind.spec, v1.CreateOptions{},
 	)
 
-	errnie.Handles(err).With(errnie.KILL)
-
-	kind.base = NewBase(kind)
-	kind.base.waiter(true)
-
-	return err
+	kind.base.waiter()
 }
 
+/*
+Check ...
+*/
 func (kind *CStorPoolCluster) Check() bool {
 	check, _ := kind.client.conn.CstorV1().CStorPoolClusters(kind.spec.Namespace).Get(
 		context.Background(), kind.spec.Name, v1.GetOptions{},
@@ -47,16 +52,11 @@ func (kind *CStorPoolCluster) Check() bool {
 	return check != nil
 }
 
-func (kind *CStorPoolCluster) Down() error {
-	return kind.base.teardown()
-}
-
+/*
+Delete ...
+*/
 func (kind *CStorPoolCluster) Delete() error {
 	return kind.client.conn.CstorV1().CStorPoolClusters(kind.spec.Namespace).Delete(
-		context.TODO(), kind.handle.Name, v1.DeleteOptions{},
+		context.TODO(), kind.spec.Name, v1.DeleteOptions{},
 	)
-}
-
-func (kind *CStorPoolCluster) Name() string {
-	return kind.handle.Name
 }
