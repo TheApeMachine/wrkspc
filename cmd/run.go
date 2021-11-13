@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/theapemachine/wrkspc/conquer"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/matrix"
 )
 
 var kube bool
@@ -22,6 +23,12 @@ var runCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		errnie.Traces()
 		go errnie.Runtime(30)
+
+		// Just for testing, not going to waste an if on this in the end.
+		if args[0] == "daemon" {
+			matrix.NewDaemon()
+		}
+
 		command := conquer.NewCommand(args[0], kube)
 		return <-command.Execute()
 	},

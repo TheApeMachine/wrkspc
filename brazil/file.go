@@ -82,3 +82,14 @@ func WriteFile(path string, buf []byte) {
 		ioutil.WriteFile(path, buf, 0644),
 	).With(errnie.NOOP)
 }
+
+/*
+Copy a file from one location to another.
+*/
+func Copy(origin string, destination string) {
+	bytesRead, err := ioutil.ReadFile(origin)
+	errnie.Handles(err).With(errnie.KILL)
+
+	err = ioutil.WriteFile(destination, bytesRead, 0755)
+	errnie.Handles(err).With(errnie.KILL)
+}

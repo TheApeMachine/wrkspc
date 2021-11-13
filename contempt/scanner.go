@@ -49,28 +49,35 @@ func (scanner *Scanner) Sweep() chan Connection {
 			scanner.lock.Acquire(context.TODO(), 1)
 
 			wg.Add(1)
-			go func(ip string, wg *sync.WaitGroup) {
-				defer wg.Done()
-
-				target := fmt.Sprintf("%s:%d", ip, 22)
-				conn, err := net.DialTimeout("tcp", target, 1*time.Second)
-
-				// Connection error, bail!
-				if !errnie.Handles(err).With(errnie.NOLO).OK {
-					return
-				}
-
-				conn.Close()
-				scanner.lock.Release(1)
-				errnie.Logs(target).With(errnie.INFO)
-
-				// Construct a new Connection and send it to the caller.
-				out <- NewConnection(SSH{IP: ip})
-			}(ip, &wg)
+			scanner.worker(ip, &wg, out)
 		}
 
 		wg.Wait()
 	}()
 
 	return out
+}
+
+/*
+worker is the inner goroutine of the Sweep method, extracted to prevent to many nesting levels.
+*/
+func (scanner *Scanner) worker(ip string, wg *sync.WaitGroup, out chan Connection) {
+	go func(ip string, wg *sync.WaitGroup) {
+		defer wg.Done()
+
+		target := fmt.Sprintf("%s:%d", ip, 22)
+		conn, err := net.DialTimeout("tcp", target, 1*time.Second)
+
+		// Connection error, bail!
+		if !errnie.Handles(err).With(errnie.NOLO).OK {
+			return
+		}
+
+		conn.Close()
+		scanner.lock.Release(1)
+		errnie.Logs(target).With(errnie.INFO)
+
+		// Construct a new Connection and send it to the caller.
+		out <- NewConnection(SSH{IP: ip})
+	}(ip, wg)
 }
