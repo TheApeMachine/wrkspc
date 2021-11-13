@@ -10,7 +10,7 @@ end-to-end experience.
 Fork it, make it your own. It has an `Unlicense`.
 
 ## TL;DR
-
+```
 - amsh      : Ape Machine Shell, an interactive terminal environment with TUI to use wrkspc.
 - auth      : Ssh authenticaion (to be removed).
 - bcknd     : Default built-in backend service.
@@ -33,6 +33,7 @@ Fork it, make it your own. It has an `Unlicense`.
 - please    : (Network) requests.
 - spdg      : Custom (cloud native) datatype that makes everything easy, and essential to the `bcknd` design.
 - twoface   : Custom concurrency "primitives" and other helpers for making complicated workflows easier to manage.
+```
 
 > Documentation below is a moving target. Some of it is done, some of it is already changed, some of it is just notes.
 
