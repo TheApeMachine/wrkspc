@@ -3,14 +3,11 @@ package conquer
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/spf13/viper"
-	"github.com/theapemachine/wrkspc/contempt"
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/kube"
 )
 
 /*
@@ -54,25 +51,17 @@ func (command *Command) Execute() chan error {
 		errnie.Logs("running pre command steps").With(errnie.INFO)
 		command.setupAndDestroy(command.pre)
 
-		// Create a new Cluster so we can add Nodes which we create from all machines
-		// found by the Scanner.
-		cluster := kube.NewCluster(command.kube)
+		var platform Platform
 
-		// TODO: This should use a Docker fallback once ContainerD is re-integrated.
-		if cluster == nil {
-			errnie.Logs("y u no kube?").With(errnie.ERROR)
-			os.Exit(1)
+		// Select the Platform to run on which will also call Boot on that Platform so it will
+		// be up and running as fast as possible.
+		if !command.kube {
+			platform = NewPlatform(Docker{})
+		} else {
+			platform = NewPlatform(Kubernetes{})
 		}
 
-		// Start a new Scanner so we can gather the network hosts we have access to.
-		scanner := contempt.NewScanner(&contempt.Range{From: 1, To: 255})
-
-		for connection := range scanner.Sweep() {
-			// Use the connection to add a new Node to the Cluster.
-			cluster.AddNode(
-				kube.NewNode(kube.Controller{Connection: connection}),
-			)
-		}
+		platform.Parse(command.scope).Process()
 
 		// Runs a shell script from the `~/.wrkspc.yml` configuration.
 		errnie.Logs("running post command steps").With(errnie.INFO)

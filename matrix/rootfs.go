@@ -3,7 +3,6 @@ package matrix
 import (
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/brazil"
@@ -20,6 +19,10 @@ type RootFS struct {
 	osmap map[string][]string
 }
 
+/*
+NewRootFS gets a handle on a special builder that writes a root file system as tar file to the
+root of a new (scratch) container image.
+*/
 func NewRootFS(root string, tool string) RootFS {
 	return RootFS{
 		root:  root,
@@ -28,6 +31,9 @@ func NewRootFS(root string, tool string) RootFS {
 	}
 }
 
+/*
+Build the root filesystem and write it to the container image.
+*/
 func (rootfs RootFS) Build() {
 	// Match the base os to the tool we are building.
 	rootos := rootfs.lookupOS()
@@ -35,7 +41,7 @@ func (rootfs RootFS) Build() {
 	if viper.GetBool("debug") {
 		wd, err := os.Getwd()
 		errnie.Handles(err).With(errnie.KILL)
-		rootfs.root = filepath.FromSlash(wd + "/" + "dockerfiles")
+		rootfs.root = filepath.FromSlash(wd + "/manifests/dockerfiles")
 	}
 
 	// Copy the root filesystem of the base os to the build context.
@@ -47,8 +53,9 @@ func (rootfs RootFS) Build() {
 	// Since this Build method is called on any other build and is
 	// therefor recursive, we need to specify the correct tool to
 	// build, as well as tell the build flow to skip some steps.
-	buildflow := NewBuild("rootfs", strings.Split(rootos, "-")[0])
-	buildflow.Atomic(true)
+	buildflow := NewBuild("rootfs")
+	buildflow.Atomic(true) // Make the recursive call to Atomic and pass true this time to skip the
+	// rebuilding of the root file system.
 }
 
 func (rootfs RootFS) lookupOS() string {

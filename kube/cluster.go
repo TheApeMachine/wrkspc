@@ -16,13 +16,8 @@ type Cluster struct {
 /*
 NewCluster constructs a new Cluster object and returns a reference to it.
 */
-func NewCluster(shouldCreate bool) *Cluster {
+func NewCluster() *Cluster {
 	errnie.Traces()
-
-	// Guard to return early if the user did not choose to run in a Kubernetes Cluster.
-	if !shouldCreate {
-		return nil
-	}
 
 	return &Cluster{
 		nodes: make([]Node, 0),
