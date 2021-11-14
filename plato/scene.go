@@ -1,9 +1,10 @@
 package plato
 
 import (
+	"github.com/theapemachine/wrkspc/spdg"
 )
 
-var athena bool
+var bcknd bool
 var metrics bool
 var promCache balena.Client
 
@@ -30,7 +31,7 @@ var protoActions = map[string]func(data.Artifact, map[string]string) data.Artifa
 	"post-http":        postHttp,
 	"randomize-values": randomizeValues,
 	"failure-rate":     failureRate,
-	"instance-bcknd":  instanceAthena,
+	"instance-bcknd":   instanceBcknd,
 	"export-metrics":   exportMetrics,
 }
 
@@ -70,15 +71,15 @@ func failureRate(data data.Artifact, args map[string]string) data.Artifact {
 	return data
 }
 
-func instanceAthena(data data.Artifact, args map[string]string) data.Artifact {
-	if args["scope"] == "global" && !athena {
-		athena = true
+func instanceBcknd(data data.Artifact, args map[string]string) data.Artifact {
+	if args["scope"] == "global" && !bcknd {
+		bcknd = true
 
 		go func() {
 			srv := metric.NewServer()
 
 			if ok := errnie.Ambient().Log(errnie.WARNING, srv.Up()); !ok {
-				errnie.Ambient().Log(errnie.ERROR, "error instanciating athena")
+				errnie.Ambient().Log(errnie.ERROR, "error instanciating bcknd")
 			}
 		}()
 	}
