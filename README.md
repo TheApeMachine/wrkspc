@@ -3,7 +3,7 @@
 > This is very much a work in progress.
 > Exactly zero of this is to be considered "stable" or has any intention to be so for the moment
 
-**ALSO PLEASE PUT ?ts=4 BEHIND THE URL TO VIEW THE CODE IN THE FORMAT IT WAS MEANT TO BE VIEWED IN** 
+**ALSO PLEASE PUT ?ts=4 BEHIND THE URL TO VIEW THE CODE IN THE FORMAT IT WAS MEANT TO BE VIEWED IN**
 
 (You can use `requestly` on Chrome to automate that in the future).
 
@@ -31,9 +31,11 @@ Fork it, make it your own. It has an `Unlicense`.
 - hello     : Possibly will oprchestrate hefner pipes.
 - kube      : All things Kubernetes.
 - kubrick   : Terminal UI core.
+- luthor    : A generic lexical analyzer that is configurable using ~/.wrkspc.yml.
 - machine   : Abstraction of a network machine.
 - manifests : Dockerfiles (built-in tools) and Kubernetes manifests (distro). (Check out the Grafana folder for 3 bonus templates that kick-start custom plugin development).
 - matrix    : All things container, including ContainerD daemon.
+- plato     : A generic simulation engine that is configurable using ~/.wrkspc.yml which could also easily be a job runner system.
 - please    : (Network) requests.
 - spdg      : Custom (cloud native) datatype that makes everything easy, and essential to the `bcknd` design.
 - twoface   : Custom concurrency "primitives" and other helpers for making complicated workflows easier to manage.

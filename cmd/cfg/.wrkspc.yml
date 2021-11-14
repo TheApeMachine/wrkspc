@@ -39,3 +39,67 @@ wrkspc:
     # default location on your host OS as this will be tried first.
     usernames: []
     passwords: []
+
+  # Configure lexical analyzer.
+  lexer:
+    # Any character the lexer should recognize as a delimitor in
+    # comma separated format.
+    delimiters: 
+      - "[,]"
+      - "::,::"
+      - "(,)"
+      - "{,}"
+
+    # Known types you want to explicitely group under a certain
+    # type for the state model. You can add to this arbitrarily, both values as categories.
+    types:
+      line-types:
+        - logs
+      service-types:
+        - bcknd
+      unit-types:
+        - time
+      log-types:
+        - info
+        - debug
+      state-types:
+        - failed
+        - crashed
+      action-types:
+        - send
+        - receive
+      direction-types:
+        - <=
+        - =>
+        - <=>
+
+  # Configure simulator scenes.
+  scenes:
+    randomize-values:
+      message: "randomizing values"
+      arguments:
+        strategy: "dice-roll"
+    some-action:
+      message: "some action"
+    failure-rate:
+      message: "applying failure rate"
+      arguments:
+        percentage: 10
+    instance-bcknd:
+      message: "instantiate bcknd"
+      arguments:
+        scope: global
+    post-http:
+      message: "pushing results"
+      arguments:
+        ingress: https://ingress.cluster.local/v1/secure
+
+  # Configure simulator scenarios.
+  scenarios:
+    test:
+      scenes:
+        - randomize-values
+        - plugin-action
+        - failure-rate
+        - instance-bcknd
+        # - post-http
