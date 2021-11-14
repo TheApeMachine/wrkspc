@@ -19,6 +19,15 @@ wrkspc:
     post: |
       # This is just a shell script.
 
+  # Git repository settings.
+  git:
+    host: https://github.com
+    username: <your username>
+    token: <your personal acccess token> # You don't need this if your repo is not private.
+
+    # Any dependencies you want to pull from git that additionally prepare a machine.
+    dependencies: []
+
   # Configure Docker container settings.
   matrix:
     registry:
@@ -32,6 +41,14 @@ wrkspc:
     config: ~/.kube/config
     distro:
       - metallb
+
+  # To have fully atomic container build we need to write a rootfs to the container that is managed
+  # under our own control. Match the correct root filesystem to the correct tool below.
+  atomic:
+    alpine-minirootfs-3.14.3-x86_64:
+      - nmap
+      - zsh
+      - vim
 
   bcknd:
     port: 8008

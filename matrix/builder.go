@@ -43,6 +43,8 @@ way every time, or fail. A failure usually means somebody has done something
 manually somewhere.
 */
 func (build *Build) Atomic(fs bool) error {
+	errnie.Traces()
+
 	if viper.GetBool("wrkspc.errnie.debug") {
 		wd, err := os.Getwd()
 		errnie.Handles(err).With(errnie.KILL)

@@ -61,7 +61,9 @@ func (command *Command) Execute() chan error {
 			platform = NewPlatform(Kubernetes{})
 		}
 
-		platform.Parse(command.scope).Process()
+		for result := range platform.Parse(command.scope).Process() {
+			errnie.Logs(result).With(errnie.INFO)
+		}
 
 		// Runs a shell script from the `~/.wrkspc.yml` configuration.
 		errnie.Logs("running post command steps").With(errnie.INFO)

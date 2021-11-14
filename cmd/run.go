@@ -11,7 +11,7 @@ var kube bool
 func init() {
 	rootCmd.AddCommand(runCmd)
 	rootCmd.PersistentFlags().BoolVarP(
-		&kube, "kube", "k", true, "Run in Kubernetes cluster if true (will create one if none exists).",
+		&kube, "kube", "k", false, "Run in Kubernetes cluster if true (will create one if none exists).",
 	)
 }
 

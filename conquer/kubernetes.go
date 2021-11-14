@@ -57,7 +57,6 @@ func (platform Kubernetes) Process() chan *spdg.Datagram {
 
 	go func() {
 		defer close(out)
-
 	}()
 
 	return out

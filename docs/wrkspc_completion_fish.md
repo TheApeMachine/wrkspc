@@ -31,7 +31,7 @@ wrkspc completion fish [flags]
 
 ```
       --config string   config file (default is $HOME/.wrkspc.yml) (default ".wrkspc.yml")
-  -k, --kube            Run in Kubernetes cluster if true (will create one if none exists). (default true)
+  -k, --kube            Run in Kubernetes cluster if true (will create one if none exists).
       --viper           use Viper for configuration (default true)
 ```
 

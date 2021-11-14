@@ -29,6 +29,8 @@ It receives a tarball package that was generated from a build
 context (a directory with a Dockerfile and other dependencies).
 */
 func NewImage(disposer *twoface.Disposer, name string, pkg io.Reader) Image {
+	errnie.Traces()
+
 	root := viper.GetString("wrkspc.matrix.registry.host")
 	username := viper.GetString("wrkspc.matrix.registry.username")
 

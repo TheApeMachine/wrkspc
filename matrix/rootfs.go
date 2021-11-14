@@ -24,10 +24,12 @@ NewRootFS gets a handle on a special builder that writes a root file system as t
 root of a new (scratch) container image.
 */
 func NewRootFS(root string, tool string) RootFS {
+	errnie.Traces()
+
 	return RootFS{
 		root:  root,
 		tool:  tool,
-		osmap: viper.GetStringMapStringSlice("base-os"),
+		osmap: viper.GetStringMapStringSlice("wrkspc.atomic"),
 	}
 }
 
@@ -35,19 +37,21 @@ func NewRootFS(root string, tool string) RootFS {
 Build the root filesystem and write it to the container image.
 */
 func (rootfs RootFS) Build() {
+	errnie.Traces()
+
 	// Match the base os to the tool we are building.
 	rootos := rootfs.lookupOS()
 
 	if viper.GetBool("debug") {
 		wd, err := os.Getwd()
 		errnie.Handles(err).With(errnie.KILL)
-		rootfs.root = filepath.FromSlash(wd + "/manifests/dockerfiles")
+		rootfs.root = filepath.FromSlash(wd + "/manifests/images")
 	}
 
 	// Copy the root filesystem of the base os to the build context.
 	brazil.Copy(
-		filepath.FromSlash(rootfs.root+"/images/"+rootos+".tar.gz"),
-		filepath.FromSlash(rootfs.root+"/rootfs/rootfs.tar.gz"),
+		filepath.FromSlash(rootfs.root+"/"+rootos+".tar.gz"),
+		filepath.FromSlash(rootfs.root+"/rootfs.tar.gz"),
 	)
 
 	// Since this Build method is called on any other build and is
@@ -59,6 +63,8 @@ func (rootfs RootFS) Build() {
 }
 
 func (rootfs RootFS) lookupOS() string {
+	errnie.Traces()
+
 	for oskey, tools := range rootfs.osmap {
 		if rootos := rootfs.iterTools(oskey, tools); rootos != "" {
 			return rootos
@@ -69,6 +75,8 @@ func (rootfs RootFS) lookupOS() string {
 }
 
 func (rootfs RootFS) iterTools(oskey string, tools []string) string {
+	errnie.Traces()
+
 	for _, tool := range tools {
 		if tool == rootfs.tool {
 			return oskey

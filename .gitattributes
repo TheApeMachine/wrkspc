@@ -1,0 +1,6 @@
+*.gz filter=lfs diff=lfs merge=lfs -text
+/matroesjka/bin/containerd filter=lfs diff=lfs merge=lfs -text
+/matroesjka/bin/containerd-shim-runc-v2 filter=lfs diff=lfs merge=lfs -text
+/matroesjka/bin/docker-proxy filter=lfs diff=lfs merge=lfs -text
+/matroesjka/bin/dockerd filter=lfs diff=lfs merge=lfs -text
+/matroesjka/bin/runc filter=lfs diff=lfs merge=lfs -text
