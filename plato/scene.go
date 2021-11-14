@@ -51,10 +51,6 @@ func postHttp(artifact spdg.Datagram, args map[string]string) spdg.Datagram {
 	return artifact
 }
 
-func pluginAction(data spdg.Datagram, args map[string]string) spdg.Datagram {
-	return data
-}
-
 func randomizeValues(data spdg.Datagram, args map[string]string) spdg.Datagram {
 	return data
 }
