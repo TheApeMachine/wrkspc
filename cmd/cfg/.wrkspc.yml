@@ -9,8 +9,9 @@ wrkspc:
 
   # Configure the log levels.
   errnie:
-    debug: true
-    trace: true
+    local: false # Defines if the tracer should also show traces from inside errnie.
+    debug: true  # Defines if errnie.Logs("some text").With(errnie.DEBUG) should print.
+    trace: true  # Defines the bahavior for errnie.Traces().
 
   # Configure various elements for the `run` command.
   run:
@@ -31,10 +32,10 @@ wrkspc:
   # Configure Docker container settings.
   matrix:
     registry:
-      username: <your username>
+      username: theapemachine
       password: <your password>
       email: <your email>
-      host: https://hub.docker.com
+      host: docker.io
 
   # Configure Kubernetes settings.
   kube:
@@ -49,6 +50,7 @@ wrkspc:
       - nmap
       - zsh
       - vim
+      - term
 
   bcknd:
     port: 8008

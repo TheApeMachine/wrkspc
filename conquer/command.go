@@ -61,6 +61,9 @@ func (command *Command) Execute() chan error {
 			platform = NewPlatform(Kubernetes{})
 		}
 
+		// Parses the command, configures the Platform, and calls Process to execute the command
+		// on the Platform we have chosen. This returns a channel of error which we can
+		// range over to block the main goroutine.
 		for result := range platform.Parse(command.scope).Process() {
 			errnie.Logs(result).With(errnie.INFO)
 		}
