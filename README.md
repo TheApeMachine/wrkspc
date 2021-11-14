@@ -15,30 +15,32 @@ Fork it, make it your own. It has an `Unlicense`.
 
 ## TL;DR
 ```
-- amsh      : Ape Machine Shell, an interactive terminal environment with TUI to use wrkspc.
-- auth      : Ssh authenticaion (to be removed).
-- bcknd     : Default built-in backend service.
-- berrt     : Terminal UI styles.
-- brazil    : File system management.
-- cmd       : Cobra Commander CLI (usually good to start there, it's the real entrypoint). (Also contains the embedded config file written to `~/.wrkspc` on first run).
-- conquer   : Command orchestrator
-- contempt  : Network abuse.
-- docs      : Auto generated docs from Cobra Commander CLI.
-- errnie    : Custom error and logging package.
-- fellini   : Terminal UI templates and components.
-- git       : Git functionality.
-- hefner    : Experimental and unfinished concurrency and distribution abstraction.
-- hello     : Possibly will oprchestrate hefner pipes.
-- kube      : All things Kubernetes.
-- kubrick   : Terminal UI core.
-- luthor    : A generic lexical analyzer that is configurable using ~/.wrkspc.yml.
-- machine   : Abstraction of a network machine.
-- manifests : Dockerfiles (built-in tools) and Kubernetes manifests (distro). (Check out the Grafana folder for 3 bonus templates that kick-start custom plugin development).
-- matrix    : All things container, including ContainerD daemon.
-- plato     : A generic simulation engine that is configurable using ~/.wrkspc.yml which could also easily be a job runner system.
-- please    : (Network) requests.
-- spdg      : Custom (cloud native) datatype that makes everything easy, and essential to the `bcknd` design.
-- twoface   : Custom concurrency "primitives" and other helpers for making complicated workflows easier to manage.
+- amsh       : Ape Machine Shell, an interactive terminal environment with TUI to use wrkspc.
+- auth       : Ssh authenticaion (to be removed).
+- bcknd      : Default built-in backend service.
+- berrt      : Terminal UI styles.
+- brazil     : File system management.
+- cmd        : Cobra Commander CLI (usually good to start there, it's the real entrypoint). (Also contains the embedded config file written to `~/.wrkspc` on first run).
+- conquer    : Command orchestrator.
+- contempt   : Network abuse.
+- docs       : Auto generated docs from Cobra Commander CLI.
+- errnie     : Custom error and logging package.
+- fellini    : Terminal UI templates and components.
+- git        : Git functionality.
+- hefner     : Experimental and unfinished concurrency and distribution abstraction.
+- hello      : Possibly will oprchestrate hefner pipes.
+- keanu      : Immutable Radix Tree memory with automated data breakdown, mutators and synthesizers.
+- kube       : All things Kubernetes.
+- kubrick    : Terminal UI core.
+- luthor     : A generic lexical analyzer that is configurable using ~/.wrkspc.yml.
+- machine    : Abstraction of a network machine.
+- manifests  : Dockerfiles (built-in tools) and Kubernetes manifests (distro). (Check out the Grafana folder for 3 bonus templates that kick-start custom plugin development).
+- matrix     : All things container, including ContainerD daemon.
+- plato      : A generic simulation engine that is configurable using ~/.wrkspc.yml which could also easily be a job runner system.
+- sockpuppet : Communication over websockets.
+- please     : (Network) requests.
+- spdg       : Custom (cloud native) datatype that makes everything easy, and essential to the `bcknd` design.
+- twoface    : Custom concurrency "primitives" and other helpers for making complicated workflows easier to manage.
 ```
 
 > Documentation below is a moving target. Some of it is done, some of it is already changed, some of it is just notes.
