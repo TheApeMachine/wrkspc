@@ -1,36 +1,43 @@
 package matrix
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 
 	"github.com/docker/docker/api/types"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/twoface"
 )
 
 /*
 Build represents a container that is built.
 */
 type Build struct {
-	ctx     context.Context
-	root    string
-	name    string
-	outname string
-	img     types.ImageBuildResponse
+	disposer *twoface.Disposer
+	root     string
+	name     string
+	img      types.ImageBuildResponse
 }
 
 /*
-NewBuild kicks off a new container build.
+NewBuild kicks off a new container build, pass in the name you want to give the container.
 */
-func NewBuild(name string, outname string) Build {
-	return Build{
-		name:    name,
-		outname: outname,
-		ctx:     context.Background(),
-		root:    viper.GetString("homepath") + "/.wrkspc",
+func NewBuild(name string) *Build {
+	return &Build{
+		name:     name,
+		disposer: twoface.NewDisposer(),
+		root:     viper.GetString("homepath") + "/.wrkspc",
 	}
+}
+
+/*
+Validate the Build by starting a pull from a registry or finding the command locally.
+*/
+func (build *Build) Validate() chan string {
+	errnie.Traces()
+	out := make(chan string)
+	return out
 }
 
 /*
@@ -38,7 +45,7 @@ Atomic defines a high-level flow of build steps that each build exactly the same
 way every time, or fail. A failure usually means somebody has done something
 manually somewhere.
 */
-func (build Build) Atomic(fs bool) error {
+func (build *Build) Atomic(fs bool) error {
 	if viper.GetBool("wrkspc.errnie.debug") {
 		wd, err := os.Getwd()
 		errnie.Handles(err).With(errnie.KILL)
@@ -71,10 +78,12 @@ func (build Build) Atomic(fs bool) error {
 	errnie.Handles(err).With(errnie.KILL)
 
 	// Prepare a new image spec for the daemon to build.
-	spec := NewImage(build.ctx, build.name, pkg, build.outname)
+	spec := NewImage(build.disposer.Ctx, build.name, pkg, build.name)
 
 	// Get a client to the daemon so we can send our spec.
-	client := NewClient(build.ctx)
+	client := NewClient(Docker{
+		Disposer: build.disposer,
+	})
 
 	// Tell the daemon to build our image.
 	build.img = spec.Build(client)
@@ -82,10 +91,4 @@ func (build Build) Atomic(fs bool) error {
 	scanner.Scan()
 
 	return err
-}
-
-func (build Build) Push() error {
-	client := NewClient(build.ctx)
-	client.Push(build.name)
-	return nil
 }

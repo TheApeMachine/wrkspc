@@ -18,7 +18,7 @@ Command is an object that takes raw input from the command-line invocation of th
 and performs an initial aggregation of objects that will be involved in handling it.
 */
 type Command struct {
-	scope string
+	scope []string
 	kube  bool
 	pre   []string
 	post  []string
@@ -27,8 +27,9 @@ type Command struct {
 /*
 NewCommand constructs the wrapped command-line data into an object we can call methods on.
 */
-func NewCommand(scope string, kube bool) *Command {
+func NewCommand(scope []string, kube bool) *Command {
 	errnie.Traces()
+
 	return &Command{
 		scope: scope,
 		kube:  kube,

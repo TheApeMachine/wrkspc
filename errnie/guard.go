@@ -10,7 +10,6 @@ recover from them either silently or by invoking a custom recovery function.
 */
 type Guard struct {
 	Err     error
-	logger  *Logger
 	handler func()
 }
 
@@ -20,7 +19,6 @@ ready to either Check or Rescue.
 */
 func NewGuard(handler func()) *Guard {
 	return &Guard{
-		logger:  NewLogger(ConsoleLogger{}),
 		handler: handler,
 	}
 }
@@ -53,7 +51,7 @@ func (guard Guard) recover() {
 
 func (guard Guard) checkHandler(r interface{}) {
 	if guard.handler == nil {
-		guard.logger.Send(FATAL, (fmt.Sprintf("%v:%v", r, guard.Err)))
+		Logs(fmt.Sprintf("%v:%v", r, guard.Err)).With(ERROR)
 		return
 	}
 

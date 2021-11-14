@@ -10,6 +10,8 @@ import (
 
 /*
 Console is a thin wrapper around the terminal itself.
+
+I am Consolio! I need TTY for my bunngghooole...
 */
 type Console struct {
 	current  console.Console

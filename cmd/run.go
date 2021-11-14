@@ -4,7 +4,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/theapemachine/wrkspc/conquer"
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/matrix"
 )
 
 var kube bool
@@ -21,16 +20,12 @@ var runCmd = &cobra.Command{
 	Short: "Proxies a command through wrkspc so it will download and run the relevant container.",
 	Long:  longruntxt,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		errnie.Traces()
-		go errnie.Runtime(30)
+		errnie.Traces()       // If trace is true in `~/.wrkspc` output current file, function, and line.
+		go errnie.Runtime(30) // Same setting, print the number of goroutines every 30 secs.
 
-		// Just for testing, not going to waste an if on this in the end.
-		if args[0] == "daemon" {
-			matrix.NewDaemon()
-		}
-
-		command := conquer.NewCommand(args[0], kube)
-		return <-command.Execute()
+		// Pass the command off to a specialist object, call Execute to set things in motion which
+		// returns a channel or `error` so that can block the main goroutine and respond to the error.
+		return <-conquer.NewCommand(args, kube).Execute()
 	},
 }
 

@@ -7,9 +7,10 @@ wrkspc:
   # Stage specific configurations.
   stages: {}
 
+  # Configure the log levels.
   errnie:
     debug: true
-    trace: false
+    trace: true
 
   # Configure various elements for the `run` command.
   run:
@@ -18,6 +19,15 @@ wrkspc:
     post: |
       # This is just a shell script.
 
+  # Configure Docker container settings.
+  matrix:
+    registry:
+      username: <your username>
+      password: <your password>
+      email: <your email>
+      host: https://hub.docker.com
+
+  # Configure Kubernetes settings.
   kube:
     config: ~/.kube/config
     distro:
@@ -32,26 +42,22 @@ wrkspc:
   # will automatically take over any machine you have access to on
   # the local network and provision it as a cluster node.
   contempt:
-    # All usernames and passwords to try during the making of
-    # connections to machines found on the network. These will
-    # be tried in all possible combinations. To avoid spamming your
-    # ssh daemons with failed logins, have a keypair setup in the
-    # default location on your host OS as this will be tried first.
-    usernames: []
-    passwords: []
+    keypairs: ["~/.ssh"] # List of locations with public and private keypairs.
+    usernames: [] # List of username to try if keypairs did not work.
+    passwords: [] # List of passwords to try for each username.
 
   # Configure lexical analyzer.
+  # It is unlikely that you need this and it is currently not connected to the default functionality.
   lexer:
-    # Any character the lexer should recognize as a delimitor in
-    # comma separated format.
-    delimiters: 
+    # Any character the lexer should recognize as a delimitor in comma separated format.
+    delimiters:
       - "[,]"
       - "::,::"
       - "(,)"
       - "{,}"
 
-    # Known types you want to explicitely group under a certain
-    # type for the state model. You can add to this arbitrarily, both values as categories.
+    # Known types you want to explicitely group under a certain type for the state model.
+    # You can add to this arbitrarily, both values as categories.
     types:
       line-types:
         - logs
@@ -74,6 +80,7 @@ wrkspc:
         - <=>
 
   # Configure simulator scenes.
+  # It is unlikely that you need this and it is currently not connected to the default functionality.
   scenes:
     randomize-values:
       message: "randomizing values"
@@ -99,7 +106,6 @@ wrkspc:
     test:
       scenes:
         - randomize-values
-        - plugin-action
         - failure-rate
         - instance-bcknd
-        # - post-http
+        - post-http

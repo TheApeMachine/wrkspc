@@ -25,6 +25,7 @@ require (
 require (
 	github.com/BurntSushi/toml v0.4.1 // indirect
 	github.com/Microsoft/go-winio v0.4.17 // indirect
+	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/containerd/aufs v1.0.0
 	github.com/containerd/containerd v1.5.7
@@ -45,6 +46,8 @@ require (
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
+	github.com/gorilla/websocket v1.4.2
+	github.com/hashicorp/go-immutable-radix v1.0.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
@@ -69,7 +72,6 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryanuber/columnize v2.1.0+incompatible // indirect
-	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -137,6 +139,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
+	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351 // indirect
 	github.com/klauspost/compress v1.11.13 // indirect
@@ -158,6 +161,7 @@ require (
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/pterm/pterm v0.12.29 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/stefanberger/go-pkcs11uri v0.0.0-20201008174630-78d3cae3a980 // indirect
 	github.com/tchap/go-patricia v2.2.6+incompatible // indirect
 	github.com/urfave/cli v1.22.2 // indirect

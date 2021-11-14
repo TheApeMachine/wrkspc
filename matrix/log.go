@@ -15,8 +15,7 @@ import (
 )
 
 /*
-Scanner is a wrapper around bufio.Scanner specifically geared
-towards reading out streams from the builder daemon.
+Scanner is a wrapper around bufio.Scanner to output Docker containter build log streams.
 */
 type Scanner struct {
 	handle *bufio.Scanner
@@ -24,8 +23,7 @@ type Scanner struct {
 }
 
 /*
-NewScanner returns an instance of Scanner, used to retrieve lines
-from an input stream.
+NewScanner returns a configured Scanner.
 */
 func NewScanner(res types.ImageBuildResponse) Scanner {
 	return Scanner{
@@ -35,18 +33,17 @@ func NewScanner(res types.ImageBuildResponse) Scanner {
 }
 
 /*
-Scan the log stream from the builder daemon so we can get
-the lines to output.
+Scan the builder output log.
 */
 func (scanner Scanner) Scan() {
 	// It's an io reader, so it wants to be closed.
 	defer scanner.res.Body.Close()
 
 	if !viper.GetBool("debug") {
-		// Set the terminal to raw mode so we can better print
-		// the streaming output and make sure it is reset to cooked when done.
+		// Set the terminal to raw mode.
 		current := console.Current()
 		errnie.Handles(current.SetRaw()).With(errnie.KILL)
+		// Back to cooked at return time.
 		defer current.Reset()
 	}
 
@@ -64,24 +61,22 @@ func (scanner Scanner) Scan() {
 }
 
 /*
-print unmarshals the json string we are getting from the builder
-daemon and prints it to stdout.
+print unmarshals the json string and prints it to stdout.
 */
 func (scanner Scanner) print(str string, res map[string]interface{}) {
-	if !viper.GetBool("debug") {
-		// Move the cursor to the left.
-		fmt.Print("\033[G\033[K")
-	}
+	// Move the cursor to the left.
+	fmt.Print("\033[G\033[K")
 
 	json.Unmarshal([]byte(str), &res)
 	fmt.Print(res["stream"])
 
-	if !viper.GetBool("debug") {
-		// Move the cursor up.
-		fmt.Print("\033[A")
-	}
+	// Move the cursor up.
+	fmt.Print("\033[A")
 }
 
+/*
+printalt is an alternative method to print the log stream.
+*/
 func (scanner Scanner) printalt() {
 	termFd, isTerm := term.GetFdInfo(os.Stderr)
 	jsonmessage.DisplayJSONMessagesStream(scanner.res.Body, os.Stderr, termFd, isTerm, nil)

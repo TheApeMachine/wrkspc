@@ -1,42 +1,81 @@
 package matrix
 
 import (
-	"context"
 	"encoding/base64"
 	"encoding/json"
 
+	"github.com/containerd/containerd"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/twoface"
 )
 
 /*
-Client connects to the Docker API, which allows for all Docker cli commands to run natively
-in code, without having do do shell executions or something like that.
+Client is an interface to be implemented by objects that want to be a client to a container API.
 */
-type Client struct {
-	ctx  context.Context
-	conn *client.Client
+type Client interface {
+	Pull(string)
+	Push(string)
 }
 
 /*
-NewClient constructs a Client.
+NewClient constructs a Client of the type that is passed in.
 */
-func NewClient(ctx context.Context) Client {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	errnie.Handles(err).With(errnie.KILL)
+func NewClient(clientType Client) Client {
+	return clientType
+}
 
-	return Client{
-		ctx:  ctx,
-		conn: cli,
-	}
+type Containerd struct {
+	Disposer *twoface.Disposer
+}
+
+func (client Containerd) Pull(name string) {
+	conn, err := containerd.New("/run/containerd/containerd.sock")
+	errnie.Handles(err).With(errnie.KILL)
+	defer conn.Close()
+
+	image, err := client.Pull(
+		client.Disposer.Ctx,
+		viper.GetString("wrkspc.matrix.registry.host/")+
+			viper.GetString("wrkspc.matrix.registry.username/")+name,
+		containerd.WithPullUnpack,
+	)
+
+	errnie.Handles(err).With(errnie.KILL)
+	return image
+}
+
+/*
+Docker connects to the Docker API, which allows for all Docker cli commands to run natively
+in code, without having do do shell executions or something like that.
+*/
+type Docker struct {
+	Disposer *twoface.Disposer
+	conn     *client.Client
+}
+
+/*
+Initialize constructs a Client.
+*/
+func (cli Docker) Initialize() Client {
+	c, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	errnie.Handles(err).With(errnie.KILL)
+	cli.conn = c
+	return cli
+}
+
+/*
+Pull a container image.
+*/
+func (cli Docker) Pull(name string) {
 }
 
 /*
 Push a container image to a registry.
 */
-func (client Client) Push(name string) {
+func (cli Docker) Push(name string) {
 	creds := struct {
 		Username      string `json:"username"`
 		Password      string `json:"password"`
@@ -56,6 +95,6 @@ func (client Client) Push(name string) {
 	opts := types.ImagePushOptions{}
 	opts.RegistryAuth = sEnc
 
-	_, err = client.conn.ImagePush(client.ctx, name, opts)
+	_, err = cli.conn.ImagePush(cli.Disposer.Ctx, name, opts)
 	errnie.Handles(err).With(errnie.KILL)
 }

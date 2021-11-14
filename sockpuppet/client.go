@@ -1,4 +1,4 @@
-package skynet
+package sockpuppet
 
 import (
 	"bytes"
@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/spf13/viper"
 	"github.com/theapemachine/errnie/v2"
 	"github.com/theapemachine/wrkspc/spdg"
 )
@@ -59,20 +58,14 @@ func (c *WSClient) readPump() {
 
 	for {
 		_, message, err := c.conn.ReadMessage()
-
-		if errnie.Handles(err).With(errnie.RECV).ERR != nil {
-			return
-		}
+		errnie.Handles(err).With(errnie.KILL)
 
 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-			errnie.Handles(err).With(errnie.RECV)
+			errnie.Handles(err).With(errnie.KILL)
 		}
 
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.Broadcast <- *spdg.NewDatagramFromBuffer(
-			"response", "json", viper.GetString("name")+"."+viper.GetString("stage"),
-			bytes.NewBuffer(message),
-		)
+		c.hub.Broadcast <- *spdg.QuickDatagram(spdg.DATAPOINT, "json", bytes.NewBuffer(message))
 	}
 }
 
@@ -93,12 +86,12 @@ func (c *WSClient) writePump() {
 		case message, ok := <-c.send:
 			errnie.Handles(
 				c.conn.SetWriteDeadline(time.Now().Add(writeWait)),
-			).With(errnie.RECV)
+			).With(errnie.KILL)
 
 			if !ok {
 				errnie.Handles(
 					c.conn.WriteMessage(websocket.CloseMessage, []byte{}),
-				).With(errnie.RECV)
+				).With(errnie.KILL)
 
 				return
 			}
@@ -108,7 +101,7 @@ func (c *WSClient) writePump() {
 			if err != nil {
 				errnie.Handles(
 					c.conn.WriteMessage(websocket.CloseMessage, []byte{}),
-				).With(errnie.RECV)
+				).With(errnie.KILL)
 
 				return
 			}
@@ -118,7 +111,7 @@ func (c *WSClient) writePump() {
 			if err != nil {
 				errnie.Handles(
 					c.conn.WriteMessage(websocket.CloseMessage, []byte{}),
-				).With(errnie.RECV)
+				).With(errnie.KILL)
 
 				return
 			}
@@ -126,8 +119,8 @@ func (c *WSClient) writePump() {
 			n := len(c.send)
 
 			for i := 0; i < n; i++ {
-				errnie.Handles(w.Write(newline)).With(errnie.RECV)
-				errnie.Handles(w.Write(<-c.send)).With(errnie.RECV)
+				errnie.Handles(w.Write(newline)).With(errnie.KILL)
+				errnie.Handles(w.Write(<-c.send)).With(errnie.KILL)
 			}
 
 			if err := w.Close(); err != nil {
@@ -137,11 +130,9 @@ func (c *WSClient) writePump() {
 		case <-ticker.C:
 			errnie.Handles(
 				c.conn.SetWriteDeadline(time.Now().Add(writeWait)),
-			).With(errnie.RECV)
+			).With(errnie.KILL)
 
-			if errnie.Handles(c.conn.WriteMessage(websocket.PingMessage, nil)).With(errnie.RECV) != nil {
-				return
-			}
+			errnie.Handles(c.conn.WriteMessage(websocket.PingMessage, nil)).With(errnie.KILL)
 		}
 	}
 }
@@ -159,7 +150,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)
-	errnie.Handles(err).With(errnie.RECV)
+	errnie.Handles(err).With(errnie.KILL)
 
 	client := &WSClient{
 		hub:  hub,
