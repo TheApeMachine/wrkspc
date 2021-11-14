@@ -1,22 +1,21 @@
 package plato
 
 import (
+	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spdg"
 )
 
 var bcknd bool
 var metrics bool
-var promCache balena.Client
 
 type Scene interface {
 	initialize(string, string, map[string]string) Scene
-	Action(data.Artifact) data.Artifact
+	Action(spdg.Datagram) spdg.Datagram
 }
 
 func NewScene(
 	sceneType Scene, name string, message string, args map[string]string,
 ) Scene {
-	errnie.Ambient().Log(errnie.DEBUG, "plato.Scene.NewScene", sceneType, name, message, args)
 	return sceneType.initialize(name, message, args)
 }
 
@@ -24,10 +23,10 @@ type ProtoScene struct {
 	name    string
 	msg     string
 	args    map[string]string
-	handler func(data.Artifact, map[string]string) data.Artifact
+	handler func(spdg.Datagram, map[string]string) spdg.Datagram
 }
 
-var protoActions = map[string]func(data.Artifact, map[string]string) data.Artifact{
+var protoActions = map[string]func(spdg.Datagram, map[string]string) spdg.Datagram{
 	"post-http":        postHttp,
 	"randomize-values": randomizeValues,
 	"failure-rate":     failureRate,
@@ -44,42 +43,35 @@ func (scene ProtoScene) initialize(name string, msg string, args map[string]stri
 	return scene
 }
 
-func (scene ProtoScene) Action(data data.Artifact) data.Artifact {
+func (scene ProtoScene) Action(data spdg.Datagram) spdg.Datagram {
 	return scene.handler(data, scene.args)
 }
 
-func postHttp(artifact data.Artifact, args map[string]string) data.Artifact {
-	datagram := spdg.NewDatagram(spdg.Payload{})
-	request := please.NewRequest(please.Rest{}, please.POST, datagram)
-	results, err := request.Do()
-
-	errnie.Ambient().Log(errnie.ERROR, err)
-	errnie.Ambient().Log(errnie.INFO, results)
-
+func postHttp(artifact spdg.Datagram, args map[string]string) spdg.Datagram {
 	return artifact
 }
 
-func pluginAction(data data.Artifact, args map[string]string) data.Artifact {
+func pluginAction(data spdg.Datagram, args map[string]string) spdg.Datagram {
 	return data
 }
 
-func randomizeValues(data data.Artifact, args map[string]string) data.Artifact {
+func randomizeValues(data spdg.Datagram, args map[string]string) spdg.Datagram {
 	return data
 }
 
-func failureRate(data data.Artifact, args map[string]string) data.Artifact {
+func failureRate(data spdg.Datagram, args map[string]string) spdg.Datagram {
 	return data
 }
 
-func instanceBcknd(data data.Artifact, args map[string]string) data.Artifact {
+func instanceBcknd(data spdg.Datagram, args map[string]string) spdg.Datagram {
 	if args["scope"] == "global" && !bcknd {
 		bcknd = true
 
 		go func() {
 			srv := metric.NewServer()
 
-			if ok := errnie.Ambient().Log(errnie.WARNING, srv.Up()); !ok {
-				errnie.Ambient().Log(errnie.ERROR, "error instanciating bcknd")
+			if !errnie.Logs(srv.Up()).With(errnie.WARNING).OK {
+				errnie.Logs("error instanciating bcknd").With(errnie.WARNING)
 			}
 		}()
 	}
@@ -87,11 +79,14 @@ func instanceBcknd(data data.Artifact, args map[string]string) data.Artifact {
 	return data
 }
 
-func exportMetrics(data data.Artifact, args map[string]string) data.Artifact {
+/*
+exportMetrics to Prometheus.
+*/
+func exportMetrics(data spdg.Datagram, args map[string]string) spdg.Datagram {
 	if args["scope"] == "global" && !metrics {
 		metrics = true
 		// Get a new ops exporter and start recording metrics on it.
-		_ = metric.NewExporter("simbots", promCache)
+		_ = metric.NewExporter("sim", promCache)
 	}
 
 	return data
