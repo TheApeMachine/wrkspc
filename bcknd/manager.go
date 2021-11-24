@@ -1,7 +1,9 @@
 package bcknd
 
 import (
+	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/nemo"
 	"github.com/theapemachine/wrkspc/spdg"
 	"github.com/theapemachine/wrkspc/twoface"
 )
@@ -24,7 +26,14 @@ func NewManager(egress *Egress, disposer *twoface.Disposer) *Manager {
 	return &Manager{
 		egress:   egress,
 		disposer: disposer,
-		stores:   []Store{},
+		stores: []Store{
+			NewStore(nemo.NewClient(
+				viper.GetString("wrkspc.nemo.access-key-id"),
+				viper.GetString("wrkspc.nemo.access-key-secret"),
+				viper.GetString("wrkspc.nemo.region"),
+				viper.GetString("wrkspc.nemo.bucket"),
+			)),
+		},
 	}
 }
 

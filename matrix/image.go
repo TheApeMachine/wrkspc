@@ -58,7 +58,11 @@ builder daemon.
 func (img Image) Build(cli Client) containerd.Container {
 	ctx := namespaces.WithNamespace(img.disposer.Ctx, img.name)
 
-	image := cli.Pull(img.name)
+	// TODO: Not figured out how to build local Dockerfiles yet (ContainerD does not support this)
+	// so for now can only pull images from a registry. Also it's a little jank because everything
+	// in Go is `values` we're loosing the client connection in the object so just passing it back
+	// out now.
+	cli, image := cli.Pull(img.name)
 
 	build, err := cli.Conn().NewContainer(
 		ctx, img.name,

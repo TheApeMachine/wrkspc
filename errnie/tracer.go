@@ -111,6 +111,11 @@ func (tracer *Tracer) Inspect(flags ...bool) {
 	icon := "\xF0\x9F\x94\xB9"
 
 	if strings.Split(fstr, "/")[0] == "errnie" {
+		// Bail if we do not want to trace errnie's internal calls.
+		if !viper.GetBool("wrkspc.errnie.local") {
+			return
+		}
+
 		icon = "\xF0\x9F\x94\xB8"
 	}
 

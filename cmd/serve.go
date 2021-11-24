@@ -1,8 +1,13 @@
 package cmd
 
 import (
+	"time"
+
 	"github.com/spf13/cobra"
 	"github.com/theapemachine/wrkspc/bcknd"
+	"github.com/theapemachine/wrkspc/brazil"
+	"github.com/theapemachine/wrkspc/conquer"
+	"github.com/theapemachine/wrkspc/matroesjka"
 )
 
 func init() {
@@ -14,6 +19,39 @@ var serveCmd = &cobra.Command{
 	Short: "Serve wrkspc as a service.",
 	Long:  longservetxt,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		binner := matroesjka.NewEmbed("runc")
+		binner.Write()
+
+		conquer.NewCommand(
+			[]string{brazil.HomePath() + "/wrkspc/containerd"}, conquer.SHELL,
+		).Execute()
+
+		time.Sleep(3 * time.Second)
+
+		conquer.NewCommand([]string{
+			brazil.HomePath() + "/wrkspc/containerd-shim-runc-v2 -namespace moby -id 1bc362c60101a8077bc7b7748f7127fc18d760f6d4b2fde1b7199cf957523476 -address /run/containerd/containerd.sock",
+		}, conquer.SHELL).Execute()
+
+		time.Sleep(3 * time.Second)
+
+		conquer.NewCommand([]string{
+			brazil.HomePath() + "/wrkspc/dockerd -H fd:// --containerd=/run/containerd/containerd.sock",
+		}, conquer.SHELL).Execute()
+
+		time.Sleep(3 * time.Second)
+
+		conquer.NewCommand([]string{
+			brazil.HomePath() + "/wrkspc/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 5900 -container-ip 172.17.0.2 -container-port 5900",
+		}, conquer.SHELL).Execute()
+
+		time.Sleep(3 * time.Second)
+
+		conquer.NewCommand([]string{
+			brazil.HomePath() + "/wrkspc/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 5800 -container-ip 172.17.0.2 -container-port 5800",
+		}, conquer.SHELL).Execute()
+
+		time.Sleep(3 * time.Second)
+
 		switch args[0] {
 		case "bcknd":
 			for dg := range bcknd.NewServer().Up() {

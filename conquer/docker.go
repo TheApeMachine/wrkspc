@@ -46,7 +46,7 @@ func (platform Docker) Process() chan *spdg.Datagram {
 		build := matrix.NewBuild(platform.command[0])
 		out <- spdg.QuickDatagram( // Send out the error wrapped into a Datagram.
 			spdg.ERROR, "error", bytes.NewBuffer([]byte(
-				build.Atomic(false).Error(), // Build the image atomically and return any errors.
+				build.Atomic(true).Error(), // Build the image atomically and return any errors.
 			)),
 		)
 	}()

@@ -1,7 +1,10 @@
 package matrix
 
 import (
+	"context"
+
 	"github.com/containerd/containerd"
+	"github.com/containerd/containerd/namespaces"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/twoface"
@@ -11,7 +14,7 @@ import (
 Client is an interface to be implemented by objects that want to be a client to a container API.
 */
 type Client interface {
-	Pull(string) containerd.Image
+	Pull(string) (Client, containerd.Image)
 	Push(string)
 	Conn() *containerd.Client
 }
@@ -42,23 +45,28 @@ func (client Containerd) Conn() *containerd.Client {
 /*
 Pull a container image from a container registry.
 */
-func (client Containerd) Pull(name string) containerd.Image {
+func (client Containerd) Pull(name string) (Client, containerd.Image) {
 	var err error
 
 	if client.conn == nil {
 		client.conn, err = containerd.New("/run/containerd/containerd.sock")
 		errnie.Handles(err).With(errnie.KILL)
+		errnie.Logs("connected to containerd socket ", client.conn).With(errnie.INFO)
 	}
+
+	// We need to upgrade the context with a namespace for the ContainerD daemon to work.
+	client.Disposer.Ctx = namespaces.WithNamespace(context.Background(), "test1")
 
 	image, err := client.conn.Pull(
 		client.Disposer.Ctx,
 		viper.GetString("wrkspc.matrix.registry.host")+"/"+
-			viper.GetString("wrkspc.matrix.registry.username")+"/"+name,
+			viper.GetString("wrkspc.matrix.registry.username")+"/"+name+":v1.0",
+		// TODO: remove harcoded latest tag, just want containers to run again first.
 		containerd.WithPullUnpack,
 	)
 
 	errnie.Handles(err).With(errnie.KILL)
-	return image
+	return client, image
 }
 
 /*

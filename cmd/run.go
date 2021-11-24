@@ -20,12 +20,14 @@ var runCmd = &cobra.Command{
 	Short: "Proxies a command through wrkspc so it will download and run the relevant container.",
 	Long:  longruntxt,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		errnie.Traces()       // If trace is true in `~/.wrkspc` output current file, function, and line.
+		errnie.Traces() // If trace is true in `~/.wrkspc` output current file,
+		// function, and line.
 		go errnie.Runtime(30) // Same setting, print the number of goroutines every 30 secs.
 
 		// Pass the command off to a specialist object, call Execute to set things in motion which
-		// returns a channel or `error` so that can block the main goroutine and respond to the error.
-		return <-conquer.NewCommand(args, kube).Execute()
+		// returns a channel or `error` so that can block the main goroutine and respond to
+		// the error.
+		return <-conquer.NewCommand(args, conquer.KUBERNETES).Execute()
 	},
 }
 

@@ -36,6 +36,7 @@ Fork it, make it your own. It has an `Unlicense`.
 - machine    : Abstraction of a network machine.
 - manifests  : Dockerfiles (built-in tools) and Kubernetes manifests (distro). (Check out the Grafana folder for 3 bonus templates that kick-start custom plugin development).
 - matrix     : All things container, including ContainerD daemon.
+- matroesjka : Embedded binaries for fun and profit.
 - plato      : A generic simulation engine that is configurable using ~/.wrkspc.yml which could also easily be a job runner system.
 - sockpuppet : Communication over websockets.
 - please     : (Network) requests.

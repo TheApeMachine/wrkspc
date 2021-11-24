@@ -26,6 +26,13 @@ func NewDatagram(ctx *Context, dat *Data) *Datagram {
 }
 
 /*
+NullDatagram constructs nothing. Well, something, but it sure 'aint much.
+*/
+func NullDatagram() *Datagram {
+	return &Datagram{}
+}
+
+/*
 QuickDatagram returns a Datagram that needs minimal additional configuration.
 */
 func QuickDatagram(role ContextRole, dataType string, dat *bytes.Buffer) *Datagram {

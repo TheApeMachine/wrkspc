@@ -20,5 +20,4 @@ NewPlatform constructs a Platform of the type passed in.
 func NewPlatform(platformType Platform) Platform {
 	errnie.Traces()
 	return platformType.Boot()
-
 }

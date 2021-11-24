@@ -9,8 +9,9 @@ wrkspc:
 
   # Configure the log levels.
   errnie:
-    debug: true
-    trace: true
+    local: false # Defines if the tracer should also show traces from inside errnie.
+    debug: true  # Defines if errnie.Logs("some text").With(errnie.DEBUG) should print.
+    trace: true  # Defines the bahavior for errnie.Traces().
 
   # Configure various elements for the `run` command.
   run:
@@ -18,6 +19,12 @@ wrkspc:
       # This is just a shell script.
     post: |
       # This is just a shell script.
+
+  nemo:
+    access-key-id: <ACCESS KEY>
+    access-key-secret: <ACCESS KEY SECRET>
+    region: <REGION>
+    bucket: <BUCKET>
 
   # Git repository settings.
   git:
@@ -31,10 +38,10 @@ wrkspc:
   # Configure Docker container settings.
   matrix:
     registry:
-      username: <your username>
-      password: <your password>
-      email: <your email>
-      host: https://hub.docker.com
+      username: <USERNAME>
+      password: <PASSWORD>
+      email: <EMAIL>
+      host: docker.io
 
   # Configure Kubernetes settings.
   kube:
@@ -49,6 +56,7 @@ wrkspc:
       - nmap
       - zsh
       - vim
+      - term
 
   bcknd:
     port: 8008

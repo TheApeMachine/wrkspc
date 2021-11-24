@@ -59,6 +59,15 @@ func NewContext(role ContextRole, timestamp int64, dataType string) *Context {
 }
 
 /*
+Prefix collapses the Context header into a path style prefix to be compatible with most cloud
+storage engines, as well as radix trees.
+*/
+func (context *Context) Prefix() *string {
+	str := ""
+	return &str
+}
+
+/*
 Annotate the Context which act as a flexible `parameter` to a use-case. Basically use these scoped
 to your needs, in any way shape or form that is compatible.
 */

@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: postgres-vsrv
+  namespace: default
+spec:
+  hosts:
+  - "postgres.theapemachine.com"
+  gateways:
+  - istio-system/istio-system-gateway
+  http:
+  - route:
+    - destination:
+        host: acid-minimal-cluster
+        port:
+          number: 5432

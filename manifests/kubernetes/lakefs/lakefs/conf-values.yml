@@ -1,0 +1,16 @@
+secrets:
+    # replace DATABASE_CONNECTION_STRING with the connection string of the database you created in a previous step.
+    # e.g. postgres://postgres:myPassword@my-lakefs-db.rds.amazonaws.com:5432/lakefs
+  databaseConnectionString: postgres://zalando:MmvlJn9eOndYcAXCkEQ3ixnY9PgYVvqhUBFS0ggELEWfl6KE2iAevRndWta7b9BZ@acid-minimal-cluster:5432/lakefs
+  # replace this with a randomly-generated string
+  authEncryptSecretKey: C8QDpElZ5ZDWDqN3ao8B4605QIgINy54
+lakefsConfig: |
+    blockstore:
+      type: s3
+      s3:
+        force_path_style: true
+        endpoint: http://192.168.1.173:9000
+        discover_bucket_region: false
+        credentials:
+          access_key_id: root
+          secret_access_key: "BoogieL0ve##"

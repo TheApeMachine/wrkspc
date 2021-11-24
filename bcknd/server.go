@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spdg"
@@ -49,8 +50,12 @@ func (server *Server) Up() chan *spdg.Datagram {
 	go func() {
 		defer close(out)
 
-		// Setup a handler function. We only really need the one.
-		http.HandleFunc("/", server.handler.Response)
+		router := mux.NewRouter()
+		router.Use(mux.CORSMethodMiddleware(router))
+
+		router.HandleFunc("/v1/secure", server.handler.Response)
+		router.HandleFunc("/v1/stream", server.handler.Stream)
+		router.HandleFunc("/_status/healthz", server.handler.Health)
 
 		// First the server is started, and blocks the goroutine.
 		// Wrapped in errnie Handler, if there is an error, use NOOP (no operation).

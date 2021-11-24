@@ -2,6 +2,7 @@ package matrix
 
 import (
 	"os"
+	"time"
 
 	"github.com/containerd/containerd/cmd/containerd/command"
 	"github.com/containerd/containerd/pkg/seed"
@@ -22,7 +23,7 @@ func NewDaemon() {
 			command.App().Run(os.Args),
 		).With(errnie.KILL)
 	}()
-	// time.Sleep(3 * time.Second)
+	time.Sleep(3 * time.Second)
 
 	// client, err := containerd.New("/run/containerd/containerd.sock")
 	// if err != nil {

@@ -1,7 +1,6 @@
 package matrix
 
 import (
-	"os"
 	"path/filepath"
 
 	"github.com/spf13/viper"
@@ -42,16 +41,10 @@ func (rootfs RootFS) Build() {
 	// Match the base os to the tool we are building.
 	rootos := rootfs.lookupOS()
 
-	if viper.GetBool("debug") {
-		wd, err := os.Getwd()
-		errnie.Handles(err).With(errnie.KILL)
-		rootfs.root = filepath.FromSlash(wd + "/manifests/images")
-	}
-
 	// Copy the root filesystem of the base os to the build context.
 	brazil.Copy(
-		filepath.FromSlash(rootfs.root+"/"+rootos+".tar.gz"),
-		filepath.FromSlash(rootfs.root+"/rootfs.tar.gz"),
+		filepath.FromSlash(rootfs.root+"/images/"+rootos+".tar.gz"),
+		filepath.FromSlash(rootfs.root+"/images/rootfs.tar.gz"),
 	)
 
 	// Since this Build method is called on any other build and is

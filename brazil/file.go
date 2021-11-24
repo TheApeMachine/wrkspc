@@ -37,14 +37,27 @@ func NewFile(path string) *File {
 WriteIfNotExists is a specialized method to deal with embedded filesystems meant to
 supply any missing dependencies no matter what.
 */
-func WriteIfNotExists(path string, embedded embed.FS) {
-	cfgFile := GetFileFromPrefix(path)
-	slug := BuildPath(HomePath(), path)
+func WriteIfNotExists(path string, embedded embed.FS, ex bool) {
+	errnie.Traces()
 
-	if !FileExists(slug) {
-		fs := GetEmbedded(embedded, cfgFile)
+	target := BuildPath(HomePath(), "wrkspc", GetFileFromPrefix(path))
+
+	if path == "cfg/.wrkspc" {
+		target = BuildPath(HomePath(), GetFileFromPrefix(path))
+	}
+
+	errnie.Logs("checking file exists:", target).With(errnie.DEBUG)
+
+	if !FileExists(target) {
+		errnie.Logs("file did not exist, writing:", target).With(errnie.INFO)
+		fs := GetEmbedded(embedded, path)
 		defer fs.Close()
-		WriteFile(slug, ReadFile(fs))
+		errnie.Logs(fs).With(errnie.DEBUG)
+		WriteFile(target, ReadFile(fs))
+
+		if ex {
+			errnie.Handles(os.Chmod(target, 0777))
+		}
 	}
 }
 
@@ -52,15 +65,19 @@ func WriteIfNotExists(path string, embedded embed.FS) {
 FileExists checks if a file is present at a certain path.
 */
 func FileExists(path string) bool {
+	errnie.Traces()
+
 	_, err := os.Stat(path)
-	return os.IsNotExist(err)
+	return !os.IsNotExist(err) // Have to reverse the logic.
 }
 
 /*
 GetEmbedded opens the embedded file system.
 */
 func GetEmbedded(embedded embed.FS, cfgFile string) fs.File {
-	fs, err := embedded.Open("cfg/" + cfgFile)
+	errnie.Traces()
+
+	fs, err := embedded.Open(cfgFile)
 	errnie.Handles(err).With(errnie.NOOP)
 	return fs
 }
@@ -69,6 +86,8 @@ func GetEmbedded(embedded embed.FS, cfgFile string) fs.File {
 ReadFile takes a file handle and reads the contents into a buffer.
 */
 func ReadFile(fs fs.File) []byte {
+	errnie.Traces()
+
 	buf, err := io.ReadAll(fs)
 	errnie.Handles(err).With(errnie.KILL)
 	return buf
@@ -78,6 +97,8 @@ func ReadFile(fs fs.File) []byte {
 WriteFile dumps a buffer to a file.
 */
 func WriteFile(path string, buf []byte) {
+	errnie.Traces()
+
 	errnie.Handles(
 		ioutil.WriteFile(path, buf, 0644),
 	).With(errnie.NOOP)
@@ -87,6 +108,8 @@ func WriteFile(path string, buf []byte) {
 Copy a file from one location to another.
 */
 func Copy(origin string, destination string) {
+	errnie.Traces()
+
 	bytesRead, err := ioutil.ReadFile(origin)
 	errnie.Handles(err).With(errnie.KILL)
 

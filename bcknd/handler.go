@@ -57,3 +57,13 @@ func (handler *Handler) Response(response http.ResponseWriter, request *http.Req
 		bytes.NewBuffer([]byte(uid.String())),
 	).Marshal()))
 }
+
+/*
+Stream the request/response path in a fully non-blocking manner.
+*/
+func (handler *Handler) Stream(response http.ResponseWriter, request *http.Request) {}
+
+/*
+Health is the endpoint for Kubernetes to check to see if the service is up and functioning.
+*/
+func (handler *Handler) Health(response http.ResponseWriter, request *http.Request) {}

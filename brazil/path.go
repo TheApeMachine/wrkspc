@@ -61,3 +61,15 @@ func ReadPath(path string) []fs.FileInfo {
 	errnie.Handles(err).With(errnie.KILL)
 	return files
 }
+
+/*
+MakePath creates a new (nested) path.
+*/
+func MakePath(path string) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return
+	}
+
+	errnie.Handles(os.MkdirAll(path, os.ModePerm)).With(errnie.NOOP)
+}

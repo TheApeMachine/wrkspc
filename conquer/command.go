@@ -11,25 +11,39 @@ import (
 )
 
 /*
+CmdType determines what kind of execution path to follow
+*/
+type CmdType uint
+
+const (
+	// SHELL runs the command in the underlying shell.
+	SHELL CmdType = iota
+	// DOCKER builds a Dockerfile and runs the container.
+	DOCKER
+	// KUBERNETES builds or connects to a cluster and runs a container.
+	KUBERNETES
+)
+
+/*
 Command is an object that takes raw input from the command-line invocation of the program
 and performs an initial aggregation of objects that will be involved in handling it.
 */
 type Command struct {
-	scope []string
-	kube  bool
-	pre   []string
-	post  []string
+	scope   []string
+	cmdtype CmdType
+	pre     []string
+	post    []string
 }
 
 /*
 NewCommand constructs the wrapped command-line data into an object we can call methods on.
 */
-func NewCommand(scope []string, kube bool) *Command {
+func NewCommand(scope []string, cmdtype CmdType) *Command {
 	errnie.Traces()
 
 	return &Command{
-		scope: scope,
-		kube:  kube,
+		scope:   scope,
+		cmdtype: cmdtype,
 		// The pre and post steps between which the actual command sits can be used
 		// to configure the local environment and are defined in `~/.wrkspc.yml`.
 		pre:  strings.Split(viper.GetString("wrkspc.run.pre"), "\n"),
@@ -55,15 +69,18 @@ func (command *Command) Execute() chan error {
 
 		// Select the Platform to run on which will also call Boot on that Platform so it will
 		// be up and running as fast as possible.
-		if !command.kube {
+		switch command.cmdtype {
+		case SHELL:
+			platform = NewPlatform(Shell{})
+		case DOCKER:
 			platform = NewPlatform(Docker{})
-		} else {
+		case KUBERNETES:
 			platform = NewPlatform(Kubernetes{})
 		}
 
-		for result := range platform.Parse(command.scope).Process() {
-			errnie.Logs(result).With(errnie.INFO)
-		}
+		// Since Process returns a channel of error, pulling a message from that
+		// channel provides a value errnie can work with.
+		errnie.Logs(<-platform.Parse(command.scope).Process()).With(errnie.INFO)
 
 		// Runs a shell script from the `~/.wrkspc.yml` configuration.
 		errnie.Logs("running post command steps").With(errnie.INFO)
@@ -91,7 +108,7 @@ func (command *Command) setupAndDestroy(stage []string) {
 }
 
 /*
-StreamCmd executes the shell command and returns an output stream from
+stream executes the shell command and returns an output stream from
 stdout so we can get feedback in real-time, which is needed especially
 for commands that potentially never end (log streams for instance).
 */

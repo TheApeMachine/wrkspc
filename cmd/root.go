@@ -29,8 +29,9 @@ var (
 )
 
 var longroottxt = `
-Workspace uses container and cluster technology to dynamically build your tried and true toolset around
-you on any machine that contains the binary. Nothing else should be needed to install.
+Workspace uses container and cluster technology to dynamically build your tried and true
+toolset around you on any machine that contains the binary. Nothing else should
+be needed to install.
 `
 
 // Execute executes the root command.
@@ -39,9 +40,12 @@ func Execute() error {
 }
 
 func init() {
+
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", ".wrkspc.yml", "config file (default is $HOME/.wrkspc.yml)")
+	rootCmd.PersistentFlags().StringVar(
+		&cfgFile, "config", ".wrkspc.yml", "config file (default is $HOME/.wrkspc.yml)",
+	)
 	rootCmd.PersistentFlags().Bool("viper", true, "use Viper for configuration")
 	viper.BindPFlag("useViper", rootCmd.PersistentFlags().Lookup("viper"))
 }
@@ -52,7 +56,7 @@ based config, which uses the embedded yaml config file a lot.
 */
 func initConfig() {
 	home := brazil.HomePath()
-	brazil.WriteIfNotExists(cfgFile, embedded)
+	brazil.WriteIfNotExists("cfg/"+cfgFile, embedded, false)
 
 	viper.AddConfigPath(home)
 	viper.SetConfigType("yml")

@@ -10,18 +10,17 @@ import (
 var treeCache *Tree
 
 /*
-Tree is just a simple wrapper around Hashicorp's Immutable Radix Trees
-that provides a simpler interface to use it in the context we use it for.
+Tree wraps hashicorp's immutable radix tree to provide what is essentially a key/value store.
 */
 type Tree struct {
 	radix *iradix.Tree
 }
 
 /*
-NewTree constructs a Tree if one does not exist in the cache
-or refers to some existing tree in the cache which is then returned
-as a reference pointer to the Tree. That means at any point you can
-instantiate a Tree and you will always be talking to the same data set.
+NewTree constructs a Tree and stores it in a singleton cache such that subsequent calls to NewTree
+will always return the same object. Should there be a need to segment Tree based stores, the
+suggestion would be to use a map where the key is your segmentation type and the value (or values)
+are the (pointer to the) Tree.
 */
 func NewTree() *Tree {
 	if treeCache == nil {
@@ -34,10 +33,10 @@ func NewTree() *Tree {
 }
 
 /*
-Poke the most generic of the ways to riff on a writing operation.
+Poke the Tree with some data wrapped in a Datagram.
 */
 func (tree *Tree) Poke(datagram *spdg.Datagram) {
-	errnie.Logs.Debug("poking the tree with", *datagram.Prefix(), "carrying", datagram.Data.Body.Payload)
+	errnie.Traces()
 
 	tree.radix, _, _ = tree.radix.Insert(
 		[]byte(*datagram.Prefix()),
