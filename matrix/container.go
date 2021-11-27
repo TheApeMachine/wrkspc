@@ -3,7 +3,6 @@ package matrix
 import (
 	"context"
 
-	"github.com/docker/docker/client"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/kube"
 )
@@ -12,7 +11,6 @@ import (
 Container ...
 */
 type Container struct {
-	cli  *client.Client
 	ctx  context.Context
 	name string
 }

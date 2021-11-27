@@ -20,7 +20,7 @@ Boot the runtime environment for this Platform.
 */
 func (platform Docker) Boot() Platform {
 	errnie.Traces()
-	matrix.NewDaemon()
+	matrix.NewDaemon() // The ContainerD daemon.
 	return platform
 }
 
@@ -42,11 +42,13 @@ func (platform Docker) Process() chan *spdg.Datagram {
 
 	go func() {
 		defer close(out)
-
 		build := matrix.NewBuild(platform.command[0])
+		errnie.Logs("build", build).With(errnie.DEBUG)
+
 		out <- spdg.QuickDatagram( // Send out the error wrapped into a Datagram.
 			spdg.ERROR, "error", bytes.NewBuffer([]byte(
-				build.Atomic(true).Error(), // Build the image atomically and return any errors.
+				//build.Atomic(true).Error(), // Build the image atomically and return any errors.
+				build.Atomic(true).Error(),
 			)),
 		)
 	}()

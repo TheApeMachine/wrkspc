@@ -3,6 +3,7 @@ package conquer
 import (
 	"bufio"
 	"os/exec"
+	"strings"
 
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spdg"
@@ -42,7 +43,11 @@ func (platform Shell) Process() chan *spdg.Datagram {
 	go func() {
 		defer close(out)
 		errnie.Logs("running command", platform.command[0]).With(errnie.DEBUG)
-		platform.stream(exec.Command(platform.command[0]))
+		chunks := strings.Split(platform.command[0], " ")
+		platform.stream(
+			// We have to properly unroll everything, otherwise we get `file not found errors`.
+			exec.Command(chunks[0], chunks[1:]...),
+		)
 
 		out <- spdg.NullDatagram() // Nothing but net.
 	}()

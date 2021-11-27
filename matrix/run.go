@@ -1,6 +1,7 @@
 package matrix
 
 import (
+	"context"
 	"syscall"
 
 	"github.com/containerd/console"
@@ -25,6 +26,7 @@ TODO: Context should come from here.
 */
 func NewRun(build *Build, spec *oci.Spec) Run {
 	errnie.Traces()
+	errnie.Logs("build & spec", build, spec).With(errnie.DEBUG)
 
 	return Run{
 		build: build,
@@ -35,7 +37,9 @@ func NewRun(build *Build, spec *oci.Spec) Run {
 /*
 Cycle executes a Run.
 */
-func (run Run) Cycle() {
+func (run Run) Cycle(ctx context.Context) error {
+	errnie.Traces()
+
 	var (
 		con console.Console
 		tty = run.spec.Process.Terminal
@@ -48,8 +52,9 @@ func (run Run) Cycle() {
 		errnie.Handles(con.SetRaw()).With(errnie.KILL)
 	}
 
-	task, err := run.build.container.NewTask(run.build.disposer.Ctx, cio.NewCreator(cio.WithStdio))
+	task, err := run.build.container.NewTask(ctx, cio.NewCreator(cio.WithStdio))
 	errnie.Handles(err).With(errnie.KILL)
+	errnie.Logs("task", task).With(errnie.INFO)
 
 	defer task.Delete(run.build.disposer.Ctx)
 	exitStatusC, err := task.Wait(run.build.disposer.Ctx)
@@ -60,8 +65,10 @@ func (run Run) Cycle() {
 	errnie.Handles(task.Start(run.build.disposer.Ctx)).With(errnie.KILL)
 
 	if tty {
+		errnie.Logs("I am consolio, I need TTY for my bunghole").With(errnie.INFO)
 		errnie.Handles(tasks.HandleConsoleResize(run.build.disposer.Ctx, task, con))
 	} else {
+		errnie.Logs("running without TTY").With(errnie.INFO)
 		sigc := commands.ForwardAllSignals(run.build.disposer.Ctx, task)
 		defer commands.StopCatch(sigc)
 	}
@@ -74,4 +81,5 @@ func (run Run) Cycle() {
 	errnie.Handles(err).With(errnie.KILL)
 
 	errnie.Logs(code).With(errnie.INFO)
+	return err
 }

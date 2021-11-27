@@ -66,7 +66,7 @@ func (build *Build) Atomic(fs bool) error {
 	errnie.Handles(err).With(errnie.KILL)
 
 	// Prepare a new image spec for the daemon to build.
-	spec := NewImage(build.disposer, build.name, pkg)
+	image := NewImage(build.disposer, build.name, pkg)
 
 	// Get a client to the daemon so we can send our spec.
 	client := NewClient(Containerd{
@@ -75,13 +75,18 @@ func (build *Build) Atomic(fs bool) error {
 
 	// TODO: This is changing a lot due to ContainerD vs Docker integration. Will clean up later.
 	// Tell the daemon to build our image.
-	build.container = spec.Build(client)
+	build.container = image.Build(client)
 	// scanner := NewScanner(build.img)
 	// scanner.Scan()
-	cspec, err := build.container.Spec(build.disposer.Ctx)
-	errnie.Handles(err).With(errnie.KILL)
 
-	NewRun(build, cspec)
+	errnie.Logs("container", build.container).With(errnie.DEBUG)
+
+	cspec, err := build.container.Spec(build.disposer.Ctx)
+	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Logs("spec", cspec).With(errnie.DEBUG)
+
+	run := NewRun(build, cspec)
+	run.Cycle(build.disposer.Ctx)
 
 	return err
 }

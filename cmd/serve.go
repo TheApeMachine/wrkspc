@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -19,38 +20,24 @@ var serveCmd = &cobra.Command{
 	Short: "Serve wrkspc as a service.",
 	Long:  longservetxt,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		binner := matroesjka.NewEmbed("runc")
-		binner.Write()
+		// We can leave the name input empty for now since we went with writing out the binaries
+		// for now. Execution in-memory directly is technically working, but error output is not
+		// great, so runc seems to be wanting some flags or something.
+		binner := matroesjka.NewEmbed("")
+		binner.Write() // Write out the embedded binaries.
 
-		conquer.NewCommand(
-			[]string{brazil.HomePath() + "/wrkspc/containerd"}, conquer.SHELL,
-		).Execute()
+		// We want to override te executable paths of the user for a while so we contain them to
+		// only the embdded tooling, such that we affect the system in the least possible way.
+		oldpath := os.Getenv("PATH")
+		os.Setenv("PATH", brazil.HomePath()+"/wrkspc")
+		defer os.Setenv("PATH", oldpath)
 
-		time.Sleep(3 * time.Second)
-
+		// Start the docker daemon.
 		conquer.NewCommand([]string{
-			brazil.HomePath() + "/wrkspc/containerd-shim-runc-v2 -namespace moby -id 1bc362c60101a8077bc7b7748f7127fc18d760f6d4b2fde1b7199cf957523476 -address /run/containerd/containerd.sock",
+			brazil.HomePath() + "/wrkspc/dockerd",
 		}, conquer.SHELL).Execute()
 
-		time.Sleep(3 * time.Second)
-
-		conquer.NewCommand([]string{
-			brazil.HomePath() + "/wrkspc/dockerd -H fd:// --containerd=/run/containerd/containerd.sock",
-		}, conquer.SHELL).Execute()
-
-		time.Sleep(3 * time.Second)
-
-		conquer.NewCommand([]string{
-			brazil.HomePath() + "/wrkspc/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 5900 -container-ip 172.17.0.2 -container-port 5900",
-		}, conquer.SHELL).Execute()
-
-		time.Sleep(3 * time.Second)
-
-		conquer.NewCommand([]string{
-			brazil.HomePath() + "/wrkspc/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 5800 -container-ip 172.17.0.2 -container-port 5800",
-		}, conquer.SHELL).Execute()
-
-		time.Sleep(3 * time.Second)
+		time.Sleep(5 * time.Second)
 
 		switch args[0] {
 		case "bcknd":

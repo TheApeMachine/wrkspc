@@ -56,7 +56,7 @@ Build the final image and return the log stream from the
 builder daemon.
 */
 func (img Image) Build(cli Client) containerd.Container {
-	ctx := namespaces.WithNamespace(img.disposer.Ctx, img.name)
+	ctx := namespaces.WithNamespace(img.disposer.Ctx, "test1")
 
 	// TODO: Not figured out how to build local Dockerfiles yet (ContainerD does not support this)
 	// so for now can only pull images from a registry. Also it's a little jank because everything
@@ -70,6 +70,6 @@ func (img Image) Build(cli Client) containerd.Container {
 		containerd.WithNewSpec(oci.WithImageConfig(image)),
 	)
 
-	errnie.Handles(err).With(errnie.KILL)
+	errnie.Handles(err).With(errnie.NOOP)
 	return build
 }

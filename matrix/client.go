@@ -5,6 +5,8 @@ import (
 
 	"github.com/containerd/containerd"
 	"github.com/containerd/containerd/namespaces"
+	"github.com/containerd/containerd/oci"
+	"github.com/opencontainers/runtime-spec/specs-go"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/twoface"
@@ -16,7 +18,9 @@ Client is an interface to be implemented by objects that want to be a client to 
 type Client interface {
 	Pull(string) (Client, containerd.Image)
 	Push(string)
+	ToSpec(context.Context, string, containerd.Image) *specs.Spec
 	Conn() *containerd.Client
+	Cleanup(context.Context)
 }
 
 /*
@@ -30,8 +34,9 @@ func NewClient(clientType Client) Client {
 Containerd is a connection to the ContainerD daemon that is running in the background.
 */
 type Containerd struct {
-	Disposer *twoface.Disposer
-	conn     *containerd.Client
+	Disposer  *twoface.Disposer
+	conn      *containerd.Client
+	container containerd.Container
 }
 
 /*
@@ -39,7 +44,50 @@ Conn return the connection to the ContainerD socket.
 TODO: This should be done in a better way to abstract away the specifics to ContainerD.
 */
 func (client Containerd) Conn() *containerd.Client {
+	errnie.Traces()
 	return client.conn
+}
+
+/*
+ToSpec generates an OCI spec from the container image.
+*/
+func (client Containerd) ToSpec(
+	ctx context.Context, name string, image containerd.Image,
+) *specs.Spec {
+	errnie.Traces()
+
+	searchSpace, err := client.conn.Containers(ctx, name)
+
+	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Logs(searchSpace).With(errnie.DEBUG)
+
+	if len(searchSpace) == 0 {
+		errnie.Logs("making new container").With(errnie.INFO)
+		client.container, err = client.conn.NewContainer(
+			ctx, name,
+			containerd.WithNewSnapshot(name+"-snapshot1", image),
+			containerd.WithNewSpec(oci.WithImageConfig(image)),
+		)
+		errnie.Handles(err).With(errnie.NOOP)
+		errnie.Logs(client.container).With(errnie.DEBUG)
+	} else {
+		client.container = searchSpace[0]
+	}
+
+	spec, err := client.container.Spec(ctx)
+	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Traces()
+
+	return spec
+}
+
+/*
+Cleanup the Container.
+*/
+func (client Containerd) Cleanup(ctx context.Context) {
+	errnie.Traces()
+	defer client.conn.Close()
+	client.container.Delete(ctx, containerd.WithSnapshotCleanup)
 }
 
 /*
@@ -65,7 +113,7 @@ func (client Containerd) Pull(name string) (Client, containerd.Image) {
 		containerd.WithPullUnpack,
 	)
 
-	errnie.Handles(err).With(errnie.KILL)
+	errnie.Handles(err).With(errnie.NOOP)
 	return client, image
 }
 
@@ -73,55 +121,3 @@ func (client Containerd) Pull(name string) (Client, containerd.Image) {
 Push a container image to a container registry.
 */
 func (client Containerd) Push(name string) {}
-
-// /*
-// Docker connects to the Docker API, which allows for all Docker cli commands to run natively
-// in code, without having do do shell executions or something like that.
-// */
-// type Docker struct {
-// 	Disposer *twoface.Disposer
-// 	conn     *client.Client
-// }
-
-// /*
-// Initialize constructs a Client.
-// */
-// func (cli Docker) Initialize() Client {
-// 	c, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-// 	errnie.Handles(err).With(errnie.KILL)
-// 	cli.conn = c
-// 	return cli
-// }
-
-// /*
-// Pull a container image.
-// */
-// func (cli Docker) Pull(name string) {
-// }
-
-// /*
-// Push a container image to a registry.
-// */
-// func (cli Docker) Push(name string) {
-// 	creds := struct {
-// 		Username      string `json:"username"`
-// 		Password      string `json:"password"`
-// 		Email         string `json:"email"`
-// 		Serveraddress string `json:"serveraddress"`
-// 	}{
-// 		Username:      viper.GetString("wrkspc.matrix.registry.username"),
-// 		Password:      viper.GetString("wrkspc.matrix.registry.password"),
-// 		Email:         viper.GetString("wrkspc.matrix.registry.email"),
-// 		Serveraddress: viper.GetString("wrkspc.matrix.registry.host"),
-// 	}
-
-// 	d, err := json.Marshal(creds)
-// 	errnie.Handles(err).With(errnie.KILL)
-// 	sEnc := base64.StdEncoding.EncodeToString([]byte(d))
-
-// 	opts := types.ImagePushOptions{}
-// 	opts.RegistryAuth = sEnc
-
-// 	_, err = cli.conn.ImagePush(cli.Disposer.Ctx, name, opts)
-// 	errnie.Handles(err).With(errnie.KILL)
-// }

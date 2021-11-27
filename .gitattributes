@@ -4,3 +4,4 @@
 /matroesjka/bin/docker-proxy filter=lfs diff=lfs merge=lfs -text
 /matroesjka/bin/dockerd filter=lfs diff=lfs merge=lfs -text
 /matroesjka/bin/runc filter=lfs diff=lfs merge=lfs -text
+/matroesjka/bin/docker filter=lfs diff=lfs merge=lfs -text
