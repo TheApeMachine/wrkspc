@@ -39,7 +39,7 @@ func (tree *Tree) Poke(datagram *spdg.Datagram) {
 	errnie.Traces()
 
 	tree.radix, _, _ = tree.radix.Insert(
-		[]byte(*datagram.Prefix()),
+		[]byte(*datagram.Context.Prefix()),
 		datagram,
 	)
 }
@@ -70,9 +70,10 @@ func (tree *Tree) Peek(datagram *spdg.Datagram) chan *spdg.Datagram {
 		)
 
 		// I honestly don't fully get what is going on in this for loop...
-		for key, blob, ok := it.Next(); ok; key, _, ok = it.Next() {
+		for key, blob, ok := it.Next(); ok; key, blob, ok = it.Next() {
+			_ = key
 			// Hmm, this would be even faster as a channel. Let's do that.
-			out <- blob.(*spdg.Datagram).Annotate("radixKey", string(key))
+			out <- blob.(*spdg.Datagram)
 		}
 
 		errnie.Traces()

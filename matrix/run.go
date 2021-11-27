@@ -45,6 +45,8 @@ func (run Run) Cycle(ctx context.Context) error {
 		tty = run.spec.Process.Terminal
 	)
 
+	errnie.Logs("console && tty", con, tty).With(errnie.INFO)
+
 	if tty {
 		con = console.Current()
 		defer con.Reset()
@@ -52,7 +54,7 @@ func (run Run) Cycle(ctx context.Context) error {
 		errnie.Handles(con.SetRaw()).With(errnie.KILL)
 	}
 
-	task, err := run.build.container.NewTask(ctx, cio.NewCreator(cio.WithStdio))
+	task, err := run.build.container.NewTask(ctx, cio.NewCreator(cio.WithStdio, cio.WithTerminal))
 	errnie.Handles(err).With(errnie.KILL)
 	errnie.Logs("task", task).With(errnie.INFO)
 

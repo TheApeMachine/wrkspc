@@ -1,7 +1,6 @@
 package kube
 
 import (
-	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/twoface"
 )
 
@@ -43,11 +42,4 @@ func (base *Base) waiter() {
 	twoface.NewRepeater(10, twoface.NewRetryStrategy(
 		twoface.Fibonacci{MaxTries: 10},
 	)).Attempt(1, base.kind.Check)
-}
-
-func (base *Base) teardown() error {
-	err := base.kind.Delete()
-	errnie.Handles(err).With(errnie.KILL)
-	base.waiter()
-	return err
 }

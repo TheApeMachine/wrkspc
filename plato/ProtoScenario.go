@@ -5,6 +5,9 @@ import (
 	"github.com/theapemachine/wrkspc/spdg"
 )
 
+/*
+ProtoScenario ...
+*/
 type ProtoScenario struct {
 	namespace string
 	scenes    []Scene
@@ -51,9 +54,10 @@ func (scenario ProtoScenario) Run(datagrams chan spdg.Datagram) {
 	// errnie.Ambient().Log(errnie.DEBUG, "plato.ProtoScenario.Run <-", datagrams)
 
 	for dg := range datagrams {
+		_ = dg
 		for _, scene := range scenario.scenes {
 			artifact := spdg.Datagram{}
-			dg.Unwrap(&artifact) <- <-dg.Generate()
+			//dg.Unwrap(&artifact) <- <-dg.Generate()
 			scene.Action(artifact)
 		}
 	}

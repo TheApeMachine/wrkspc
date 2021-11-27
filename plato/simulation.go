@@ -1,11 +1,12 @@
 package plato
 
 import (
-	"fmt"
+	"github.com/theapemachine/wrkspc/hefner"
+	"github.com/theapemachine/wrkspc/spdg"
 )
 
 /*
-Simulation...
+Simulation ...
 */
 type Simulation struct {
 	scenario Scenario
@@ -14,11 +15,9 @@ type Simulation struct {
 }
 
 /*
-NewSimulation...
+NewSimulation ...
 */
 func NewSimulation(scenario Scenario, dataset hefner.Pipe) Simulation {
-	errnie.Ambient().Log(errnie.DEBUG, fmt.Sprintf("plato.NewSimulation <- %v, %v", scenario, dataset))
-
 	return Simulation{
 		scenario: scenario,
 		dataset:  dataset,
@@ -26,19 +25,10 @@ func NewSimulation(scenario Scenario, dataset hefner.Pipe) Simulation {
 	}
 }
 
+/*
+Run ...
+*/
 func (sim Simulation) Run() error {
-	errnie.Ambient().Log(errnie.INFO, "running simulation")
-
-	go func() {
-		defer close(sim.events)
-
-		for datagram := range sim.dataset.Generate() {
-			datagram = <-datagram.Unwrap(&datagram)
-			sim.events <- datagram.(spdg.Datagram)
-		}
-	}()
-
 	sim.scenario.Run(sim.events)
-
 	return nil
 }

@@ -1,7 +1,6 @@
 package luthor
 
 import (
-	"regexp"
 	"strings"
 )
 
@@ -46,17 +45,6 @@ func searchTokenTypes(inner string, key string, tokenGroup []string) string {
 	for _, value := range tokenGroup {
 		if strings.EqualFold(value, inner) {
 			return key
-		}
-	}
-
-	return ""
-}
-
-func hailMaryPass(inner string, key string, tokenGroup []string) string {
-	for _, value := range tokenGroup {
-		pat := regexp.MustCompile(value)
-		if str := pat.FindString(inner); str != "" {
-			return str
 		}
 	}
 

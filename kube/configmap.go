@@ -17,7 +17,6 @@ type ConfigMap struct {
 	base   *Base
 	client RestClient
 	spec   *apiv1.ConfigMap
-	file   []byte
 	handle *apiv1.ConfigMap
 }
 

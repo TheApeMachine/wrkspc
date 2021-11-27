@@ -36,11 +36,9 @@ target messages to a particular client or group, which is essential otherwise al
 go to all clients and that makes no sense.
 */
 func (hub *Hub) NewSecureChannel() string {
-	hub.secureChannels = append(
-		hub.secureChannels, uuid.New().String(),
-	)
-
-	return hub.secureChannels[len(hub.secureChannels)-1]
+	streamKey := uuid.New().String()
+	hub.secureChannels = append(hub.secureChannels, streamKey)
+	return streamKey
 }
 
 /*
@@ -98,7 +96,7 @@ func (hub *Hub) sendMessage(client *WSClient, datagram spdg.Datagram) {
 	errnie.TraceIn()
 
 	select {
-	case client.send <- []byte(datagram.Data.Body.Payload):
+	case client.send <- []byte(datagram.Data.Payload):
 		// It's an empty case because evaluating the case and sending
 		// the message is the same thing here.
 	default:

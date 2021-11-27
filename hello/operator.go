@@ -28,5 +28,12 @@ Operators with connected objects and make it 4 participants. Etc.
 Consider this as a fanout kind of setup.
 */
 func (operator *Operator) Connect(sender, receiver *spdg.Datagram) *Operator {
+	if sender == nil || receiver == nil {
+		return nil
+	}
+
+	operator.sender = sender
+	operator.receiver = receiver
+
 	return operator
 }

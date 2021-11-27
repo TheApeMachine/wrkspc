@@ -2,17 +2,19 @@ package plato
 
 import (
 	"errors"
+
+	"github.com/theapemachine/wrkspc/errnie"
 )
 
 /*
-Simulator...
+Simulator ...
 */
 type Simulator struct {
 	simulation Simulation
 }
 
 /*
-NewSimulator...
+NewSimulator ...
 */
 func NewSimulator(simulation Simulation) Simulator {
 	return Simulator{
@@ -24,7 +26,7 @@ func NewSimulator(simulation Simulation) Simulator {
 Run the simulation.
 */
 func (sim Simulator) Run() error {
-	if bad := errnie.Ambient().Log(errnie.FATAL, sim.simulation.Run()); bad {
+	if !errnie.Handles(sim.simulation.Run()).OK {
 		return errors.New("simulation died")
 	}
 

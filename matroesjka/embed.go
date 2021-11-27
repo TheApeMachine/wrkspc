@@ -39,10 +39,10 @@ func (embedfs *Embed) Write() {
 	brazil.WriteIfNotExists("bin/runc", payload, true)
 	brazil.WriteIfNotExists("bin/containerd", payload, true)
 	brazil.WriteIfNotExists("bin/containerd-shim-runc-v2", payload, true)
-	brazil.WriteIfNotExists("bin/dockerd", payload, true)
-	brazil.WriteIfNotExists("bin/docker-proxy", payload, true)
-	brazil.WriteIfNotExists("bin/docker-init", payload, true)
-	brazil.WriteIfNotExists("bin/docker", payload, true)
+	// brazil.WriteIfNotExists("bin/dockerd", payload, true)
+	// brazil.WriteIfNotExists("bin/docker-proxy", payload, true)
+	// brazil.WriteIfNotExists("bin/docker-init", payload, true)
+	// brazil.WriteIfNotExists("bin/docker", payload, true)
 	brazil.WriteIfNotExists("bin/modprobe", payload, true)
 }
 

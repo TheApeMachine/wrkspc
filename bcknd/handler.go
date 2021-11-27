@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/sockpuppet"
 	"github.com/theapemachine/wrkspc/spdg"
 	"github.com/theapemachine/wrkspc/twoface"
 )
@@ -22,12 +23,12 @@ type Handler struct {
 /*
 NewHandler ...
 */
-func NewHandler(egress *Egress) *Handler {
+func NewHandler(egress *Egress, hub *sockpuppet.Hub) *Handler {
 	errnie.Traces()
 	disposer := twoface.NewDisposer()
 
 	return &Handler{
-		manager: NewManager(egress, disposer),
+		manager: NewManager(egress, hub, disposer),
 	}
 }
 
@@ -61,7 +62,9 @@ func (handler *Handler) Response(response http.ResponseWriter, request *http.Req
 /*
 Stream the request/response path in a fully non-blocking manner.
 */
-func (handler *Handler) Stream(response http.ResponseWriter, request *http.Request) {}
+func (handler *Handler) Stream(response http.ResponseWriter, request *http.Request) {
+	sockpuppet.ServeWs(handler.manager.Hub, response, request)
+}
 
 /*
 Health is the endpoint for Kubernetes to check to see if the service is up and functioning.

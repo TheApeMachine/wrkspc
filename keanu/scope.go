@@ -1,10 +1,11 @@
-package sniper
+package keanu
 
 import (
 	"encoding/json"
 	"strings"
 
 	"github.com/theapemachine/errnie/v2"
+	"github.com/theapemachine/wrkspc/spdg"
 )
 
 /*
@@ -29,7 +30,7 @@ func NewScope(datagram *spdg.Datagram) *Scope {
 	}
 
 	df := make(map[string]interface{})
-	errnie.Handles(json.Unmarshal([]byte(datagram.Data.Body.Payload), &df))
+	errnie.Handles(json.Unmarshal([]byte(datagram.Data.Payload), &df))
 
 	return &Scope{
 		Dataframe: df,
@@ -72,7 +73,7 @@ func (scope *Scope) Breakup(keys ...string) {
 			value := NewProcessor(proc[0], proc[1], scope.Dataframe).GetValue()
 			errnie.Logs.Debug("about to poke tree with", value)
 
-			memory.NewTree().Poke(value)
+			NewTree().Poke(value)
 		}
 
 		errnie.TraceOut()

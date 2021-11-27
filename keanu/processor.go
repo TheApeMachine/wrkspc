@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/spf13/viper"
-	"github.com/theapemachine/errnie/v2"
+	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/spdg"
 )
 
 /*
@@ -20,7 +20,7 @@ type Processor struct {
 NewProcessor constructs a Processor with a Process.
 */
 func NewProcessor(process, value string, df map[string]interface{}) *Processor {
-	errnie.TraceIn()
+	errnie.Traces()
 
 	return &Processor{
 		process: NewProcess(Synthesizer{
@@ -34,7 +34,7 @@ func NewProcessor(process, value string, df map[string]interface{}) *Processor {
 GetValue proxies the Execute method on the Process.
 */
 func (processor *Processor) GetValue() *spdg.Datagram {
-	errnie.TraceIn()
+	errnie.Traces()
 	return processor.process.Execute()
 }
 
@@ -65,7 +65,7 @@ type Synthesizer struct {
 Execute the Process.
 */
 func (process Synthesizer) Execute() *spdg.Datagram {
-	errnie.TraceIn()
+	errnie.Traces()
 	return procmap[process.Value](process.Dataframe)
 }
 
@@ -74,33 +74,28 @@ var procmap = map[string]func(map[string]interface{}) *spdg.Datagram{
 }
 
 func getOffline(df map[string]interface{}) *spdg.Datagram {
-	errnie.TraceIn()
-
-	name := viper.GetString("name")
-	source := name + "." + viper.GetString(name+".stage")
-	wasOffline := false
+	errnie.Traces()
 
 	for _, check := range lookup(&spdg.Datagram{
-		Context: &spdg.Context{Annotations: []map[string]string{{"lookup": ""}}},
+		Context: &spdg.Context{Annotations: []spdg.Annotation{}},
 	}) {
-		errnie.Logs.Debug(check)
+		errnie.Logs(check).With(errnie.DEBUG)
 	}
 
-	return spdg.NewDatagramFromBuffer(
-		"offline", source, "dgram",
-		bytes.NewBuffer([]byte(fmt.Sprintf(`{"value": %v}`, wasOffline))),
+	return spdg.QuickDatagram(
+		spdg.DATAPOINT, "dgram",
+		bytes.NewBuffer([]byte(fmt.Sprintf(`{"value": %v}`, true))),
 	)
 }
 
 func lookup(value *spdg.Datagram) []*spdg.Datagram {
-	errnie.TraceIn()
+	errnie.Traces()
 
 	results := make([]*spdg.Datagram, 0)
 
-	for found := range memory.NewTree().Peek(value) {
+	for found := range NewTree().Peek(value) {
 		results = append(results, found)
 	}
 
-	errnie.TraceOut()
 	return results
 }

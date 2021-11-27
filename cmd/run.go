@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/conquer"
@@ -34,20 +32,12 @@ var runCmd = &cobra.Command{
 		binner := matroesjka.NewEmbed("")
 		binner.Write() // Write out the embedded binaries.
 
-		// We want to override te executable paths of the user for a while so we contain them to
-		// only the embdded tooling, such that we affect the system in the least possible way.
-		oldpath := os.Getenv("PATH")
-		os.Setenv("PATH", brazil.HomePath()+"/wrkspc")
-		defer os.Setenv("PATH", oldpath)
-
-		// Try to pull the container.
-		// conquer.NewCommand([]string{
-		// 	brazil.HomePath() + "/wrkspc/docker pull theapemachine/zsh:v1.0",
-		// }, conquer.SHELL).Execute()
+		env := brazil.NewEnvironment().Initialize()
+		defer env.Restore()
 
 		// Pass the command off to a specialist object, call Execute to set things in motion which
-		// returns a channel or `error` so that can block the main goroutine and respond to
-		// the error.
+		// returns a channel of `error` so that can block the main goroutine, which will unblock
+		// as soon as you push an error onto the channel.
 		return <-conquer.NewCommand(args, conquer.DOCKER).Execute()
 	},
 }

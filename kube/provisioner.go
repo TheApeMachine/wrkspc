@@ -86,7 +86,7 @@ was built. It is theoretically the best way to gracefully destroy a cluster.
 TODO: Save the provisioner stack to a yml file so it can be used after the fact.
       Don't be stupid, just load the initial config and reverse it, duh.
 */
-func (infra Provisioner) Teardown() error {
+func (infra Provisioner) Teardown() Provisioner {
 	errnie.Traces()
 	plan := viper.GetStringMapStringSlice("infrastructures." + infra.config)
 
@@ -104,7 +104,7 @@ func (infra Provisioner) Teardown() error {
 		}
 	}
 
-	return nil
+	return infra
 }
 
 func (infra Provisioner) nextStep(step string, direction bool) []MigratableKind {

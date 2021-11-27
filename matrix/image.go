@@ -67,7 +67,9 @@ func (img Image) Build(cli Client) containerd.Container {
 	build, err := cli.Conn().NewContainer(
 		ctx, img.name,
 		containerd.WithNewSnapshot(img.name+"-snapshot", image),
-		containerd.WithNewSpec(oci.WithImageConfig(image)),
+		containerd.WithNewSpec(
+			oci.WithImageConfig(image),
+		),
 	)
 
 	errnie.Handles(err).With(errnie.NOOP)

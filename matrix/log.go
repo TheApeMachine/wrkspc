@@ -2,8 +2,6 @@ package matrix
 
 import (
 	"bufio"
-	"encoding/json"
-	"fmt"
 	"os"
 
 	"github.com/containerd/console"
@@ -63,16 +61,16 @@ func (scanner Scanner) Scan() {
 /*
 print unmarshals the json string and prints it to stdout.
 */
-func (scanner Scanner) print(str string, res map[string]interface{}) {
-	// Move the cursor to the left.
-	fmt.Print("\033[G\033[K")
+// func (scanner Scanner) print(str string, res map[string]interface{}) {
+// 	// Move the cursor to the left.
+// 	fmt.Print("\033[G\033[K")
 
-	json.Unmarshal([]byte(str), &res)
-	fmt.Print(res["stream"])
+// 	json.Unmarshal([]byte(str), &res)
+// 	fmt.Print(res["stream"])
 
-	// Move the cursor up.
-	fmt.Print("\033[A")
-}
+// 	// Move the cursor up.
+// 	fmt.Print("\033[A")
+// }
 
 /*
 printalt is an alternative method to print the log stream.

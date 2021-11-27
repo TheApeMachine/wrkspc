@@ -47,7 +47,6 @@ func (c *WSClient) readPump() {
 		c.conn.Close()
 	}()
 
-	c.conn.SetReadLimit(maxMessageSize)
 	errnie.Handles(c.conn.SetReadDeadline(time.Now().Add(pongWait))).With(errnie.RECV)
 
 	c.conn.SetPongHandler(func(string) error {
@@ -84,49 +83,7 @@ func (c *WSClient) writePump() {
 	for {
 		select {
 		case message, ok := <-c.send:
-			errnie.Handles(
-				c.conn.SetWriteDeadline(time.Now().Add(writeWait)),
-			).With(errnie.KILL)
-
-			if !ok {
-				errnie.Handles(
-					c.conn.WriteMessage(websocket.CloseMessage, []byte{}),
-				).With(errnie.KILL)
-
-				return
-			}
-
-			w, err := c.conn.NextWriter(websocket.BinaryMessage)
-
-			if err != nil {
-				errnie.Handles(
-					c.conn.WriteMessage(websocket.CloseMessage, []byte{}),
-				).With(errnie.KILL)
-
-				return
-			}
-
-			_, err = w.Write([]byte(message))
-
-			if err != nil {
-				errnie.Handles(
-					c.conn.WriteMessage(websocket.CloseMessage, []byte{}),
-				).With(errnie.KILL)
-
-				return
-			}
-
-			n := len(c.send)
-
-			for i := 0; i < n; i++ {
-				errnie.Handles(w.Write(newline)).With(errnie.KILL)
-				errnie.Handles(w.Write(<-c.send)).With(errnie.KILL)
-			}
-
-			if err := w.Close(); err != nil {
-				return
-			}
-
+			c.handleMessage(message, ok)
 		case <-ticker.C:
 			errnie.Handles(
 				c.conn.SetWriteDeadline(time.Now().Add(writeWait)),
@@ -137,12 +94,52 @@ func (c *WSClient) writePump() {
 	}
 }
 
+func (c *WSClient) handleMessage(message []byte, ok bool) {
+	errnie.Handles(
+		c.conn.SetWriteDeadline(time.Now().Add(writeWait)),
+	).With(errnie.KILL)
+
+	if !ok {
+		c.closeMessage()
+		return
+	}
+
+	w, err := c.conn.NextWriter(websocket.BinaryMessage)
+
+	if err != nil {
+		c.closeMessage()
+		return
+	}
+
+	_, err = w.Write([]byte(message))
+
+	if err != nil {
+		c.closeMessage()
+		return
+	}
+
+	for i := 0; i < len(c.send); i++ {
+		errnie.Handles(w.Write(newline)).With(errnie.KILL)
+		errnie.Handles(w.Write(<-c.send)).With(errnie.KILL)
+	}
+
+	if err := w.Close(); err != nil {
+		return
+	}
+}
+
+func (c *WSClient) closeMessage() {
+	errnie.Handles(
+		c.conn.WriteMessage(websocket.CloseMessage, []byte{}),
+	).With(errnie.KILL)
+}
+
 /*
-serveWs will be called by the handler defined in the router of the service.
+ServeWs will be called by the handler defined in the router of the service.
 This responds to the incoming requests and starts the process of upgrading the connection
 protocol from plain http to ws.
 */
-func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	errnie.Log("upgrading client connection")
 
 	upgrader.CheckOrigin = func(r *http.Request) bool {

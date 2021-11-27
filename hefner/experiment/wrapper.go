@@ -1,9 +1,12 @@
 package hefner
 
+/*
+Wrap it...
+*/
 func (pipe ProtoPipe) Wrap(modeller interface{}) chan Pipe {
-	if modeller != nil {
-		pipe.cache.Poke(pipe.key.String(), &modeller)
-	}
+	// if modeller != nil {
+	// 	pipe.cache.Poke(pipe.key.String(), &modeller)
+	// }
 
 	return pipe.o
 }
@@ -20,7 +23,7 @@ through the output into the Unwrap channel with a type used to model the data
 into a structured type.
 */
 func (pipe ProtoPipe) Unwrap(modeller interface{}) chan Pipe {
-	pipe.cache.Peek(pipe.key.String(), &modeller)
+	// pipe.cache.Peek(pipe.key.String(), &modeller)
 	return pipe.o
 }
 

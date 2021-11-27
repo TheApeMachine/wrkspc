@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/sockpuppet"
 	"github.com/theapemachine/wrkspc/spdg"
 )
 
@@ -26,11 +27,12 @@ NewServer sets up the end-to-end networking for an Ingress and Egress.
 func NewServer() *Server {
 	errnie.Traces()
 	egress := NewEgress()
+	hub := sockpuppet.NewHub()
 
 	return &Server{
 		ingress: NewIngress(),
 		egress:  egress,
-		handler: NewHandler(egress),
+		handler: NewHandler(egress, hub),
 		conn: &http.Server{
 			Addr:         ":" + viper.GetString("wrkspc.bcknd.port"),
 			ReadTimeout:  viper.GetDuration("wrkspc.bcknd.read-timeout") * time.Second,

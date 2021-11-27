@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/nemo"
+	"github.com/theapemachine/wrkspc/sockpuppet"
 	"github.com/theapemachine/wrkspc/spdg"
 	"github.com/theapemachine/wrkspc/twoface"
 )
@@ -13,6 +14,7 @@ Manager orchestrates the functionality of a service and brings the results to Eg
 */
 type Manager struct {
 	egress   *Egress
+	Hub      *sockpuppet.Hub
 	stores   []Store
 	disposer *twoface.Disposer
 }
@@ -20,11 +22,12 @@ type Manager struct {
 /*
 NewManager constructs a Manager and returns a reference to it.
 */
-func NewManager(egress *Egress, disposer *twoface.Disposer) *Manager {
+func NewManager(egress *Egress, hub *sockpuppet.Hub, disposer *twoface.Disposer) *Manager {
 	errnie.Traces()
 
 	return &Manager{
 		egress:   egress,
+		Hub:      hub,
 		disposer: disposer,
 		stores: []Store{
 			NewStore(nemo.NewClient(

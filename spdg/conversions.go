@@ -42,3 +42,11 @@ func (datagram *Datagram) Marshal() []byte {
 	errnie.Handles(err).With(errnie.NOOP)
 	return out
 }
+
+/*
+Unmarshal the Datagram.
+*/
+func (datagram *Datagram) Unmarshal(data []byte) *Datagram {
+	errnie.Handles(json.Unmarshal(data, datagram)).With(errnie.NOOP)
+	return datagram
+}

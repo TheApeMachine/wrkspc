@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/containerd/containerd"
+	"github.com/containerd/containerd/oci"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/errnie"
@@ -84,6 +85,13 @@ func (build *Build) Atomic(fs bool) error {
 	cspec, err := build.container.Spec(build.disposer.Ctx)
 	errnie.Handles(err).With(errnie.NOOP)
 	errnie.Logs("spec", cspec).With(errnie.DEBUG)
+
+	containerProto, err := build.container.Info(build.disposer.Ctx)
+	errnie.Handles(err).With(errnie.NOOP)
+
+	errnie.Handles(oci.WithTTY(
+		build.disposer.Ctx, client.Conn(), &containerProto, cspec,
+	))
 
 	run := NewRun(build, cspec)
 	run.Cycle(build.disposer.Ctx)

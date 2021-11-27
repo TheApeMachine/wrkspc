@@ -1,7 +1,6 @@
 package sockpuppet
 
 import (
-	"bytes"
 	"net/url"
 
 	"github.com/gorilla/websocket"
@@ -52,7 +51,7 @@ func (connection ProtoConnection) Dial(host, path string) chan *spdg.Datagram {
 	go func() {
 		defer close(out)
 		defer c.Close()
-		connection.worker()
+		connection.worker(c, out)
 	}()
 
 	return out
@@ -61,7 +60,7 @@ func (connection ProtoConnection) Dial(host, path string) chan *spdg.Datagram {
 /*
 worker is the main loop for our connection.
 */
-func (connection ProtoConnection) worker(out chan *spdg.Datagram) {
+func (connection ProtoConnection) worker(c *websocket.Conn, out chan *spdg.Datagram) {
 	errnie.Traces()
 
 	for {
@@ -76,7 +75,7 @@ func (connection ProtoConnection) worker(out chan *spdg.Datagram) {
 			// Make an empty datagram and unmarshal the bytes coming over the websocket
 			// connection, which are: a Datagram, just encoded to bytes for sending.
 			dg := spdg.NullDatagram()
-			out <- dg.Unmarshal(*bytes.NewBuffer(message))
+			out <- dg.Unmarshal(message)
 		}
 	}
 }
