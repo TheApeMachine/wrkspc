@@ -20,15 +20,17 @@ var payload embed.FS
 Embed is a wrapper around embedded executable binaries.
 */
 type Embed struct {
-	name string
+	names []string
 }
 
 /*
-NewEmbed prepares an embedded binary for in-memory execution.
+NewEmbed prepares embedded binaries for in-memory execution.
+If no names are passed it is assumed you will be writing out
+the embedded binaries to the local filesystem.
 */
-func NewEmbed(name string) *Embed {
+func NewEmbed(names ...string) *Embed {
 	errnie.Traces()
-	return &Embed{name: name}
+	return &Embed{names: names}
 }
 
 /*

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/theapemachine/wrkspc/berrt"
 )
 
@@ -29,6 +30,8 @@ const (
 	DEBUG
 	// TRACE provides a look at values under the hood.
 	TRACE
+	// INSPECT dumps a deep analysis of the structure of objects.
+	INSPECT
 )
 
 /*
@@ -39,6 +42,7 @@ type LogChannel interface {
 	Warning(...interface{}) *Error
 	Info(...interface{})
 	Debug(...interface{})
+	Inspect(...interface{})
 }
 
 /*
@@ -159,5 +163,20 @@ func (logger ConsoleLogger) Debug(events ...interface{}) {
 		"%s %s\n",
 		berrt.NewLabel(" DEBUG ").ToString(),
 		berrt.NewText(fmt.Sprintf("%v", events...)).ToString(),
+	)
+}
+
+/*
+Inspect is a helper output for development or troubleshooting.
+*/
+func (logger ConsoleLogger) Inspect(events ...interface{}) {
+	if len(events) == 0 {
+		return
+	}
+
+	fmt.Printf(
+		"%s %s\n",
+		berrt.NewLabel("INSPECT").ToString(),
+		berrt.NewText(spew.Sdump(events...)).ToString(),
 	)
 }

@@ -1,48 +1,51 @@
 package matrix
 
 import (
-	"context"
 	"syscall"
 
 	"github.com/containerd/console"
 	"github.com/containerd/containerd/cio"
 	"github.com/containerd/containerd/cmd/ctr/commands"
 	"github.com/containerd/containerd/cmd/ctr/commands/tasks"
-	"github.com/containerd/containerd/oci"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/twoface"
 )
 
 /*
 Run is a wrapper that takes a container and defines a way to run it.
 */
 type Run struct {
-	build *Build
-	spec  *oci.Spec
+	command  string
+	disposer *twoface.Disposer
 }
 
 /*
 NewRun constructs an instance of Run and returns it.
 TODO: Context should come from here.
 */
-func NewRun(build *Build, spec *oci.Spec) Run {
+func NewRun(command string, disposer *twoface.Disposer) Run {
 	errnie.Traces()
-	errnie.Logs("build & spec", build, spec).With(errnie.DEBUG)
 
 	return Run{
-		build: build,
-		spec:  spec,
+		command:  command,
+		disposer: disposer,
 	}
 }
 
 /*
 Cycle executes a Run.
 */
-func (run Run) Cycle(ctx context.Context) error {
+func (run Run) Cycle() error {
 	errnie.Traces()
+
+	client := NewClient(Containerd{Disposer: run.disposer})
+	defer client.Cleanup()
+
+	container, spec := client.Fetch(run.command, "v1.0")
 
 	var (
 		con console.Console
-		tty = run.spec.Process.Terminal
+		tty = spec.Process.Terminal
 	)
 
 	errnie.Logs("console && tty", con, tty).With(errnie.INFO)
@@ -54,28 +57,30 @@ func (run Run) Cycle(ctx context.Context) error {
 		errnie.Handles(con.SetRaw()).With(errnie.KILL)
 	}
 
-	task, err := run.build.container.NewTask(ctx, cio.NewCreator(cio.WithStdio, cio.WithTerminal))
-	errnie.Handles(err).With(errnie.KILL)
+	task, err := container.NewTask(
+		run.disposer.Ctx, cio.NewCreator(cio.WithStdio, cio.WithTerminal),
+	)
+	errnie.Handles(err).With(errnie.NOOP)
 	errnie.Logs("task", task).With(errnie.INFO)
 
-	defer task.Delete(run.build.disposer.Ctx)
-	exitStatusC, err := task.Wait(run.build.disposer.Ctx)
+	defer task.Delete(run.disposer.Ctx)
+	exitStatusC, err := task.Wait(run.disposer.Ctx)
 	errnie.Handles(err).With(errnie.KILL)
 
 	// This is where we actually start the container, wrapper in an errnie Handler for a single
 	// line format to be possible :)
-	errnie.Handles(task.Start(run.build.disposer.Ctx)).With(errnie.KILL)
+	errnie.Handles(task.Start(run.disposer.Ctx)).With(errnie.KILL)
 
 	if tty {
 		errnie.Logs("I am consolio, I need TTY for my bunghole").With(errnie.INFO)
-		errnie.Handles(tasks.HandleConsoleResize(run.build.disposer.Ctx, task, con))
+		errnie.Handles(tasks.HandleConsoleResize(run.disposer.Ctx, task, con))
 	} else {
 		errnie.Logs("running without TTY").With(errnie.INFO)
-		sigc := commands.ForwardAllSignals(run.build.disposer.Ctx, task)
+		sigc := commands.ForwardAllSignals(run.disposer.Ctx, task)
 		defer commands.StopCatch(sigc)
 	}
 
-	errnie.Handles(task.Kill(run.build.disposer.Ctx, syscall.SIGTERM))
+	errnie.Handles(task.Kill(run.disposer.Ctx, syscall.SIGTERM))
 
 	status := <-exitStatusC
 

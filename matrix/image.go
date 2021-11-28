@@ -3,9 +3,6 @@ package matrix
 import (
 	"io"
 
-	"github.com/containerd/containerd"
-	"github.com/containerd/containerd/namespaces"
-	"github.com/containerd/containerd/oci"
 	"github.com/docker/docker/api/types"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
@@ -49,29 +46,4 @@ func NewImage(disposer *twoface.Disposer, name string, pkg io.Reader) Image {
 			},
 		},
 	}
-}
-
-/*
-Build the final image and return the log stream from the
-builder daemon.
-*/
-func (img Image) Build(cli Client) containerd.Container {
-	ctx := namespaces.WithNamespace(img.disposer.Ctx, "test1")
-
-	// TODO: Not figured out how to build local Dockerfiles yet (ContainerD does not support this)
-	// so for now can only pull images from a registry. Also it's a little jank because everything
-	// in Go is `values` we're loosing the client connection in the object so just passing it back
-	// out now.
-	cli, image := cli.Pull(img.name)
-
-	build, err := cli.Conn().NewContainer(
-		ctx, img.name,
-		containerd.WithNewSnapshot(img.name+"-snapshot", image),
-		containerd.WithNewSpec(
-			oci.WithImageConfig(image),
-		),
-	)
-
-	errnie.Handles(err).With(errnie.NOOP)
-	return build
 }

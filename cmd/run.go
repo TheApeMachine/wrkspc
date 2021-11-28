@@ -24,14 +24,16 @@ var runCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		errnie.Traces() // If trace is true in `~/.wrkspc` output current file,
 		// function, and line.
-		go errnie.Runtime(30) // Same setting, print the number of goroutines every 30 secs.
+		errnie.Runtime(30) // Same setting, print the number of goroutines every 30 secs.
 
 		// We can leave the name input empty for now since we went with writing out the binaries
 		// for now. Execution in-memory directly is technically working, but error output is not
 		// great, so runc seems to be wanting some flags or something.
-		binner := matroesjka.NewEmbed("")
+		binner := matroesjka.NewEmbed()
 		binner.Write() // Write out the embedded binaries.
 
+		// Shield ourselves into a limited environment that we build, separate of the user's
+		// underlying environment.
 		env := brazil.NewEnvironment().Initialize()
 		defer env.Restore()
 

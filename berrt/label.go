@@ -38,6 +38,12 @@ var labelmap = map[string]func(string) string{
 	).Background(
 		lipgloss.Color("#5F00FF"),
 	).Bold(true).Padding(0, 1).Render,
+
+	"INSPECT": lipgloss.NewStyle().Foreground(
+		lipgloss.Color("#EEEEEE"),
+	).Background(
+		lipgloss.Color("#5F00FF"),
+	).Bold(true).Padding(0, 1).Render,
 }
 
 /*

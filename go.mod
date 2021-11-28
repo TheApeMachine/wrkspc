@@ -10,6 +10,7 @@ require (
 	github.com/containerd/console v1.0.3
 	github.com/containerd/containerd v1.5.8
 	github.com/containerd/zfs v1.0.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v20.10.11+incompatible
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.4.2
@@ -19,6 +20,7 @@ require (
 	github.com/hashicorp/go-immutable-radix v1.3.1
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6
+	github.com/opencontainers/runtime-spec v1.0.3-0.20210326190908-1c3f411f0417
 	github.com/openebs/api/v2 v2.4.0
 	github.com/sfreiberg/simplessh v0.0.0-20180301191542-495cbb862a9c
 	github.com/spf13/cobra v1.2.1
@@ -62,9 +64,7 @@ require (
 	github.com/containers/ocicrypt v1.1.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/davidmz/go-pageant v1.0.2 // indirect
-	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-events v0.0.0-20190806004212-e31b211e4f1c // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
@@ -122,7 +122,6 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v1.0.2 // indirect
-	github.com/opencontainers/runtime-spec v1.0.3-0.20210326190908-1c3f411f0417 // indirect
 	github.com/opencontainers/selinux v1.8.2 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -176,3 +175,6 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.2 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
+
+// Downgrading genproto is needed to fix "panic: protobuf tag not enough fields in Status.state:"
+replace google.golang.org/genproto => google.golang.org/genproto v0.0.0-20200224152610-e50cd9704f63

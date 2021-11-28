@@ -6,6 +6,7 @@ import (
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/matrix"
 	"github.com/theapemachine/wrkspc/spdg"
+	"github.com/theapemachine/wrkspc/twoface"
 )
 
 /*
@@ -41,14 +42,16 @@ func (platform Docker) Process() chan *spdg.Datagram {
 	out := make(chan *spdg.Datagram)
 
 	go func() {
+		disposer := twoface.NewDisposer()
 		defer close(out)
-		build := matrix.NewBuild(platform.command[0])
-		errnie.Logs("build", build).With(errnie.DEBUG)
+		defer disposer.Cleanup()
+
+		run := matrix.NewRun(platform.command[0], disposer)
 
 		out <- spdg.QuickDatagram( // Send out the error wrapped into a Datagram.
 			spdg.ERROR, "error", bytes.NewBuffer([]byte(
 				//build.Atomic(true).Error(), // Build the image atomically and return any errors.
-				build.Atomic(true).Error(),
+				errnie.Handles(run.Cycle()).ERR.Encode().Bytes(),
 			)),
 		)
 	}()

@@ -72,6 +72,8 @@ func (ambctx *AmbientContext) With(logLevel LogLevel) *AmbientContext {
 		ambctx.logger.Info(ambctx.msgs...)
 	case DEBUG:
 		ambctx.logger.Debug(ambctx.msgs...)
+	case INSPECT:
+		ambctx.logger.Inspect(ambctx.msgs...)
 	}
 
 	// Set OK to false when an error was indeed found. This is just a helper for the caller
