@@ -27,10 +27,11 @@ wrkspc:
     region: <REGION>
     bucket: <BUCKET>
 
-  # Git repository settings.
+  # Git repository settings. Used for GitOps when it comes to Kubernetes or as a way to use
+  # custom code and/or dependencies you may need in your setup.
   git:
     host: https://github.com
-    username: <your username>
+    username: theapemachine              # Default username that allows wrkspc to be functional out-of-the-box.
     token: <your personal acccess token> # You don't need this if your repo is not private.
 
     # Any dependencies you want to pull from git that additionally prepare a machine.
@@ -39,9 +40,9 @@ wrkspc:
   # Configure Docker container settings.
   matrix:
     registry:
-      username: <USERNAME>
-      password: <PASSWORD>
-      email: <EMAIL>
+      username: theapemachine # Default username that allows wrkspc to be functional out-of-the-box.
+      password: <PASSWORD>    # Change to your own username for customization, otherwise you can only
+      email: <EMAIL>          # use the tools that I have made public Dockerfile for.
       host: docker.io
 
   # Configure Kubernetes settings.
