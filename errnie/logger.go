@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/berrt"
 )
 
@@ -155,7 +156,7 @@ func (logger ConsoleLogger) Info(events ...interface{}) {
 Debug is a helper output for development or troubleshooting.
 */
 func (logger ConsoleLogger) Debug(events ...interface{}) {
-	if len(events) == 0 {
+	if len(events) == 0 || !viper.GetViper().GetBool("wrkspc.errnie.debug") {
 		return
 	}
 

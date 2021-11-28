@@ -10,8 +10,8 @@ wrkspc:
   # Configure the log levels.
   errnie:
     local: false # Defines if the tracer should also show traces from inside errnie.
-    debug: true  # Defines if errnie.Logs("some text").With(errnie.DEBUG) should print.
-    trace: true  # Defines the bahavior for errnie.Traces().
+    debug: false # Defines if errnie.Logs("some text").With(errnie.DEBUG) should print.
+    trace: false # Defines the bahavior for errnie.Traces().
 
   # Configure various elements for the `run` command.
   run:
@@ -20,6 +20,7 @@ wrkspc:
     post: |
       # This is just a shell script.
 
+  # Settings for S3 compatible storage, mostly used for data lake features in bcknd.
   nemo:
     access-key-id: <ACCESS KEY>
     access-key-secret: <ACCESS KEY SECRET>

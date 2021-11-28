@@ -59,7 +59,7 @@ Runtime retrieves runtime information periodically and outputs this to the termi
 It takes an interval (in seconds) to determine the time between updates.
 */
 func (tracer *Tracer) Runtime(interval int) {
-	if !viper.GetBool("wrkspc.errnie.trace") {
+	if !viper.GetViper().GetBool("wrkspc.errnie.trace") {
 		return
 	}
 
@@ -80,7 +80,7 @@ func (tracer *Tracer) Runtime(interval int) {
 Inspect the Stack and print the tracing output.
 */
 func (tracer *Tracer) Inspect(flags ...bool) {
-	if !viper.GetBool("wrkspc.errnie.trace") {
+	if !viper.GetViper().GetBool("wrkspc.errnie.trace") {
 		return
 	}
 

@@ -2,6 +2,7 @@ package conquer
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -64,6 +65,11 @@ func (command *Command) Execute() chan error {
 		// Runs a shell script from the `~/.wrkspc.yml` configuration.
 		errnie.Logs("running pre command steps").With(errnie.INFO)
 		command.setupAndDestroy(command.pre)
+		defer func() {
+			// Runs a shell script from the `~/.wrkspc.yml` configuration.
+			errnie.Logs("running post command steps").With(errnie.INFO)
+			command.setupAndDestroy(command.post)
+		}()
 
 		var platform Platform
 
@@ -78,16 +84,10 @@ func (command *Command) Execute() chan error {
 			platform = NewPlatform(Kubernetes{})
 		}
 
-		// Since Process returns a channel of error, pulling a message from that
-		// channel provides a value errnie can work with.
-		errnie.Logs(<-platform.Parse(command.scope).Process()).With(errnie.INFO)
+		err := &errnie.Error{}
+		msg := <-platform.Parse(command.scope).Process()
 
-		// Runs a shell script from the `~/.wrkspc.yml` configuration.
-		errnie.Logs("running post command steps").With(errnie.INFO)
-		command.setupAndDestroy(command.post)
-
-		// Send nil over the error channel to signal the program to stop.
-		out <- nil
+		out <- err.Decode(bytes.NewBuffer(msg.Data.Payload)).First()
 	}()
 
 	return out

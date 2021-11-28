@@ -52,8 +52,21 @@ func (err *Error) Encode() *bytes.Buffer {
 }
 
 /*
+Decode an Error from a bytes.Buffer.
+*/
+func (err *Error) Decode(buf *bytes.Buffer) *Error {
+	decoder := gob.NewDecoder(buf)
+	decoder.Decode(err)
+	return err
+}
+
+/*
 First returns the first error of errs, since this type can hold multiple errors as one.
 */
 func (err *Error) First() error {
+	if len(err.errs) == 0 {
+		return nil
+	}
+
 	return err.errs[0]
 }

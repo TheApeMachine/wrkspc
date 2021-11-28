@@ -42,6 +42,7 @@ Fork it, make it your own. It has an `Unlicense`.
 - please     : (Network) requests.
 - spdg       : Custom (cloud native) datatype that makes everything easy, and essential to the `bcknd` design.
 - twoface    : Custom concurrency "primitives" and other helpers for making complicated workflows easier to manage.
+- valleygirl : So, like, random...
 ```
 
 > Documentation below is a moving target. Some of it is done, some of it is already changed, some of it is just notes.

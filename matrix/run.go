@@ -4,6 +4,7 @@ import (
 	"syscall"
 
 	"github.com/containerd/console"
+	"github.com/containerd/containerd"
 	"github.com/containerd/containerd/cio"
 	"github.com/containerd/containerd/cmd/ctr/commands"
 	"github.com/containerd/containerd/cmd/ctr/commands/tasks"
@@ -42,13 +43,12 @@ func (run Run) Cycle() error {
 	defer client.Cleanup()
 
 	container, spec := client.Fetch(run.command, "v1.0")
+	defer container.Delete(run.disposer.Ctx, containerd.WithSnapshotCleanup)
 
 	var (
 		con console.Console
 		tty = spec.Process.Terminal
 	)
-
-	errnie.Logs("console && tty", con, tty).With(errnie.INFO)
 
 	if tty {
 		con = console.Current()
@@ -61,7 +61,6 @@ func (run Run) Cycle() error {
 		run.disposer.Ctx, cio.NewCreator(cio.WithStdio, cio.WithTerminal),
 	)
 	errnie.Handles(err).With(errnie.NOOP)
-	errnie.Logs("task", task).With(errnie.INFO)
 
 	defer task.Delete(run.disposer.Ctx)
 	exitStatusC, err := task.Wait(run.disposer.Ctx)
@@ -75,7 +74,6 @@ func (run Run) Cycle() error {
 		errnie.Logs("I am consolio, I need TTY for my bunghole").With(errnie.INFO)
 		errnie.Handles(tasks.HandleConsoleResize(run.disposer.Ctx, task, con))
 	} else {
-		errnie.Logs("running without TTY").With(errnie.INFO)
 		sigc := commands.ForwardAllSignals(run.disposer.Ctx, task)
 		defer commands.StopCatch(sigc)
 	}
@@ -84,9 +82,6 @@ func (run Run) Cycle() error {
 
 	status := <-exitStatusC
 
-	code, _, err := status.Result()
-	errnie.Handles(err).With(errnie.KILL)
-
-	errnie.Logs(code).With(errnie.INFO)
-	return err
+	_, _, err = status.Result()
+	return errnie.Handles(err).With(errnie.KILL).ERR.First()
 }

@@ -47,10 +47,16 @@ func (client Containerd) Dial() Client {
 	errnie.Traces()
 
 	if client.conn == nil {
-		var err error
-		client.conn, err = containerd.New("/run/containerd/containerd.sock")
-		errnie.Handles(err).With(errnie.KILL)
-		errnie.Logs("connected to containerd socket", client.conn).With(errnie.INFO)
+		// Since removing the hard 3 second delay in the daemon boot process we need
+		// a way to reliably retry the connection until Containerd is booted fully.
+		// We can use a repeater for that using our favorite backoff strategy.
+		repeater := twoface.NewRepeater(10, twoface.Fibonacci{MaxTries: 10})
+		repeater.Attempt(1, func() bool {
+			var err error
+			client.conn, err = containerd.New("/run/containerd/containerd.sock")
+			return errnie.Handles(err).With(errnie.NOOP).OK
+		}) // This will loop max 10 times, each time with a timeout of the two previous
+		// timeout values summed together.
 
 		// We need to upgrade the context with a namespace for the ContainerD daemon to work.
 		client.Disposer.Ctx = namespaces.WithNamespace(context.Background(), "wrkspc")
@@ -121,7 +127,7 @@ func (client Containerd) ToSpec(
 		containerd.WithNewSpec(oci.WithImageConfig(image), oci.WithTTY),
 	)
 
-	errnie.Handles(err).With(errnie.KILL)
+	errnie.Handles(err).With(errnie.NOOP)
 
 	spec, err := container.Spec(client.Disposer.Ctx)
 	errnie.Handles(err).With(errnie.NOOP)
