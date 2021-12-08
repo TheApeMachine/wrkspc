@@ -1,6 +1,6 @@
 FROM scratch
 
-ADD alpine-minirootfs-3.14.3-x86_64.tar.gz /
+ADD alpine-minirootfs-3.15.0-x86_64.tar.gz /
 
 ARG USER=guest
 ENV HOME /home/$USER

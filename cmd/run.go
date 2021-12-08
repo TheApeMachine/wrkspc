@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/conquer"
+	"github.com/theapemachine/wrkspc/dbcooper"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/matroesjka"
 )
@@ -34,8 +34,8 @@ var runCmd = &cobra.Command{
 
 		// Shield ourselves into a limited environment that we build, separate of the user's
 		// underlying environment.
-		env := brazil.NewEnvironment().Initialize()
-		defer env.Restore()
+		hijacker := dbcooper.NewHijacker().TakeOver()
+		defer hijacker.Release()
 
 		// Pass the command off to a specialist object, call Execute to set things in motion which
 		// returns a channel of `error` so that can block the main goroutine, which will unblock

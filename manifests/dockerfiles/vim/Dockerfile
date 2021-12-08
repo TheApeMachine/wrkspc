@@ -1,30 +1,19 @@
-FROM scratch
+FROM theapemachine/zsh:v1.0
 
-# Add a very minimal root filesystem.
-ADD alpine-minirootfs-3.14.0-x86_64.tar.gz /
-
-# Assume the identity of the user or guest if none provided.
-ARG USER=guest
-ENV HOME /home/$USER
-
-# Drop out of root and down to the normal user.
-RUN apk add --no-cache ca-certificates sudo git vim bind-tools go nodejs curl \
-		&& echo "$USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$USER \
-		&& chmod 0440 /etc/sudoers.d/$USER \
-		&& rm -rf /var/cache/apk/* \
-		&& rm -rf /var/cache/apk/* /usr/share/doc /usr/share/man/ /usr/share/info/* /var/cache/man/* /tmp/* /etc/fstab \
-		&& rm -fr /etc/init.d /lib/rc /etc/conf.d /etc/inittab /etc/runlevels /etc/rc.conf \
-		&& rm -fr /etc/sysctl* /etc/modprobe.d /etc/modules /etc/mdev.conf /etc/acpi
+# Since this uses the zsh image as a base, we're already dropped to a normal user, keep
+# that in mind and use sudo where needed.
+RUN sudo apk add --no-cache ca-certificates vim bind-tools nodejs curl
 
 USER $USER
 WORKDIR $HOME
 
-# Install a basic (opinionated) working environment.
-RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
-				 && vim +PlugInstall +qall
-
+# Install a vim plugin manager.
+RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+# Copy any .vimrc or other config files present in the context.
 COPY . .
-RUN sudo chown -R $USER:users $HOME
+# Run the installers for all plugins.
+# RUN vim +PlugInstall +qall
+RUN vim -V -es -u ~/.vimrc -i NONE -c "PlugInstall" -c "qa"
 
 # Start working...
 ENTRYPOINT /bin/zsh

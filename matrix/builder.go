@@ -1,7 +1,15 @@
 package matrix
 
 import (
+	"context"
+	"os"
+
 	"github.com/containerd/containerd"
+	"github.com/moby/buildkit/client/llb"
+	"github.com/moby/buildkit/client/llb/imagemetaresolver"
+	"github.com/moby/buildkit/frontend/dockerfile/dockerfile2llb"
+	"github.com/moby/buildkit/solver/pb"
+	"github.com/moby/buildkit/util/appcontext"
 	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/errnie"
 )
@@ -40,56 +48,31 @@ func (build *Build) SetImage(image containerd.Image) *Build {
 }
 
 /*
-Atomic defines a high-level flow of build steps that each build exactly the same
-way every time, or fail. A failure usually means somebody has done something
-manually somewhere.
+ToLLB converts a Dockerfile to an LLB spec so BuildKit has something to work with that it likes.
 */
-func (build *Build) Atomic(fs bool) error {
+func (build *Build) ToLLB(name, tag string) *dockerfile2llb.Image {
 	errnie.Traces()
 
-	// Since we are always rebuilding the root filesystem for the image, we need
-	// to have a way to skip it during that stage to prevent an infinite loop.
-	if !fs {
-		// Make sure we use the current base image for the tool we are building.
-		rootfs := NewRootFS(build)
-		rootfs.Build()
+	dockerfile := brazil.NewFile(brazil.BuildPath(
+		brazil.HomePath(), "wrkspc", name, "Dockerfile",
+	))
 
-		// Update all the dependencies in our ~/.wrkspc path
-		resolver := NewResolver(build.root)
-		resolver.Update()
-	}
+	caps := pb.Caps.CapSet(pb.Caps.All())
 
-	// Wrap the context up into a tarball to send to the builder daemon.
-	tar := NewTar(brazil.BuildPath(build.root, build.name))
+	state, image, err := dockerfile2llb.Dockerfile2LLB(
+		appcontext.Context(), dockerfile.Data.Bytes(), dockerfile2llb.ConvertOpt{
+			MetaResolver: imagemetaresolver.Default(),
+			Target:       name + ":" + tag,
+			LLBCaps:      &caps,
+		},
+	)
 
-	pkg, err := tar.Compress()
-	_ = pkg
 	errnie.Handles(err).With(errnie.KILL)
 
-	// // Prepare a new image spec for thedaemon to build.
-	// build.image = NewImage(build.name, pkg)
+	dt, err := state.Marshal(context.TODO())
+	errnie.Handles(err).With(errnie.KILL)
 
-	// // TODO: This is changing a lot due to ContainerD vs Docker integration. Will clean up later.
-	// // Tell the daemon to build our image.
-	// build.container = build.image.Build(build.client)
-	// // scanner := NewScanner(build.img)
-	// // scanner.Scan()
+	llb.WriteTo(dt, os.Stdout)
 
-	// errnie.Logs("container", build.container).With(errnie.DEBUG)
-
-	// cspec, err := build.container.Spec(build.disposer.Ctx)
-	// errnie.Handles(err).With(errnie.NOOP)
-	// errnie.Logs("spec", cspec).With(errnie.DEBUG)
-
-	// containerProto, err := build.container.Info(build.disposer.Ctx)
-	// errnie.Handles(err).With(errnie.NOOP)
-
-	// errnie.Handles(oci.WithTTY(
-	// 	build.disposer.Ctx, client.Conn(), &containerProto, cspec,
-	// ))
-
-	// run := NewRun(build, cspec)
-	// run.Cycle(build.disposer.Ctx)
-
-	return err
+	return image
 }

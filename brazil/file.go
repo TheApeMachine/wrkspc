@@ -116,3 +116,10 @@ func Copy(origin string, destination string) {
 	err = ioutil.WriteFile(destination, bytesRead, 0755)
 	errnie.Handles(err).With(errnie.KILL)
 }
+
+/*
+DeleteFile removes a file from the filesystem.
+*/
+func DeleteFile(path string) {
+	errnie.Handles(os.Remove(path))
+}

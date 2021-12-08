@@ -48,8 +48,8 @@ func (rootfs RootFS) Build() {
 	// Since this Build method is called on any other build and is
 	// therefor recursive, we need to specify the correct tool to
 	// build, as well as tell the build flow to skip some steps.
-	buildflow := NewBuild("rootfs", "latest", rootfs.build.client)
-	buildflow.Atomic(true) // Make the recursive call to Atomic and pass true this time to skip the
+	//buildflow := NewBuild("rootfs", "latest", rootfs.build.client)
+	//buildflow.Atomic(true) // Make the recursive call to Atomic and pass true this time to skip the
 	// rebuilding of the root file system.
 }
 
