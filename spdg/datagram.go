@@ -26,6 +26,13 @@ func NewDatagram(ctx *Context, dat *Data) *Datagram {
 }
 
 /*
+BaseDatagram constructs a Datagram that has a Context and Data type initialized with minimal values.
+*/
+func BaseDatagram() *Datagram {
+	return &Datagram{Context: NewContext(BASEGRAM, time.Now().UnixNano(), "unk")}
+}
+
+/*
 NullDatagram constructs nothing. Well, something, but it sure 'aint much.
 */
 func NullDatagram() *Datagram {

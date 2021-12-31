@@ -55,6 +55,8 @@ func (hijacker *Hijacker) Release() *Hijacker {
 	)
 
 	os.Setenv("PATH", hijacker.realPath)
+
+	return hijacker
 }
 
 /*

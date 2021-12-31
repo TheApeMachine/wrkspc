@@ -6,28 +6,6 @@ import (
 )
 
 /*
-ContextRole wraps the role field into an enum.
-*/
-type ContextRole string
-
-const (
-	// NULLGRAM is used when the return value is void basically.
-	NULLGRAM ContextRole = "null"
-	// ANONYMOUS is used as a `generic` type.
-	ANONYMOUS ContextRole = "anonymous"
-	// ERROR is used as a `generic` error type.
-	ERROR ContextRole = "error"
-	// DATAPOINT is usually something you want to store somehow.
-	DATAPOINT ContextRole = "datapoint"
-	// COMMAND is to trigger processes in the data pipelines.
-	COMMAND ContextRole = "command"
-	// QUESTION is to search for data.
-	QUESTION ContextRole = "question"
-	// TOPIC is a key that targets data at a Question.
-	TOPIC ContextRole = "topic"
-)
-
-/*
 Context is a metadata header wrapping the Datagram. It describes
 the payload such that the inner data can be abstracted away as
 anonymous bytes.
@@ -74,4 +52,20 @@ to your needs, in any way shape or form that is compatible.
 func (ctx *Context) Annotate(key, value string) *Context {
 	ctx.Annotations = append(ctx.Annotations, NewAnnotation(key, value))
 	return ctx
+}
+
+/*
+Validate the Context of the Datagram to verify state is correct before performing any operation on, or with
+this instance. Unvalidated Datagrams are only supposed to travel over dumb pipes.
+*/
+func (ctx *Context) Validate() ContextError {
+	if err := Check(ctx.Type, "string").IsNot("unk"); err != CONTEXTOK {
+		return err
+	}
+
+	if err := Check(ctx.Role, "ContextRole").IsNot(BASEGRAM); err != CONTEXTOK {
+		return err
+	}
+
+	return CONTEXTOK
 }

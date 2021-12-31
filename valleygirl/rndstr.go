@@ -1,3 +1,6 @@
+/*
+Package valleygirl has randomization functions.
+*/
 package valleygirl
 
 import (
@@ -17,6 +20,8 @@ var src = rand.NewSource(time.Now().UnixNano())
 
 /*
 FastRandomString returns a random string of length `n`, and does it very, you know, fast.
+Code shamelessly stolen from icza's (https://stackoverflow.com/users/1705598/icza) epic StackOverflow answer:
+https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go/31832326#31832326
 */
 func FastRandomString(n int) string {
 	b := make([]byte, n)

@@ -6,7 +6,6 @@ import (
 	"github.com/containerd/containerd"
 	"github.com/containerd/containerd/namespaces"
 	"github.com/containerd/containerd/oci"
-	"github.com/moby/buildkit/frontend/dockerfile/dockerfile2llb"
 	"github.com/opencontainers/runtime-spec/specs-go"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/brazil"
@@ -80,14 +79,14 @@ a remote registry configured in `~/.wrkspc.yml`.
 */
 func (client Containerd) Fetch(name, tag string) (containerd.Container, *specs.Spec) {
 	errnie.Traces()
-	var llbimage *dockerfile2llb.Image
+	// var llbimage *dockerfile2llb.Image
 	var image containerd.Image
 
 	if brazil.FileExists(brazil.BuildPath(
 		brazil.HomePath(), ".wrkspc", "manifests", "dockerfiles", name, "Dockerfile",
 	)) {
-		builder := NewBuild(name, tag, client)
-		llbimage = builder.ToLLB(name, tag)
+		// builder := NewBuild(name, tag, client)
+		// llbimage = builder.ToLLB(name, tag)
 	} else {
 		image = client.pull(name, tag)
 	}
