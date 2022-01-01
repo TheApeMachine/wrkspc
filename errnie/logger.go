@@ -156,7 +156,9 @@ func (logger ConsoleLogger) Info(events ...interface{}) {
 Debug is a helper output for development or troubleshooting.
 */
 func (logger ConsoleLogger) Debug(events ...interface{}) {
-	if len(events) == 0 || !viper.GetViper().GetBool("wrkspc.errnie.debug") {
+	name := viper.GetViper().GetString("program")
+
+	if len(events) == 0 || !viper.GetViper().GetBool(name+".errnie.debug") {
 		return
 	}
 
