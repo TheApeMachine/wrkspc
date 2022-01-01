@@ -39,24 +39,17 @@ supply any missing dependencies no matter what.
 */
 func WriteIfNotExists(path string, embedded embed.FS, ex bool) {
 	errnie.Traces()
+	errnie.Logs("checking file exists:", path).With(errnie.DEBUG)
 
-	target := BuildPath(HomePath(), "wrkspc", GetFileFromPrefix(path))
-
-	if path == "cfg/.wrkspc" {
-		target = BuildPath(HomePath(), GetFileFromPrefix(path))
-	}
-
-	errnie.Logs("checking file exists:", target).With(errnie.DEBUG)
-
-	if !FileExists(target) {
-		errnie.Logs("file did not exist, writing:", target).With(errnie.INFO)
+	if !FileExists(path) {
+		errnie.Logs("file did not exist, writing:", path).With(errnie.INFO)
 		fs := GetEmbedded(embedded, path)
 		defer fs.Close()
 		errnie.Logs(fs).With(errnie.DEBUG)
-		WriteFile(target, ReadFile(fs))
+		WriteFile(path, ReadFile(fs))
 
 		if ex {
-			errnie.Handles(os.Chmod(target, 0777))
+			errnie.Handles(os.Chmod(path, 0777))
 		}
 	}
 }
@@ -66,7 +59,6 @@ FileExists checks if a file is present at a certain path.
 */
 func FileExists(path string) bool {
 	errnie.Traces()
-
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err) // Have to reverse the logic.
 }
@@ -76,9 +68,11 @@ GetEmbedded opens the embedded file system.
 */
 func GetEmbedded(embedded embed.FS, cfgFile string) fs.File {
 	errnie.Traces()
+	chunks := strings.Split(cfgFile, "/")
 
-	fs, err := embedded.Open(cfgFile)
+	fs, err := embedded.Open(chunks[len(chunks)-1])
 	errnie.Handles(err).With(errnie.NOOP)
+
 	return fs
 }
 
@@ -87,7 +81,6 @@ ReadFile takes a file handle and reads the contents into a buffer.
 */
 func ReadFile(fs fs.File) []byte {
 	errnie.Traces()
-
 	buf, err := io.ReadAll(fs)
 	errnie.Handles(err).With(errnie.KILL)
 	return buf
