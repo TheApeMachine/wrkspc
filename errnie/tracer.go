@@ -82,7 +82,9 @@ func (tracer *Tracer) Runtime(interval int) {
 Inspect the Stack and print the tracing output.
 */
 func (tracer *Tracer) Inspect(flags ...bool) {
-	if !viper.GetViper().GetBool("wrkspc.errnie.trace") {
+	name := viper.GetViper().GetString("program")
+
+	if !viper.GetViper().GetBool(name + ".errnie.trace") {
 		return
 	}
 
