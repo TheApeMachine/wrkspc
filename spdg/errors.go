@@ -49,3 +49,24 @@ func (checker *ContextChecker) IsNot(proposal interface{}) ContextError {
 
 	return CONTEXTOK
 }
+
+/*
+IsComplete checks if all the needed fields are set.
+*/
+func (checker *ContextChecker) IsComplete() ContextError {
+	obj := checker.value.(*Context)
+
+	if obj.Role == NULLGRAM {
+		return VALIDATIONERROR
+	}
+
+	if obj.Type == "" {
+		return VALIDATIONERROR
+	}
+
+	if obj.Timestamp == 0 {
+		return VALIDATIONERROR
+	}
+
+	return CONTEXTOK
+}

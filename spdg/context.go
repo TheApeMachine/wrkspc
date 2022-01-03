@@ -1,7 +1,10 @@
 package spdg
 
 import (
-	"github.com/mitchellh/hashstructure/v2"
+	"strings"
+	"time"
+
+	"github.com/google/uuid"
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
@@ -11,11 +14,12 @@ the payload such that the inner data can be abstracted away as
 anonymous bytes.
 */
 type Context struct {
-	ID          uint64
-	Role        ContextRole
-	Timestamp   int64
-	Type        string
-	Annotations []Annotation
+	prefix      *string
+	ID          uuid.UUID    `json:"id"`
+	Role        ContextRole  `json:"role"`
+	Timestamp   int64        `json:"timestamp"`
+	Type        string       `json:"type"`
+	Annotations []Annotation `json:"annotations"`
 }
 
 /*
@@ -23,16 +27,16 @@ NewContext constructs a Header for a Datagram, which contains the meta data
 for the Payload inside the Body of the Datagram.
 */
 func NewContext(role ContextRole, timestamp int64, dataType string) *Context {
+	id, err := uuid.NewUUID()
+	errnie.Handles(err).With(errnie.NOOP)
+
 	ctx := &Context{
 		Role:      role,
 		Timestamp: timestamp,
 		Type:      dataType,
+		ID:        id,
 	}
 
-	hash, err := hashstructure.Hash(ctx, hashstructure.FormatV2, nil)
-	ctx.ID = hash
-
-	errnie.Handles(err).With(errnie.NOOP)
 	return ctx
 }
 
@@ -41,8 +45,53 @@ Prefix collapses the Context header into a path style prefix to be compatible wi
 storage engines, as well as radix trees.
 */
 func (context *Context) Prefix() *string {
-	str := ""
-	return &str
+	// Only write it if we don't have a prefix already. Once a prefix
+	// is set, it should be immutable!
+	if context.prefix != nil {
+		return context.prefix
+	}
+
+	var builder strings.Builder
+
+	context.writeContextAnnotations(&builder)
+
+	builder.WriteString(string(context.Role))
+	builder.WriteString("/")
+	builder.WriteString(strings.Join(
+		strings.FieldsFunc(
+			time.Unix(0, context.Timestamp).String(), Split,
+		)[:6], "/",
+	))
+	builder.WriteString("/")
+	builder.WriteString(context.ID.String())
+	builder.WriteString(".json")
+
+	out := builder.String()
+	context.prefix = &out
+
+	return context.prefix
+}
+
+/*
+writeContextAnnotations searches for special annotations to add to the prefix.
+*/
+func (ctx *Context) writeContextAnnotations(builder *strings.Builder) {
+	collector := make([]string, 2)
+
+	for _, annotation := range ctx.Annotations {
+		if annotation.Key == "canon" {
+			collector[0] = annotation.Value
+		}
+
+		if annotation.Key == "identity" {
+			collector[1] = annotation.Value
+		}
+	}
+
+	for _, collected := range collector {
+		builder.WriteString(collected)
+		builder.WriteString("/")
+	}
 }
 
 /*
@@ -67,5 +116,18 @@ func (ctx *Context) Validate() ContextError {
 		return err
 	}
 
+	if err := Check(ctx, "").IsComplete(); err != CONTEXTOK {
+		return err
+	}
+
 	return CONTEXTOK
+}
+
+/*
+Split is a custom comparison method for splitting strings so we can split a UTC timestamp format on
+all the delimiters that are present in it. This method is still needed for Prefix generation
+even now we use UnixNano timestamps, because we convert those to UTC to build the Prefix.
+*/
+func Split(delim rune) bool {
+	return delim == '-' || delim == ':' || delim == ' ' || delim == '.'
 }

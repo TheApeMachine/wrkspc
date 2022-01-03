@@ -18,7 +18,6 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/hashicorp/go-immutable-radix v1.3.1
-	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/moby/buildkit v0.9.3
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6
 	github.com/opencontainers/runtime-spec v1.0.3-0.20210326190908-1c3f411f0417
