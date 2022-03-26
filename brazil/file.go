@@ -70,7 +70,7 @@ func GetEmbedded(embedded embed.FS, cfgFile string) fs.File {
 	errnie.Traces()
 	chunks := strings.Split(cfgFile, "/")
 
-	fs, err := embedded.Open(chunks[len(chunks)-1])
+	fs, err := embedded.Open("cfg/" + chunks[len(chunks)-1])
 	errnie.Handles(err).With(errnie.NOOP)
 
 	return fs
