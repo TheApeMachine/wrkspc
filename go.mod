@@ -23,6 +23,7 @@ require (
 	github.com/opencontainers/runtime-spec v1.0.3-0.20210326190908-1c3f411f0417
 	github.com/openebs/api/v2 v2.4.0
 	github.com/sfreiberg/simplessh v0.0.0-20180301191542-495cbb862a9c
+	github.com/slack-go/slack v0.10.2
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.9.0
 	github.com/theapemachine/errnie/v2 v2.5.6

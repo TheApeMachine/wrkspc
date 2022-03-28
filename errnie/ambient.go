@@ -1,5 +1,10 @@
 package errnie
 
+import (
+	slacker "github.com/slack-go/slack"
+	"github.com/spf13/viper"
+)
+
 var ambctx *AmbientContext
 
 func init() {
@@ -11,20 +16,29 @@ AmbientContext is globally accessible throughout the entire program to reduce fr
 comes to an object used in many places.
 */
 type AmbientContext struct {
-	tracer *Tracer
-	logger LogChannel
-	msgs   []interface{}
-	OK     bool
-	ERR    *Error
+	tracer  *Tracer
+	loggers []LogChannel
+	msgs    []interface{}
+	OK      bool
+	ERR     *Error
 }
 
 /*
 New constructs the AmbientContext such that is becomes accessible.
 */
 func New() *AmbientContext {
+	program := viper.GetString("program")
+
 	ambctx := new(AmbientContext)
 	ambctx.tracer = NewTracer()
-	ambctx.logger = NewLogger(&ConsoleLogger{})
+	ambctx.loggers = []LogChannel{
+		NewLogger(&ConsoleLogger{}),
+		NewLogger(&SlackLogger{
+			client: slacker.New(
+				viper.GetString(program+".slack.token"), slacker.OptionDebug(true),
+			),
+		}),
+	}
 	ambctx.OK = true
 	ambctx.ERR = nil
 
@@ -65,15 +79,20 @@ func (ambctx *AmbientContext) With(logLevel LogLevel) *AmbientContext {
 
 	switch logLevel {
 	case ERROR:
-		err = ambctx.logger.Error(ambctx.msgs...)
+		err = ambctx.loggers[0].Error(ambctx.msgs...)
+		_ = ambctx.loggers[1].Error(ambctx.msgs...)
 	case WARNING:
-		err = ambctx.logger.Warning(ambctx.msgs...)
+		err = ambctx.loggers[0].Warning(ambctx.msgs...)
+		_ = ambctx.loggers[1].Warning(ambctx.msgs...)
 	case INFO:
-		ambctx.logger.Info(ambctx.msgs...)
+		ambctx.loggers[0].Info(ambctx.msgs...)
+		ambctx.loggers[1].Info(ambctx.msgs...)
 	case DEBUG:
-		ambctx.logger.Debug(ambctx.msgs...)
+		ambctx.loggers[0].Debug(ambctx.msgs...)
+		ambctx.loggers[1].Debug(ambctx.msgs...)
 	case INSPECT:
-		ambctx.logger.Inspect(ambctx.msgs...)
+		ambctx.loggers[0].Inspect(ambctx.msgs...)
+		ambctx.loggers[1].Inspect(ambctx.msgs...)
 	}
 
 	// Set OK to false when an error was indeed found. This is just a helper for the caller
