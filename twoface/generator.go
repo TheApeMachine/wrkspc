@@ -6,7 +6,7 @@ import "github.com/theapemachine/wrkspc/spdg"
 Generator is an interface that can be implemented by objects that somehow source and generate data.
 */
 type Generator interface {
-	Yield(chan *spdg.Datagram) chan *spdg.Datagram
+	Yield(chan *spdg.Datagram)
 }
 
 /*
@@ -17,31 +17,27 @@ func NewGenerator(generatorType Generator) Generator {
 }
 
 /*
-GoGenerator is a concurrent Generator type.
+ParGenerator is a concurrent Generator type.
 */
-type GoGenerator struct {
-	Operator func(chan *spdg.Datagram) chan *spdg.Datagram
+type ParGenerator struct {
+	Operator func(chan *spdg.Datagram)
 	Disposer *Disposer
 }
 
 /*
 Yield activates the generator.
 */
-func (generator GoGenerator) Yield(in chan *spdg.Datagram) chan *spdg.Datagram {
-	out := make(chan *spdg.Datagram)
-
+func (generator ParGenerator) Yield(in chan *spdg.Datagram) {
 	go func() {
-		defer close(out)
-
 		for {
 			select {
 			case <-generator.Disposer.Done():
+				// Something sent us a cancellation signal. Bail out.
 				return
 			default:
-				out <- <-generator.Operator(in)
+				// Call back to the operator function to perform another cycle of work.
+				generator.Operator(in)
 			}
 		}
 	}()
-
-	return out
 }
