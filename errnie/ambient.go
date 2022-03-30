@@ -1,10 +1,5 @@
 package errnie
 
-import (
-	slacker "github.com/slack-go/slack"
-	"github.com/spf13/viper"
-)
-
 var ambctx *AmbientContext
 
 func init() {
@@ -27,17 +22,10 @@ type AmbientContext struct {
 New constructs the AmbientContext such that is becomes accessible.
 */
 func New() *AmbientContext {
-	program := viper.GetString("program")
-
 	ambctx := new(AmbientContext)
 	ambctx.tracer = NewTracer()
 	ambctx.loggers = []LogChannel{
 		NewLogger(&ConsoleLogger{}),
-		NewLogger(&SlackLogger{
-			client: slacker.New(
-				viper.GetString(program+".slack.token"), slacker.OptionDebug(true),
-			),
-		}),
 	}
 	ambctx.OK = true
 	ambctx.ERR = nil
@@ -76,6 +64,7 @@ Example:
 func (ambctx *AmbientContext) With(logLevel LogLevel) *AmbientContext {
 	var err *Error
 	ambctx.OK = true
+	ensureLogger()
 
 	switch logLevel {
 	case ERROR:

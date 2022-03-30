@@ -12,6 +12,17 @@ type SlackLogger struct {
 	client *slacker.Client
 }
 
+func ensureLogger() {
+	if len(ambctx.loggers) == 1 {
+		program := viper.GetString("program")
+		ambctx.loggers = append(ambctx.loggers, NewLogger(&SlackLogger{
+			client: slacker.New(
+				viper.GetString(program+".slack.token"), slacker.OptionDebug(true),
+			),
+		}))
+	}
+}
+
 func (logger SlackLogger) Info(events ...interface{})    {}
 func (logger SlackLogger) Debug(events ...interface{})   {}
 func (logger SlackLogger) Inspect(events ...interface{}) {}
