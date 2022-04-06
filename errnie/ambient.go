@@ -68,20 +68,25 @@ func (ambctx *AmbientContext) With(logLevel LogLevel) *AmbientContext {
 
 	switch logLevel {
 	case ERROR:
-		err = ambctx.loggers[0].Error(ambctx.msgs...)
-		_ = ambctx.loggers[1].Error(ambctx.msgs...)
+		for _, l := range ambctx.loggers {
+			err = l.Error(ambctx.msgs...)
+		}
 	case WARNING:
-		err = ambctx.loggers[0].Warning(ambctx.msgs...)
-		_ = ambctx.loggers[1].Warning(ambctx.msgs...)
+		for _, l := range ambctx.loggers {
+			err = l.Warning(ambctx.msgs...)
+		}
 	case INFO:
-		ambctx.loggers[0].Info(ambctx.msgs...)
-		ambctx.loggers[1].Info(ambctx.msgs...)
+		for _, l := range ambctx.loggers {
+			l.Info(ambctx.msgs...)
+		}
 	case DEBUG:
-		ambctx.loggers[0].Debug(ambctx.msgs...)
-		ambctx.loggers[1].Debug(ambctx.msgs...)
+		for _, l := range ambctx.loggers {
+			l.Debug(ambctx.msgs...)
+		}
 	case INSPECT:
-		ambctx.loggers[0].Inspect(ambctx.msgs...)
-		ambctx.loggers[1].Inspect(ambctx.msgs...)
+		for _, l := range ambctx.loggers {
+			l.Inspect(ambctx.msgs...)
+		}
 	}
 
 	// Set OK to false when an error was indeed found. This is just a helper for the caller

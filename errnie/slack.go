@@ -15,10 +15,14 @@ type SlackLogger struct {
 func ensureLogger() {
 	if len(ambctx.loggers) == 1 {
 		program := viper.GetString("program")
+		token := viper.GetString(program + ".slack.token")
+
+		if token == "" {
+			return
+		}
+
 		ambctx.loggers = append(ambctx.loggers, NewLogger(&SlackLogger{
-			client: slacker.New(
-				viper.GetString(program+".slack.token"), slacker.OptionDebug(true),
-			),
+			client: slacker.New(token, slacker.OptionDebug(true)),
 		}))
 	}
 }
