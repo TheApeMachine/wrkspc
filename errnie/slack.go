@@ -14,8 +14,8 @@ type SlackLogger struct {
 
 func ensureLogger() {
 	if len(ambctx.loggers) == 1 {
-		program := viper.GetString("program")
-		token := viper.GetString(program + ".slack.token")
+		program := viper.GetViper().GetString("program")
+		token := viper.GetViper().GetString(program + ".slack.token")
 
 		if token == "" {
 			return
