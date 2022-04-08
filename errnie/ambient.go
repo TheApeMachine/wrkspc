@@ -41,7 +41,7 @@ func Runtime(interval int) { ambctx.tracer.Runtime(interval) }
 /*
 Traces the stack and outputs debugging information.
 */
-func Traces(flags ...bool) { ambctx.tracer.Inspect(flags...) }
+func Traces(flags ...bool) string { return ambctx.tracer.Inspect(flags...) }
 
 /*
 Logs proxies the call onto the AmbientContext.

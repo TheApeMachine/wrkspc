@@ -81,11 +81,11 @@ func (tracer *Tracer) Runtime(interval int) {
 /*
 Inspect the Stack and print the tracing output.
 */
-func (tracer *Tracer) Inspect(flags ...bool) {
+func (tracer *Tracer) Inspect(flags ...bool) string {
 	name := viper.GetViper().GetString("program")
 
 	if !viper.GetViper().GetBool(name + ".errnie.trace") {
-		return
+		return ""
 	}
 
 	// Collect stack data.
@@ -119,14 +119,14 @@ func (tracer *Tracer) Inspect(flags ...bool) {
 	if strings.Split(fstr, "/")[0] == "errnie" {
 		// Bail if we do not want to trace errnie's internal calls.
 		if !viper.GetBool("wrkspc.errnie.local") {
-			return
+			return ""
 		}
 
 		icon = "\xF0\x9F\x94\xB8"
 	}
 
 	fmt.Printf("%s %s %s %s %s %s\n", label, tStyled, icon, fStyled, lStyled, fnStyled)
-	tracer.renderCode(frame.File, frame.Line, flags...)
+	return tracer.renderCode(frame.File, frame.Line, flags...)
 }
 
 /*
@@ -134,9 +134,9 @@ renderCode takes the file name and line number and prints the code that is found
 using those values. It performs a check to see if the `code` param is nil or false,
 such that we can short circuit.
 */
-func (tracer *Tracer) renderCode(fp string, ln int, flags ...bool) {
+func (tracer *Tracer) renderCode(fp string, ln int, flags ...bool) string {
 	if len(flags) == 0 || !flags[0] {
-		return
+		return ""
 	}
 
 	var out string
@@ -154,6 +154,7 @@ func (tracer *Tracer) renderCode(fp string, ln int, flags ...bool) {
 	}
 
 	fmt.Printf("%s", out)
+	return out
 }
 
 /*

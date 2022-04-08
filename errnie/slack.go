@@ -1,6 +1,7 @@
 package errnie
 
 import (
+	"github.com/acarl005/stripansi"
 	slacker "github.com/slack-go/slack"
 	"github.com/spf13/viper"
 )
@@ -50,7 +51,7 @@ func (logger SlackLogger) Warning(events ...interface{}) *Error {
 		return nil
 	}
 
-	logger.postSlack(errs[0].Error())
+	logger.postSlack(errs[0].Error(), Traces(true, true))
 	return NewError(errs...)
 }
 
@@ -73,12 +74,13 @@ func (logger SlackLogger) Error(events ...interface{}) *Error {
 		return nil
 	}
 
-	logger.postSlack(errs[0].Error())
+	logger.postSlack(errs[0].Error(), Traces(true, true))
 	return NewError(errs...)
 }
 
-func (logger SlackLogger) postSlack(errStr string) {
+func (logger SlackLogger) postSlack(errStr string, trace string) {
 	program := viper.GetString("program")
+	cleanTrace := stripansi.Strip(trace)
 
 	attachment := slacker.Attachment{
 		Pretext: "@channel",
@@ -88,6 +90,10 @@ func (logger SlackLogger) postSlack(errStr string) {
 			{
 				Title: "The following error was detected",
 				Value: errStr,
+			},
+			{
+				Title: "Stacktrace",
+				Value: cleanTrace,
 			},
 		},
 	}
