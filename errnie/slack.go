@@ -83,7 +83,7 @@ func (logger SlackLogger) postSlack(errStr string, trace string) {
 	cleanTrace := stripansi.Strip(trace)
 
 	attachment := slacker.Attachment{
-		Pretext: "@channel",
+		Pretext: viper.GetViper().GetString("program"),
 		Text:    "PRODUCTION ERROR",
 		Color:   "#FF0055",
 		Fields: []slacker.AttachmentField{
