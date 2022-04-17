@@ -85,7 +85,9 @@ func (logger ConsoleLogger) Error(events ...interface{}) *Error {
 	fmt.Printf(
 		"%s %s\n",
 		berrt.NewLabel(" ERROR ").ToString(),
-		berrt.NewText(fmt.Sprintf("%v", events...)).ToString(),
+		berrt.NewText(
+			berrt.NewIcon("explode"), fmt.Sprintf("%v", events...),
+		).ToString(),
 	)
 
 	// Since internally we're a bit deeper in the stack, pass in an extra true to make
@@ -121,13 +123,15 @@ func (logger ConsoleLogger) Warning(events ...interface{}) *Error {
 	fmt.Printf(
 		"%s %s\n",
 		berrt.NewLabel("WARNING").ToString(),
-		berrt.NewText(fmt.Sprintf("%v", events...)).ToString(),
+		berrt.NewText(
+			berrt.NewIcon("warning"), fmt.Sprintf("%v", events...),
+		).ToString(),
 	)
 
-	// Since internally we're a bit deeper in the stack, pass in an extra true to make
-	// sure the tracing process jumps back far enough to reach the actual relevant code.
+	// Since internally we're a bit deeper in the stack, pass in an extra
+	// true to make sure the tracing process jumps back far enough to
+	// reach the actual relevant code.
 	Traces(true, true)
-
 	return NewError(errs...)
 }
 
@@ -148,7 +152,9 @@ func (logger ConsoleLogger) Info(events ...interface{}) {
 	fmt.Printf(
 		"%s %s\n",
 		berrt.NewLabel(" INFO  ").ToString(),
-		berrt.NewText(fmt.Sprintf(tmplt.String(), events...)).ToString(),
+		berrt.NewText(
+			berrt.NewIcon("info"), fmt.Sprintf(tmplt.String(), events...),
+		).ToString(),
 	)
 }
 
@@ -165,7 +171,9 @@ func (logger ConsoleLogger) Debug(events ...interface{}) {
 	fmt.Printf(
 		"%s %s\n",
 		berrt.NewLabel(" DEBUG ").ToString(),
-		berrt.NewText(fmt.Sprintf("%v", events...)).ToString(),
+		berrt.NewText(
+			berrt.NewIcon("bug"), fmt.Sprintf("%v", events...),
+		).ToString(),
 	)
 }
 
@@ -180,6 +188,8 @@ func (logger ConsoleLogger) Inspect(events ...interface{}) {
 	fmt.Printf(
 		"%s %s\n",
 		berrt.NewLabel("INSPECT").ToString(),
-		berrt.NewText(spew.Sdump(events...)).ToString(),
+		berrt.NewText(
+			berrt.NewIcon("lightning"), spew.Sdump(events...),
+		).ToString(),
 	)
 }

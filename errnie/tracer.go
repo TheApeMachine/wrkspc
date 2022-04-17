@@ -67,17 +67,23 @@ func (tracer *Tracer) Runtime(interval int) {
 
 	go func() {
 		for {
+			time.Sleep(time.Duration(interval) * time.Second)
 			n := runtime.NumGoroutine()
 
 			if n < 20 {
-				fmt.Printf(
-					"%s %s\n",
-					berrt.NewLabel("RUNTIME").ToString(),
-					berrt.NewText(fmt.Sprintf("GOROUTINES: %v", runtime.NumGoroutine())).ToString(),
-				)
+				continue
 			}
 
-			time.Sleep(time.Duration(interval) * time.Second)
+			fmt.Printf(
+				"%s %s\n",
+				berrt.NewLabel("RUNTIME").ToString(),
+				berrt.NewText(
+					berrt.NewIcon("internal"),
+					fmt.Sprintf(
+						"GOROUTINES: %v", runtime.NumGoroutine(),
+					),
+				).ToString(),
+			)
 		}
 	}()
 }
@@ -118,7 +124,7 @@ func (tracer *Tracer) Inspect(flags ...bool) string {
 	tStyled := tracer.normalStyle(tstr)
 	lStyled := tracer.highlightStyle(strconv.Itoa(frame.Line))
 
-	icon := "\xF0\x9F\x94\xB9"
+	icon := berrt.NewIcon("trace")
 
 	if strings.Split(fstr, "/")[0] == "errnie" {
 		// Bail if we do not want to trace errnie's internal calls.
@@ -126,7 +132,7 @@ func (tracer *Tracer) Inspect(flags ...bool) string {
 			return ""
 		}
 
-		icon = "\xF0\x9F\x94\xB8"
+		icon = berrt.NewIcon("internal")
 	}
 
 	fmt.Printf("%s %s %s %s %s %s\n", label, tStyled, icon, fStyled, lStyled, fnStyled)
@@ -165,13 +171,15 @@ func (tracer *Tracer) renderCode(fp string, ln int, flags ...bool) string {
 setStyle was extracted because I hate nesting levels that go too deep, but really its an
 indication that a new type should exist for this as it looks out of place and it is.
 */
-func (tracer *Tracer) setStyle(scanner *bufio.Scanner, lastline int, ln int) string {
+func (tracer *Tracer) setStyle(
+	scanner *bufio.Scanner, lastline int, ln int,
+) string {
 	style := tracer.darkStyle
 	icon := ""
 
 	if lastline == ln {
 		style = tracer.highlightStyle
-		icon = "\xF0\x9F\x94\xB4"
+		icon = berrt.NewIcon("explode")
 	}
 
 	return style(strconv.Itoa(lastline) + " " + scanner.Text() + " " + icon)

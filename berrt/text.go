@@ -10,6 +10,7 @@ import (
 Text is a message and a set of predefined styles you can apply to it.
 */
 type Text struct {
+	icon           string
 	message        string
 	mutedStyle     func(string) string
 	darkStyle      func(string) string
@@ -21,8 +22,9 @@ type Text struct {
 NewText returns a new Text object and predefines its styles, so we can use it to print
 nicely colored text to the terminal for increased readability.
 */
-func NewText(message string) *Text {
+func NewText(icon, message string) *Text {
 	return &Text{
+		icon:    icon,
 		message: message,
 		mutedStyle: lipgloss.NewStyle().Foreground(
 			lipgloss.Color("#444444"),
@@ -49,5 +51,5 @@ a combination of the predefined styles.
 func (text *Text) ToString() string {
 	return text.mutedStyle(
 		time.Now().Format("2006-01-02 15:04:05.000000"),
-	) + " \xE2\x86\xAA  " + text.highlightStyle(text.message)
+	) + " " + NewIcon("ok") + " " + text.highlightStyle(text.message)
 }
