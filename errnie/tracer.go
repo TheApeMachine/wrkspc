@@ -67,11 +67,15 @@ func (tracer *Tracer) Runtime(interval int) {
 
 	go func() {
 		for {
-			fmt.Printf(
-				"%s %s\n",
-				berrt.NewLabel("RUNTIME").ToString(),
-				berrt.NewText(fmt.Sprintf("GOROUTINES: %v", runtime.NumGoroutine())).ToString(),
-			)
+			n := runtime.NumGoroutine()
+
+			if n < 20 {
+				fmt.Printf(
+					"%s %s\n",
+					berrt.NewLabel("RUNTIME").ToString(),
+					berrt.NewText(fmt.Sprintf("GOROUTINES: %v", runtime.NumGoroutine())).ToString(),
+				)
+			}
 
 			time.Sleep(time.Duration(interval) * time.Second)
 		}
