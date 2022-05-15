@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+var healthy bool
+
 /*
 SlackLogger is an output channel that will log errors to Slack.
 */
@@ -16,15 +18,16 @@ type SlackLogger struct {
 func ensureLogger() {
 	if len(ambctx.loggers) == 1 {
 		program := viper.GetViper().GetString("program")
+		stage := viper.GetViper().GetString(program + ".stage")
 		token := viper.GetViper().GetString(program + ".slack.token")
 
-		if token == "" {
-			return
+		if stage == "production" {
+			ambctx.loggers = append(ambctx.loggers, NewLogger(&SlackLogger{
+				client: slacker.New(token, slacker.OptionDebug(true)),
+			}))
 		}
 
-		ambctx.loggers = append(ambctx.loggers, NewLogger(&SlackLogger{
-			client: slacker.New(token, slacker.OptionDebug(true)),
-		}))
+		healthy = true
 	}
 }
 
@@ -79,6 +82,10 @@ func (logger SlackLogger) Error(events ...interface{}) *Error {
 }
 
 func (logger SlackLogger) postSlack(errStr string, trace string) {
+	if !healthy {
+		return
+	}
+
 	program := viper.GetString("program")
 	cleanTrace := stripansi.Strip(trace)
 
@@ -103,6 +110,7 @@ func (logger SlackLogger) postSlack(errStr string, trace string) {
 		slacker.MsgOptionAttachments(attachment),
 	)
 
-	Handles(err).With(NOOP)
-
+	if err := Handles(err).With(NOOP).ERR.First(); err != nil {
+		healthy = false
+	}
 }

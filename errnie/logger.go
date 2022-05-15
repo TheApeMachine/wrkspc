@@ -72,7 +72,7 @@ func (logger ConsoleLogger) Error(events ...interface{}) *Error {
 
 	for _, err := range events {
 		if err == nil {
-			break
+			continue
 		}
 
 		errs = append(errs, err.(error))
@@ -93,7 +93,6 @@ func (logger ConsoleLogger) Error(events ...interface{}) *Error {
 	// Since internally we're a bit deeper in the stack, pass in an extra true to make
 	// sure the tracing process jumps back far enough to reach the actual relevant code.
 	Traces(true, true)
-
 	return NewError(errs...)
 }
 
@@ -110,7 +109,7 @@ func (logger ConsoleLogger) Warning(events ...interface{}) *Error {
 
 	for _, err := range events {
 		if err == nil {
-			break
+			continue
 		}
 
 		errs = append(errs, err.(error))
