@@ -1,0 +1,35 @@
+program: informationRetrieval
+
+informationRetrieval:
+  stage: development
+
+  stages:
+    development:
+      server:
+        port: "8899"
+      s3:
+        key: lakeuser
+        secret: lakeco2yay
+        region: eu-central-1
+        bucket: cnc-development-datalake
+        endpoint: "http://127.0.0.1:9000"
+    production:
+      server:
+        port: "8899"
+      s3:
+        key: lakeuser
+        secret: lakeco2yay
+        region: eu-central-1
+        bucket: cnc-development-datalake
+        endpoint: "http://127.0.0.1:9000"
+  errnie:
+    local: false
+    debug: true
+    trace: true
+
+  slack:
+    token: <TOKEN>
+    errorChannel: C033PSE46GY
+    salesChannel: C038QEL3AQZ
+    #salesChannel: CABG9P7D0
+

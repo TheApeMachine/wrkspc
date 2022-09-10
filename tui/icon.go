@@ -1,0 +1,26 @@
+package tui
+
+var iconMap = map[string]string{
+	"flag":   "\xF0\x9F\x9A\xA9",
+	"volt":   "\xE2\x9A\xA1",
+	"star":   "\xE2\xAD\x90",
+	"bug":    "\xF0\x9F\x90\x9B",
+	"lbug":   "\xF0\x9F\x90\x9E",
+	"thumu":  "\xF0\x9F\x91\x8D",
+	"thumd":  "\xF0\x9F\x91\x8E",
+	"ok":     "\xF0\x9F\x91\x8C",
+	"pointl": "\xF0\x9F\x91\x88",
+	"pointr": "\xF0\x9F\x91\x89",
+	"skull":  "\xF0\x9F\x92\x80",
+	"xplode": "\xF0\x9F\x92\xA5",
+	"pin":    "\xF0\x9F\x93\x8D",
+	"badge":  "\xF0\x9F\x94\xB0",
+	"fire":   "\xF0\x9F\x94\xA5",
+	"loop":   "\xF0\x9F\x94\x8D",
+	"ghost":  "\xF0\x9F\x91\xBB",
+	"warn":   "\xE2\x9A\xA0",
+}
+
+func NewIcon(key string) string {
+	return iconMap[key]
+}
