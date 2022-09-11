@@ -1,7 +1,6 @@
 package twoface
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -15,13 +14,15 @@ worker pool, which keeps the amount of goroutines in check, while still being
 able to benefit from high concurrency in all kinds of scenarios.
 */
 type Pool struct {
-	maxWorkers int
-	disposer   *Context
-	workers    chan chan Job
-	jobs       chan Job
-	handles    []*Worker
-	stats      int64
-	overload   bool
+	maxWorkers    int
+	disposer      *Context
+	workers       chan chan Job
+	jobs          chan Job
+	handles       []*Worker
+	scaleInterval time.Duration
+	stats         int64
+	loadCount     int
+	overload      bool
 }
 
 /*
@@ -30,12 +31,14 @@ Context type to be able to cleanly cancel all of the sub processes it starts.
 */
 func NewPool(disposer *Context) *Pool {
 	return &Pool{
-		maxWorkers: 0,
-		disposer:   disposer,
-		workers:    make(chan chan Job),
-		jobs:       make(chan Job),
-		handles:    make([]*Worker, 0),
-		overload:   false,
+		maxWorkers:    0,
+		disposer:      disposer,
+		workers:       make(chan chan Job),
+		jobs:          make(chan Job),
+		handles:       make([]*Worker, 0),
+		scaleInterval: 10,
+		loadCount:     0,
+		overload:      false,
 	}
 }
 
@@ -75,10 +78,21 @@ func (pool *Pool) checkLoad() {
 	// We should only evaluate if we have previously
 	// collected statistics.
 	if prev > 0 {
-		load := prev - pool.stats
+		if pool.stats > prev {
+			pool.loadCount++
 
-		if load < 0 {
-			errnie.Logs(fmt.Sprintf("pool overload: %d", load)).With(errnie.WARNING)
+			if pool.loadCount < 3 {
+				// We only want to scale down if there is a continuing
+				// trend downwards.
+				return
+			}
+
+			pool.loadCount = 0
+
+			errnie.Logs(
+				"overload", pool.maxWorkers,
+			).With(errnie.WARNING)
+
 			pool.overload = true
 		}
 	}
@@ -96,11 +110,6 @@ func (pool *Pool) grow() bool {
 		).Start())
 
 		pool.maxWorkers++
-
-		errnie.Logs(
-			fmt.Sprintf("new worker added (%d)", len(pool.handles)),
-		).With(errnie.DEBUG)
-
 		return true
 	}
 
@@ -157,7 +166,7 @@ Run the workers, after creating and assigning them to the pool.
 func (pool *Pool) Run() {
 	// Periodically  we will evaluate the performance of the worker
 	// pool and potentially grow or shrink it.
-	ticker := time.NewTicker(300 * time.Millisecond)
+	ticker := time.NewTicker(pool.scaleInterval * time.Millisecond)
 
 	go func() {
 		for {

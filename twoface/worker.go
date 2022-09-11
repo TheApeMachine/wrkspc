@@ -14,6 +14,7 @@ type Worker struct {
 	working      bool
 	idleCount    int
 	lastDuration int64
+	drain        bool
 }
 
 func NewWorker(
@@ -27,6 +28,7 @@ func NewWorker(
 		JobChannel: make(chan Job),
 		disposer:   disposer,
 		working:    false,
+		drain:      false,
 	}
 }
 
@@ -47,9 +49,10 @@ func (worker *Worker) Start() *Worker {
 
 				worker.lastDuration = time.Since(t).Nanoseconds()
 				worker.working = false
-			case <-worker.disposer.Done():
-				errnie.Logs("worker stopped").With(errnie.DEBUG)
-				return
+
+				if worker.drain {
+					return
+				}
 			}
 		}
 	}()
@@ -58,6 +61,7 @@ func (worker *Worker) Start() *Worker {
 }
 
 func (worker *Worker) Stop() {
+	errnie.Traces()
 	worker.disposer.cancel()
 }
 
@@ -66,10 +70,6 @@ Drain the worker, which means it will finish its current job first
 before it will stop.
 */
 func (worker *Worker) Drain() {
-	for {
-		if !worker.working {
-			worker.Stop()
-			return
-		}
-	}
+	errnie.Traces()
+	worker.drain = true
 }

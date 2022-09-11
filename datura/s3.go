@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/twoface"
@@ -44,14 +45,20 @@ type S3 struct {
 
 func NewS3() *S3 {
 	errnie.Traces()
+	Raise()
 
-	region := "us-east-2"
-	bucket := "wrkspc"
+	v := viper.GetViper()
+	p := v.GetString("program")
+	s := v.GetString(p + ".stage")
+	c := v.GetStringMapString(p + ".stages." + s + ".s3")
+
+	region := c["region"]
+	bucket := c["bucket"]
 
 	resolver := aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
 		return aws.Endpoint{
 			PartitionID:       "aws",
-			URL:               "http://127.0.0.1:9000",
+			URL:               c["endpoint"],
 			SigningRegion:     region,
 			HostnameImmutable: true,
 		}, nil
@@ -59,7 +66,7 @@ func NewS3() *S3 {
 
 	conn := s3.NewFromConfig(aws.Config{
 		Region:           region,
-		Credentials:      credentials.NewStaticCredentialsProvider("minioadmin", "minioadmin", ""),
+		Credentials:      credentials.NewStaticCredentialsProvider(c["key"], c["secret"], ""),
 		EndpointResolver: resolver,
 	}, func(o *s3.Options) {
 		o.UsePathStyle = true
@@ -68,18 +75,18 @@ func NewS3() *S3 {
 				Proxy: http.ProxyFromEnvironment,
 				DialContext: (&net.Dialer{
 					Timeout:   3 * time.Second,
-					KeepAlive: 10 * time.Second,
+					KeepAlive: 0,
 				}).DialContext,
-				MaxIdleConns:          100,
+				MaxIdleConns:          0,
 				MaxIdleConnsPerHost:   100,
-				MaxConnsPerHost:       100,
-				IdleConnTimeout:       10 * time.Second,
+				MaxConnsPerHost:       0,
+				IdleConnTimeout:       0,
 				DisableKeepAlives:     false,
-				TLSHandshakeTimeout:   3 * time.Second,
-				ExpectContinueTimeout: 5 * time.Second,
-				ResponseHeaderTimeout: 5 * time.Second,
-				ReadBufferSize:        16 * 1024 * 1024,
-				WriteBufferSize:       16 * 1024 * 1024,
+				TLSHandshakeTimeout:   1 * time.Second,
+				ExpectContinueTimeout: 1 * time.Second,
+				ResponseHeaderTimeout: 1 * time.Second,
+				ReadBufferSize:        4 << 10,
+				WriteBufferSize:       4 << 10,
 			}
 		})
 	})

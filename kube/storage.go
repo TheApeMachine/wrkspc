@@ -11,7 +11,6 @@ import (
 	informers "github.com/minio/operator/pkg/client/informers/externalversions"
 	"github.com/minio/operator/pkg/controller/cluster"
 	"github.com/theapemachine/wrkspc/errnie"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kubeinformers "k8s.io/client-go/informers"
 )
@@ -39,13 +38,6 @@ Provision the MinIO storage class onto the Kubernetes cluster.
 */
 func (storage Storage) Provision(stop chan struct{}) errnie.Error {
 	ctx := context.Background()
-	_, err := storage.client.KubeClient.CoreV1().Namespaces().Create(
-		ctx,
-		&v1.Namespace{
-			ObjectMeta: metav1.ObjectMeta{Name: "minio-operator"},
-		},
-		metav1.CreateOptions{},
-	)
 	namespacesENv, isNamespaced := os.LookupEnv("WATCHED_NAMESPACE")
 	var namespaces set.StringSet
 	if isNamespaced {
@@ -95,8 +87,7 @@ func (storage Storage) Provision(stop chan struct{}) errnie.Error {
 			crd.Spec.Conversion.Webhook.ClientConfig.CABundle = caContent
 			crd.Spec.Conversion.Webhook.ClientConfig.Service.Namespace = miniov2.GetNSFromFile()
 			_, err := storage.client.ExtClient.ApiextensionsV1().CustomResourceDefinitions().Update(context.Background(), crd, metav1.UpdateOptions{})
-			if err != nil {
-			}
+			errnie.Handles(err).With(errnie.NOOP)
 		}
 	}
 

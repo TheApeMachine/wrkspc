@@ -2,7 +2,6 @@ package brazil
 
 import (
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -65,9 +64,9 @@ func GetFileFromPrefix(prefix string) string {
 /*
 ReadPath returns everything in path.
 */
-func ReadPath(path string) []fs.FileInfo {
+func ReadPath(path string) []fs.DirEntry {
 	errnie.Traces()
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 	errnie.Handles(err).With(errnie.KILL)
 	return files
 }

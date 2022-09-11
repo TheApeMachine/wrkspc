@@ -24,7 +24,10 @@ var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run the service with the ~/.wrkspc.yml config values.",
 	Long:  runtxt,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
+		errnie.Tracing(true)
+		errnie.Debugging(true)
+
 		signals := twoface.NewSignal()
 		stop := signals.Run()
 

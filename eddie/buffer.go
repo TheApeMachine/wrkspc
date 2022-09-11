@@ -1,83 +1,65 @@
 package eddie
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"log"
-	"os"
-	"strings"
 
-	"github.com/theapemachine/wrkspc/apeterm"
-	"golang.org/x/crypto/ssh/terminal"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/muesli/termenv"
+)
+
+var (
+	color   = termenv.EnvColorProfile().Color
+	keyword = termenv.Style{}.Foreground(color("204")).Background(color("235")).Styled
+	help    = termenv.Style{}.Foreground(color("241")).Styled
 )
 
 type Buffer struct {
-	ui       *apeterm.UI
-	filePath *string
-	data     []string
+	altscreen bool
+	quitting  bool
 }
 
-func NewBuffer(ui *apeterm.UI, filePath *string) *Buffer {
-	return &Buffer{
-		ui:       ui,
-		filePath: filePath,
-		data:     make([]string, 0),
-	}
+func (m Buffer) Init() tea.Cmd {
+	return nil
 }
 
-func (buffer *Buffer) Load() {
-	fh, err := os.Open(*buffer.filePath)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	scanner := bufio.NewScanner(fh)
-
-	for scanner.Scan() {
-		buffer.data = append(buffer.data, scanner.Text())
-	}
-
-	fmt.Print(buffer.GetData())
-}
-
-func (buffer *Buffer) SetFocus() {
-	oldState, err := terminal.MakeRaw(0)
-
-	if err != nil {
-		panic(err)
-	}
-
-	defer terminal.Restore(0, oldState)
-
-	for {
-		str, _ := buffer.ui.ReadInputByte()
-
-		if str == "q" {
-			break
+func (m Buffer) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "q", "ctrl+c", "esc":
+			m.quitting = true
+			return m, tea.Quit
+		case " ":
+			var cmd tea.Cmd
+			if m.altscreen {
+				cmd = tea.ExitAltScreen
+			} else {
+				cmd = tea.EnterAltScreen
+			}
+			m.altscreen = !m.altscreen
+			return m, cmd
 		}
 	}
+	return m, nil
 }
 
-func rawReadInput(f *os.File) []byte {
-	var buf []byte
-
-	for {
-		_, err := f.Read(buf[:])
-
-		if err != nil && err != io.EOF {
-			break
-		}
-
-		if len(buf) > 0 {
-			break
-		}
+func (m Buffer) View() string {
+	if m.quitting {
+		return "Bye!\n"
 	}
 
-	return buf
-}
+	const (
+		altscreenMode = " altscreen mode "
+		inlineMode    = " inline mode "
+	)
 
-func (buffer *Buffer) GetData() string {
-	return strings.Join(buffer.data, "\n")
+	var mode string
+	if m.altscreen {
+		mode = altscreenMode
+	} else {
+		mode = inlineMode
+	}
+
+	return fmt.Sprintf("\n\n  You're in %s\n\n\n", keyword(mode)) +
+		help("  space: switch modes • q: exit\n")
 }

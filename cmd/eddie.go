@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
-	"github.com/theapemachine/wrkspc/apeterm"
 	"github.com/theapemachine/wrkspc/eddie"
+	"github.com/theapemachine/wrkspc/errnie"
 )
 
 func init() {
@@ -15,11 +16,9 @@ var eddieCmd = &cobra.Command{
 	Short: "The Ape Machine editor.",
 	Long:  eddietxt,
 	RunE: func(_ *cobra.Command, args []string) error {
-		buffer := eddie.NewBuffer(
-			apeterm.NewUI(), &args[0],
-		)
-		buffer.SetFocus()
-		return nil
+		return errnie.Handles(
+			tea.NewProgram(eddie.Buffer{}).Start(),
+		).With(errnie.KILL)
 	},
 }
 

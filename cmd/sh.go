@@ -15,7 +15,7 @@ var shCmd = &cobra.Command{
 	Use:   "sh",
 	Short: "The Ape Machine shell (amsh).",
 	Long:  runtxt,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		for {
 			var prefix string
 
@@ -23,15 +23,13 @@ var shCmd = &cobra.Command{
 			case "test":
 				prefix = "test"
 			case "exit":
-				break
+				return nil
 			default:
 				prefix = ""
 			}
 
 			fmt.Println(prefix)
 		}
-
-		return nil
 	},
 }
 

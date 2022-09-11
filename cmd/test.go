@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -20,6 +19,8 @@ var testCmd = &cobra.Command{
 	Short: "A command to test functionalities.",
 	Long:  testtxt,
 	RunE: func(_ *cobra.Command, _ []string) error {
+		errnie.Tracing(false)
+		errnie.Debugging(true)
 		store := datura.NewS3()
 
 		ticker := time.NewTicker(1000 * time.Millisecond)
@@ -34,7 +35,7 @@ var testCmd = &cobra.Command{
 				case <-ticker.C:
 					// Output the count every second, then reset for
 					// the next sample.
-					errnie.Logs(fmt.Sprintf("%d objs/sec", count)).With(errnie.INFO)
+					errnie.Logs(count, "objs/sec").With(errnie.INFO)
 					count = 0
 				default:
 					// Write a datapoint and increase the count.

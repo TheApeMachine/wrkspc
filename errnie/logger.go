@@ -1,9 +1,14 @@
 package errnie
 
-import "sigs.k8s.io/kind/pkg/log"
+import (
+	"fmt"
+	"strings"
+
+	"sigs.k8s.io/kind/pkg/log"
+)
 
 type Logger interface {
-	Print() Error
+	Print(string, string, string, string)
 	Error(string)
 	Errorf(string, ...interface{})
 	Warn(string)
@@ -24,9 +29,29 @@ func NewLog(val string) Log {
 /*
 Logs is a conveniance method to send values into the logging pipeline.
 */
-func Logs(vals ...interface{}) AmbientContext {
-	ambctx.logs = append(ambctx.logs, vals...)
-	return ambctx
+func Logs(vals ...interface{}) Log {
+	var builder strings.Builder
+
+	for _, val := range vals {
+		switch v := val.(type) {
+		case string:
+			builder.WriteString(v)
+		default:
+			builder.WriteString(fmt.Sprintf("%v", v))
+		}
+	}
+
+	return NewLog(builder.String())
+}
+
+/*
+With is a chaining method that defines the follow on behavior to
+apply to the error wrapped in the Handles method.
+*/
+func (log Log) With(op Op) Log {
+	t, c, i := op()
+	ambctx.loggers[0].Print(log.Value, t, c, i)
+	return log
 }
 
 /*

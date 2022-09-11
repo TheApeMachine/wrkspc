@@ -2,17 +2,14 @@ package errnie
 
 import (
 	"errors"
-	"fmt"
-	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/theapemachine/wrkspc/tui"
 )
 
 /*
 Op enumerates the operations errnie can perform on a error event.
 */
-type Op func()
+type Op func() (string, string, string)
 
 var (
 	// NOOP does not do anything.
@@ -33,34 +30,20 @@ var (
 	INSPECT Op = writeInspect()
 )
 
-func writeLog(t string, c string, icon string) func() {
-	// if !debug && t != " ERROR " {
-	// 	return func() {}
-	// }
-
-	return func() {
-		for _, log := range ambctx.logs {
-			fmt.Println(
-				tui.NewLabel(t).Print(),
-				tui.NewColor(
-					"MUTE", time.Now().Format("2006-01-02 15:04:05.000000"),
-				).Print(),
-				tui.NewIcon(icon),
-				tui.NewColor(c, log.(string)).Print(),
-			)
-		}
-
-		ambctx.logs = make([]interface{}, 0)
+func writeLog(t, c, i string) func() (string, string, string) {
+	return func() (string, string, string) {
+		return t, c, i
 	}
 }
 
-func writeInspect() func() {
-	return func() {
+func writeInspect() func() (string, string, string) {
+	return func() (string, string, string) {
 		for _, log := range ambctx.logs {
 			spew.Dump(log)
 		}
 
 		ambctx.logs = make([]interface{}, 0)
+		return "", "", ""
 	}
 }
 

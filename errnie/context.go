@@ -17,11 +17,12 @@ as well as the data representing the current state.
 */
 type AmbientContext struct {
 	Status
-	errors  []Error
-	loggers []Logger
-	logs    []interface{}
-	tracer  Tracer
-	Tracing bool
+	errors    []Error
+	loggers   []Logger
+	logs      []interface{}
+	tracer    Tracer
+	Tracing   bool
+	Debugging bool
 }
 
 /*
@@ -42,4 +43,8 @@ func GetErrnie() Logger {
 
 func Tracing(set bool) {
 	ambctx.Tracing = set
+}
+
+func Debugging(set bool) {
+	ambctx.Debugging = set
 }
