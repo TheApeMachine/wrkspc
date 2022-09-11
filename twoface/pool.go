@@ -110,11 +110,11 @@ func (pool *Pool) grow() bool {
 func (pool *Pool) shrink() {
 	errnie.Traces()
 
-	if pool.maxWorkers <= 1 {
+	if pool.maxWorkers == 0 {
 		return
 	}
 
-	if pool.overload {
+	if pool.overload && pool.maxWorkers > 1 {
 		// Pool is currently overloaded, start taking
 		// out random workers.
 		x := rand.Intn(pool.maxWorkers - 0)
