@@ -50,7 +50,11 @@ apply to the error wrapped in the Handles method.
 */
 func (log Log) With(op Op) Log {
 	t, c, i := op()
-	ambctx.loggers[0].Print(log.Value, t, c, i)
+
+	if ambctx.Debugging || t == " INFO  " {
+		ambctx.loggers[0].Print(log.Value, t, c, i)
+	}
+
 	return log
 }
 

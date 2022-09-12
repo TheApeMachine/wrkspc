@@ -20,7 +20,7 @@ var testCmd = &cobra.Command{
 	Long:  testtxt,
 	RunE: func(_ *cobra.Command, _ []string) error {
 		errnie.Tracing(false)
-		errnie.Debugging(true)
+		errnie.Debugging(false)
 		store := datura.NewS3()
 
 		ticker := time.NewTicker(1000 * time.Millisecond)
