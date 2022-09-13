@@ -52,6 +52,7 @@ var testCmd = &cobra.Command{
 		time.Sleep(10 * time.Second)
 		ticker.Stop()
 
+		store.Wait()
 		done <- struct{}{}
 		return nil
 	},

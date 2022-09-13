@@ -26,6 +26,14 @@ func NewPool(disposer *Context) *Pool {
 	}
 }
 
+func (pool *Pool) Wait() {
+	for {
+		if len(pool.handles) == 0 {
+			return
+		}
+	}
+}
+
 /*
 Do is the entry point for new jobs that want to be scheduled onto the worker pool.
 */

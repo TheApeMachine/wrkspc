@@ -108,6 +108,10 @@ func NewS3() *S3 {
 	}
 }
 
+func (store *S3) Wait() {
+	store.pool.Wait()
+}
+
 type DownloadJob struct {
 	bucket     *string
 	downloader *manager.Downloader
@@ -179,10 +183,12 @@ type UploadJob struct {
 	bucket   *string
 	uploader *manager.Uploader
 	ctx      *twoface.Context
+	wg       *sync.WaitGroup
 }
 
 func (job UploadJob) Do() {
 	errnie.Traces()
+	defer job.wg.Done()
 
 	buf := bytes.NewBuffer(job.p)
 
