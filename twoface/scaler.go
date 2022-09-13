@@ -17,6 +17,7 @@ type Scaler struct {
 	rate     int
 	stats    int64
 	period   int
+	samples  int
 	overload bool
 	pool     *Pool
 }
@@ -26,9 +27,10 @@ func NewScaler(pool *Pool) *Scaler {
 
 	return &Scaler{
 		interval: 1,
-		rate:     20,
+		rate:     10,
 		stats:    0,
 		period:   0,
+		samples:  3,
 		overload: false,
 		pool:     pool,
 	}
@@ -60,10 +62,6 @@ property of the scaler to true, indicating we should scale down.
 */
 func (scaler *Scaler) load() {
 	errnie.Traces()
-
-	// Start with the default value, so we always have something
-	// to return.
-	scaler.overload = false
 
 	// stats will contain the value from the previous iteration, which
 	// we need to keep around to compare against.
@@ -103,7 +101,7 @@ func (scaler *Scaler) load() {
 		// for now just increase the period counter.
 		scaler.period++
 
-		if scaler.period < 3 {
+		if scaler.period < scalar.samples {
 			// We have not collected enough samples to determine
 			// if there is a trend downwards.
 			return
@@ -116,6 +114,10 @@ func (scaler *Scaler) load() {
 
 		return
 	}
+
+	// Start with the default value, so we always have something
+	// to return.
+	scaler.overload = false
 }
 
 /*
