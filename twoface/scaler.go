@@ -17,6 +17,7 @@ type Scaler struct {
 	rate     int
 	stats    int64
 	period   int
+	level    int
 	samples  int
 	overload bool
 	pool     *Pool
@@ -30,6 +31,7 @@ func NewScaler(pool *Pool) *Scaler {
 		rate:     10,
 		stats:    0,
 		period:   0,
+		level:    1,
 		samples:  3,
 		overload: false,
 		pool:     pool,
@@ -101,7 +103,7 @@ func (scaler *Scaler) load() {
 		// for now just increase the period counter.
 		scaler.period++
 
-		if scaler.period < scalar.samples {
+		if scaler.period < scaler.samples {
 			// We have not collected enough samples to determine
 			// if there is a trend downwards.
 			return
@@ -112,7 +114,15 @@ func (scaler *Scaler) load() {
 		scaler.period = 0
 		scaler.overload = true
 
+		if scaler.level > 1 {
+			scaler.level--
+		}
+
 		return
+	}
+
+	if scaler.period <= scaler.samples {
+		scaler.level++
 	}
 
 	// Start with the default value, so we always have something
@@ -126,11 +136,11 @@ better not to try to scale by single steps, as it is too slow, even
 when the interval is set really low.
 TODO: This can be further optimized by making the rate more dynamic.
 */
-func (scaler *Scaler) Grow() bool {
+func (scaler *Scaler) Grow() {
 	errnie.Traces()
 
 	if !scaler.overload {
-		for i := 0; i < scaler.rate; i++ {
+		for i := 0; i < scaler.rate*scaler.level; i++ {
 			// Create a new worker and start its inner process, give it its own
 			// disposer so we have granular control over the workers and we could
 			// potentially dynamically resize the scaler later.
@@ -138,11 +148,7 @@ func (scaler *Scaler) Grow() bool {
 				len(scaler.pool.handles), scaler.pool.workers, *NewContext(),
 			).Start())
 		}
-
-		return true
 	}
-
-	return false
 }
 
 func (scaler *Scaler) Shrink() {
@@ -153,7 +159,7 @@ func (scaler *Scaler) Shrink() {
 	}
 
 	if scaler.overload {
-		for i := 0; i < scaler.rate/2; i++ {
+		for i := 0; i < (scaler.rate*scaler.level)/2; i++ {
 			// Stop the worker, once it finishes its current job.
 			scaler.drain(scaler.pool.handles[i], i)
 		}
