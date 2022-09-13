@@ -183,12 +183,10 @@ type UploadJob struct {
 	bucket   *string
 	uploader *manager.Uploader
 	ctx      *twoface.Context
-	wg       *sync.WaitGroup
 }
 
 func (job UploadJob) Do() {
 	errnie.Traces()
-	defer job.wg.Done()
 
 	buf := bytes.NewBuffer(job.p)
 
