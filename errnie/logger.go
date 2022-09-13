@@ -32,12 +32,16 @@ Logs is a conveniance method to send values into the logging pipeline.
 func Logs(vals ...interface{}) Log {
 	var builder strings.Builder
 
-	for _, val := range vals {
+	for idx, val := range vals {
 		switch v := val.(type) {
 		case string:
 			builder.WriteString(v)
 		default:
 			builder.WriteString(fmt.Sprintf("%v", v))
+		}
+
+		if idx < len(vals) {
+			builder.WriteString(" ")
 		}
 	}
 

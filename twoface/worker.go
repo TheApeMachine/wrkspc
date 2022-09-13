@@ -37,22 +37,26 @@ func (worker *Worker) Start() *Worker {
 		defer close(worker.JobChannel)
 
 		for {
+			// Return the job channel to the worker pool.
 			worker.WorkerPool <- worker.JobChannel
 
-			select {
-			case job := <-worker.JobChannel:
-				worker.working = true
-				worker.idleCount = 0
-				t := time.Now()
+			// Pick up a new job if available.
+			job := <-worker.JobChannel
 
-				job.Do()
+			// Reset the idle count to 0 always, because if this
+			// reaches anything then 1, which is controller by the
+			// pool scaler, the worker will be retired.
+			worker.idleCount = 0
+			worker.working = true
+			t := time.Now()
 
-				worker.lastDuration = time.Since(t).Nanoseconds()
-				worker.working = false
+			job.Do()
 
-				if worker.drain {
-					return
-				}
+			worker.lastDuration = time.Since(t).Nanoseconds()
+			worker.working = false
+
+			if worker.drain {
+				return
 			}
 		}
 	}()

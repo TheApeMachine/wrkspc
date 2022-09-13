@@ -1,9 +1,5 @@
 package twoface
 
-import (
-	"time"
-)
-
 /*
 Pool is a set of Worker types, each running their own (pre-warmed) goroutine.
 Any object that implements the Job interface is able to schedule work on the
@@ -11,16 +7,10 @@ worker pool, which keeps the amount of goroutines in check, while still being
 able to benefit from high concurrency in all kinds of scenarios.
 */
 type Pool struct {
-	maxWorkers    int
-	disposer      *Context
-	workers       chan chan Job
-	jobs          chan Job
-	handles       []*Worker
-	scaleInterval time.Duration
-	scaleRate     int
-	stats         int64
-	loadCount     int
-	overload      bool
+	disposer *Context
+	workers  chan chan Job
+	jobs     chan Job
+	handles  []*Worker
 }
 
 /*
@@ -29,15 +19,10 @@ Context type to be able to cleanly cancel all of the sub processes it starts.
 */
 func NewPool(disposer *Context) *Pool {
 	return &Pool{
-		maxWorkers:    0,
-		disposer:      disposer,
-		workers:       make(chan chan Job),
-		jobs:          make(chan Job),
-		handles:       make([]*Worker, 0),
-		scaleInterval: 10,
-		scaleRate:     10,
-		loadCount:     0,
-		overload:      false,
+		disposer: disposer,
+		workers:  make(chan chan Job),
+		jobs:     make(chan Job),
+		handles:  make([]*Worker, 0),
 	}
 }
 
@@ -54,28 +39,7 @@ func (pool *Pool) Do(jobType Job) {
 Run the workers, after creating and assigning them to the pool.
 */
 func (pool *Pool) Run() {
-	// Periodically  we will evaluate the performance of the worker
-	// pool and potentially grow or shrink it.
-	ticker := time.NewTicker(pool.scaleInterval * time.Millisecond)
-
-	go func() {
-		for {
-			select {
-			case <-pool.disposer.Done():
-				return
-			case <-ticker.C:
-				// Check if we are overloaded or not.
-				pool.checkLoad()
-
-				// Grow the pool based on the current load.
-				if !pool.grow() {
-					// We only have to potentially shrink the pool if
-					// we didn't just grow it.
-					pool.shrink()
-				}
-			}
-		}
-	}()
+	NewScaler(pool).Run()
 
 	// Start the job scheduling process.
 	go pool.dispatch()
