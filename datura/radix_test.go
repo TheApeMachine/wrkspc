@@ -20,16 +20,16 @@ func TestRadixRead(t *testing.T) {
 
 			Convey("It should be able to retrieve the value", func() {
 				q := spd.NewCached(
-					"question", "test", "test.wrkspc.org",
+					"datapoint", "test", "test.wrkspc.org",
 					"v4.0.0/datapoint/test/test.wrkspc.org",
 				)
 
 				tree.Read(q)
 
 				So(
-					spd.Unmarshal(q).Payload(),
+					string(spd.Unmarshal(q).Payload()),
 					ShouldEqual,
-					spd.Unmarshal(dg).Payload(),
+					string(spd.Unmarshal(dg).Payload()),
 				)
 			})
 		})

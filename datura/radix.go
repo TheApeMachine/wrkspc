@@ -1,13 +1,22 @@
 package datura
 
 import (
+	"bytes"
 	"errors"
+	"sync"
 
 	iradix "github.com/hashicorp/go-immutable-radix"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/twoface"
 )
+
+var treeCache *iradix.Tree
+var wgPool = &sync.Pool{
+	New: func() interface{} {
+		return &sync.WaitGroup{}
+	},
+}
 
 type Radix struct {
 	tree *iradix.Tree
@@ -18,8 +27,12 @@ func NewRadix() *Radix {
 	pool := twoface.NewPool(twoface.NewContext())
 	pool.Run()
 
+	if treeCache == nil {
+		treeCache = iradix.New()
+	}
+
 	return &Radix{
-		tree: iradix.New(),
+		tree: treeCache,
 		pool: pool,
 	}
 }
@@ -29,52 +42,68 @@ func (store *Radix) PoolSize() int {
 }
 
 type readJob struct {
-	store *Radix
-	p     []byte
+	p  []byte
+	wg *sync.WaitGroup
 }
 
 func (job readJob) Do() {
-	it := job.store.tree.Root().Iterator()
-	it.SeekLowerBound(spd.Unmarshal(job.p).Payload())
+	defer job.wg.Done()
+
+	it := treeCache.Root().Iterator()
+	it.SeekPrefix(spd.Unmarshal(job.p).Payload())
 
 	// I honestly don't fully get what is going on in this for loop...
 	for key, blob, ok := it.Next(); ok; key, blob, ok = it.Next() {
 		_ = key
 		// Hmm, this would be even faster as a channel. Let's do that.
-		job.p = make([]byte, len(blob.([]byte)))
-		copy(job.p, blob.([]byte))
+		buf := bytes.NewBuffer(job.p)
+		buf.Truncate(0)
+		bytes.NewBuffer(blob.([]byte)).WriteTo(buf)
 	}
 }
 
 func (store *Radix) Read(p []byte) (n int, err error) {
+	wg := wgPool.Get().(*sync.WaitGroup)
+	wg.Add(1)
+
 	store.pool.Do(readJob{
-		store: store,
-		p:     p,
+		p:  p,
+		wg: wg,
 	})
 
+	wg.Wait()
+	wgPool.Put(wg)
 	return len(p), nil
 }
 
 type writeJob struct {
-	store *Radix
-	p     []byte
+	p  []byte
+	wg *sync.WaitGroup
 }
 
 func (job writeJob) Do() {
-	var ok bool
+	defer job.wg.Done()
 
-	if _, _, ok = job.store.tree.Insert(
-		[]byte(spd.Unmarshal(job.p).Prefix()), job.p,
+	var ok bool
+	prefix := spd.Unmarshal(job.p).Prefix()
+
+	if treeCache, _, ok = treeCache.Insert(
+		[]byte(prefix), job.p,
 	); !ok {
 		errnie.Handles(errors.New("no write")).With(errnie.NOOP)
 	}
 }
 
 func (store *Radix) Write(p []byte) (n int, err error) {
+	wg := wgPool.Get().(*sync.WaitGroup)
+	wg.Add(1)
+
 	store.pool.Do(writeJob{
-		store: store,
-		p:     p,
+		p:  p,
+		wg: wg,
 	})
 
+	wg.Wait()
+	wgPool.Put(wg)
 	return len(p), nil
 }

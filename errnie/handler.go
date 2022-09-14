@@ -61,6 +61,10 @@ func Handles(err error) AmbientContext {
 	return ambctx
 }
 
+func (ambctx AmbientContext) Return() func() func() {
+	return NewGuard(nil).Rescue
+}
+
 /*
 With is a chaining method that defines the follow on behavior to
 apply to the error wrapped in the Handles method.

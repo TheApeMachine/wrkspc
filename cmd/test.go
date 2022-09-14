@@ -41,7 +41,34 @@ var testCmd = &cobra.Command{
 					// Write a datapoint and increase the count.
 					dg := spd.NewCached(
 						"datapoint", "test", "test.wrkspc.org",
-						"v4.0.0/datapoint/test/test.wrkspc.org/1663030377",
+						"test",
+					)
+
+					store.Write(dg)
+					count++
+				}
+			}
+		}()
+
+		// Run for 10 seconds, then stop.
+		time.Sleep(2 * time.Second)
+		done <- struct{}{}
+
+		go func() {
+			for {
+				select {
+				case <-done:
+					return
+				case <-ticker.C:
+					// Output the count every second, then reset for
+					// the next sample.
+					errnie.Logs(count, "objs/sec", store.PoolSize()).With(errnie.INFO)
+					count = 0
+				default:
+					// Write a datapoint and increase the count.
+					dg := spd.NewCached(
+						"datapoint", "test", "test.wrkspc.org",
+						"v4.0.0/datapoint/test/test.wrkspc.org",
 					)
 
 					store.Read(dg)
@@ -51,7 +78,7 @@ var testCmd = &cobra.Command{
 		}()
 
 		// Run for 10 seconds, then stop.
-		time.Sleep(10 * time.Second)
+		time.Sleep(2 * time.Second)
 		ticker.Stop()
 		done <- struct{}{}
 
