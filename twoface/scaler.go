@@ -27,7 +27,7 @@ func NewScaler(pool *Pool) *Scaler {
 	errnie.Traces()
 
 	return &Scaler{
-		interval: 1,
+		interval: 100,
 		rate:     10,
 		stats:    0,
 		period:   0,
@@ -70,6 +70,12 @@ func (scaler *Scaler) load() {
 	prev := scaler.stats
 	scaler.stats = 0
 
+	// We should only evaluate if we have previously
+	// collected statistics.
+	if prev == 0 {
+		return
+	}
+
 	var count int
 	var worker *Worker
 
@@ -90,12 +96,6 @@ func (scaler *Scaler) load() {
 	// Take the average worker runtime duration and store it back
 	// into stats, so it is ready for the next iteration.
 	scaler.stats = scaler.stats / int64(count)
-
-	// We should only evaluate if we have previously
-	// collected statistics.
-	if prev == 0 {
-		return
-	}
 
 	if scaler.stats > prev {
 		// Our current average worker runtime duration is higher than
@@ -121,13 +121,16 @@ func (scaler *Scaler) load() {
 		return
 	}
 
-	if scaler.period <= scaler.samples {
-		scaler.level++
-	}
+	scaler.period++
 
-	// Start with the default value, so we always have something
-	// to return.
-	scaler.overload = false
+	if scaler.period >= scaler.samples {
+		if scaler.level < 3 {
+			scaler.level++
+		}
+
+		scaler.period = 0
+		scaler.overload = false
+	}
 }
 
 /*
@@ -159,7 +162,7 @@ func (scaler *Scaler) Shrink() {
 	}
 
 	if scaler.overload {
-		for i := 0; i < (scaler.rate*scaler.level)/2; i++ {
+		for i := 0; i < (scaler.rate/2)*scaler.level; i++ {
 			// Stop the worker, once it finishes its current job.
 			scaler.drain(scaler.pool.handles[i], i)
 		}
@@ -167,7 +170,7 @@ func (scaler *Scaler) Shrink() {
 		return
 	}
 
-	for i := 0; i < len(scaler.pool.workers); i++ {
+	for i := 0; i < len(scaler.pool.handles); i++ {
 		worker := scaler.pool.handles[i]
 
 		if !worker.working {
@@ -179,7 +182,7 @@ func (scaler *Scaler) Shrink() {
 		// We want to make sure the worker is actually idling. It will
 		// reset idleCount every time it starts a job, so if we see
 		// and idleCount of 2, we can be reasonably sure.
-		if worker.idleCount >= 1 {
+		if worker.idleCount >= 2 {
 			// This worker ain't doing shit. Schedule for
 			// death by shrinking.
 			scaler.drain(worker, i)

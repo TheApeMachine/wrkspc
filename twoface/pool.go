@@ -34,6 +34,10 @@ func (pool *Pool) Wait() {
 	}
 }
 
+func (pool *Pool) Size() int {
+	return len(pool.handles)
+}
+
 /*
 Do is the entry point for new jobs that want to be scheduled onto the worker pool.
 */

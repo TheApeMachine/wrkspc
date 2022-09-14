@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"capnproto.org/go/capnp/v3"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -74,7 +73,7 @@ func NewS3() *S3 {
 			*tr = http.Transport{
 				Proxy: http.ProxyFromEnvironment,
 				DialContext: (&net.Dialer{
-					Timeout:   3 * time.Second,
+					Timeout:   1 * time.Second,
 					KeepAlive: 0,
 				}).DialContext,
 				MaxIdleConns:          0,
@@ -112,6 +111,10 @@ func (store *S3) Wait() {
 	store.pool.Wait()
 }
 
+func (store *S3) PoolSize() int {
+	return store.pool.Size()
+}
+
 type DownloadJob struct {
 	bucket     *string
 	downloader *manager.Downloader
@@ -144,13 +147,9 @@ Read implements the io.Reader interface.
 func (store *S3) Read(p []byte) (n int, err error) {
 	errnie.Traces()
 
-	msg, err := capnp.Unmarshal(p)
-	errnie.Handles(err).With(errnie.NOOP)
+	dg := spd.Unmarshal(p)
 
-	dg, err := spd.ReadRootDatagram(msg)
-	errnie.Handles(err).With(errnie.NOOP)
-
-	filtered := store.Filter(store.List(spd.Prefix(dg)))
+	filtered := store.Filter(store.List(spd.Payload(dg)))
 	jobs := make([]DownloadJob, len(filtered))
 
 	var wg sync.WaitGroup
@@ -190,18 +189,12 @@ func (job UploadJob) Do() {
 
 	buf := bytes.NewBuffer(job.p)
 
-	msg, err := capnp.Unmarshal(job.p)
-	errnie.Handles(err).With(errnie.NOOP)
+	dg := spd.Unmarshal(job.p)
 
-	dg, err := spd.ReadRootDatagram(msg)
-	errnie.Handles(err).With(errnie.NOOP)
-
-	prefix := spd.Prefix(dg)
-
-	_, err = job.uploader.Upload(
+	_, err := job.uploader.Upload(
 		job.ctx, &s3.PutObjectInput{
 			Bucket: job.bucket,
-			Key:    aws.String(prefix),
+			Key:    aws.String(dg.Prefix()),
 			Body:   buf,
 		},
 	)

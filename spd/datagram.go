@@ -3,6 +3,7 @@ package spd
 import (
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"capnproto.org/go/capnp/v3"
@@ -10,58 +11,62 @@ import (
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
-var cache chan cacheTuple
-var kill chan struct{}
-
 type cacheTuple struct {
 	dg  *Datagram
+	seg *capnp.Segment
 	msg *capnp.Message
 }
 
-func InitCache() {
-	cache = make(chan cacheTuple, 128)
+var pool = sync.Pool{
+	New: func() interface{} {
+		arena := capnp.SingleSegment(nil)
+		msg, seg, err := capnp.NewMessage(arena)
+		errnie.Handles(err).With(errnie.NOOP)
 
-	go func() {
-		defer close(cache)
+		dg, err := NewRootDatagram(seg)
+		errnie.Handles(err).With(errnie.NOOP)
 
-		for {
-			select {
-			case <-kill:
-				return
-			default:
-				arena := capnp.SingleSegment(nil)
-				msg, seg, err := capnp.NewMessage(arena)
-				errnie.Handles(err).With(errnie.NOOP)
+		errnie.Handles(dg.SetUuid(uuid.NewString())).With(errnie.NOOP)
+		errnie.Handles(dg.SetVersion("v4.0.0")).With(errnie.NOOP)
+		dg.SetTimestamp(time.Now().UnixNano())
 
-				dg, err := NewRootDatagram(seg)
-				errnie.Handles(err).With(errnie.NOOP)
-
-				errnie.Handles(dg.SetUuid(uuid.NewString())).With(errnie.NOOP)
-				errnie.Handles(dg.SetVersion("v4.0.0")).With(errnie.NOOP)
-				dg.SetTimestamp(time.Now().UnixNano())
-
-				cache <- cacheTuple{dg: &dg, msg: msg}
-			}
-		}
-	}()
+		return &cacheTuple{dg: &dg, seg: seg, msg: msg}
+	},
 }
 
-func NewCached(role, scope, identity string) []byte {
+func NewCached(role, scope, identity, payload string) []byte {
 	errnie.Traces()
 
-	cTup := <-cache
+	// Retrieve a pre-made datagram from the cache, which
+	// already have a version, timestamp, and uuid.
+	cTup := pool.Get().(*cacheTuple)
+	defer pool.Put(cTup)
 
+	// Add a new layer to store our payload.
+	list, err := capnp.NewDataList(cTup.seg, 1)
+	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Handles(list.Set(0, []byte(payload))).With(errnie.NOOP)
+	errnie.Handles(cTup.dg.SetLayers(list)).With(errnie.NOOP)
+
+	// Set the context header values to determine the way this
+	// datagram should be processed.
 	errnie.Handles(cTup.dg.SetRole(role)).With(errnie.NOOP)
 	errnie.Handles(cTup.dg.SetScope(scope)).With(errnie.NOOP)
 	errnie.Handles(cTup.dg.SetIdentity(identity)).With(errnie.NOOP)
 
+	// Marshal into a byte slice so it becomes compatible with
+	// network and storage layers.
 	b, err := cTup.msg.Marshal()
 	errnie.Handles(err).With(errnie.NOOP)
 
 	return b
 }
 
-func Prefix(dg Datagram) string {
+/*
+Prefix generates the canonical key under which the datagram
+can be found in the data lake.
+*/
+func (dg Datagram) Prefix() string {
 	errnie.Traces()
 
 	var builder strings.Builder
@@ -96,4 +101,24 @@ func Prefix(dg Datagram) string {
 	builder.WriteString(uuid)
 
 	return builder.String()
+}
+
+func Payload(dg Datagram) []byte {
+	list, err := dg.Layers()
+	errnie.Handles(err).With(errnie.NOOP)
+
+	data, err := list.At(0)
+	errnie.Handles(err).With(errnie.NOOP)
+
+	return data
+}
+
+func Unmarshal(p []byte) Datagram {
+	msg, err := capnp.Unmarshal(p)
+	errnie.Handles(err).With(errnie.NOOP)
+
+	dg, err := ReadRootDatagram(msg)
+	errnie.Handles(err).With(errnie.NOOP)
+
+	return dg
 }

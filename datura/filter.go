@@ -59,7 +59,7 @@ func (store *S3) Filter(
 
 	var out []string
 	var wg sync.WaitGroup
-	var listCache *sync.Map
+	listCache := sync.Map{}
 
 	for _, paginator := range paginators {
 		wg.Add(1)
@@ -69,7 +69,7 @@ func (store *S3) Filter(
 		store.pool.Do(FilterJob{
 			paginator: paginator,
 			modifier:  modifier,
-			listCache: listCache,
+			listCache: &listCache,
 			wg:        &wg,
 		})
 	}

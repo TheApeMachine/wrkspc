@@ -13,6 +13,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.3.0
+	github.com/hashicorp/go-immutable-radix v1.3.1
 	github.com/minio/minio-go/v7 v7.0.36
 	github.com/minio/operator v0.0.0-20220803201226-fe9befe2772d
 	github.com/muesli/termenv v0.12.0
@@ -21,7 +22,7 @@ require (
 	github.com/smartystreets/goconvey v1.7.2
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.13.0
-	k8s.io/api v0.25.0
+	github.com/valyala/fasthttp v1.30.0
 	k8s.io/apiextensions-apiserver v0.25.0
 	k8s.io/apimachinery v0.25.0
 	k8s.io/client-go v0.25.0
@@ -38,6 +39,7 @@ require (
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
+	github.com/andybalholm/brotli v1.0.3 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.7 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.21 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.15 // indirect
@@ -78,6 +80,7 @@ require (
 	github.com/gopherjs/gopherjs v0.0.0-20220104163920-15ed2e8cf2bd // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
@@ -140,6 +143,7 @@ require (
 	github.com/tinylib/msgp v1.1.7-0.20211026165309-e818a1881b0e // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.5.0 // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
@@ -158,6 +162,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	k8s.io/api v0.25.0 // indirect
 	k8s.io/klog/v2 v2.80.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803164354-a70c9af30aea // indirect
 	k8s.io/utils v0.0.0-20220823124924-e9cbc92d1a73 // indirect

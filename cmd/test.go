@@ -10,7 +10,6 @@ import (
 )
 
 func init() {
-	spd.InitCache()
 	rootCmd.AddCommand(testCmd)
 }
 
@@ -21,7 +20,8 @@ var testCmd = &cobra.Command{
 	RunE: func(_ *cobra.Command, _ []string) error {
 		errnie.Tracing(false)
 		errnie.Debugging(false)
-		store := datura.NewS3()
+		// store := datura.NewS3()
+		store := datura.NewRadix()
 
 		ticker := time.NewTicker(1000 * time.Millisecond)
 		done := make(chan struct{})
@@ -35,14 +35,16 @@ var testCmd = &cobra.Command{
 				case <-ticker.C:
 					// Output the count every second, then reset for
 					// the next sample.
-					errnie.Logs(count, "objs/sec").With(errnie.INFO)
+					errnie.Logs(count, "objs/sec", store.PoolSize()).With(errnie.INFO)
 					count = 0
 				default:
 					// Write a datapoint and increase the count.
-					store.Write(spd.NewCached(
+					dg := spd.NewCached(
 						"datapoint", "test", "test.wrkspc.org",
-					))
+						"v4.0.0/datapoint/test/test.wrkspc.org/1663030377",
+					)
 
+					store.Read(dg)
 					count++
 				}
 			}
@@ -51,9 +53,8 @@ var testCmd = &cobra.Command{
 		// Run for 10 seconds, then stop.
 		time.Sleep(10 * time.Second)
 		ticker.Stop()
-
-		store.Wait()
 		done <- struct{}{}
+
 		return nil
 	},
 }

@@ -14,19 +14,19 @@ List all the objects under the given prefix, which allows for some
 basic, but rapid inspection of the objects. Specifically useful when
 you can make decisions based on the LastModified timestamp.
 */
-func (store *S3) List(prefix string) (
+func (store *S3) List(prefix []byte) (
 	[]*s3.ListObjectsV2Paginator, Modifier,
 ) {
 	errnie.Traces()
-
-	split := strings.Split(prefix, "/")
+	str := string(prefix)
+	split := strings.Split(str, "/")
 	var prefixes []string
 	var modifier Modifier
 	var m Modifier
 	var out []*s3.ListObjectsV2Paginator
 
 	for idx, mod := range split[:2] {
-		prefixes, m = store.modify(idx, prefix, mod)
+		prefixes, m = store.modify(idx, str, mod)
 
 		if m != "" {
 			modifier = m

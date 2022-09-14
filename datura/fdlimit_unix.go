@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	minOpenFilesLimit = 1024
+	minOpenFilesLimit = 65535
 )
 
 func Raise() error {
@@ -40,5 +40,6 @@ func Raise() error {
 		errnie.Logs(fmt.Sprintf("new ulimit set of %d", rLimit.Cur))
 	}
 
+	errnie.Logs(fmt.Sprintf("ulimit set to %d", rLimit.Cur)).With(errnie.INFO)
 	return err
 }
