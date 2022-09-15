@@ -20,39 +20,41 @@ var testCmd = &cobra.Command{
 	RunE: func(_ *cobra.Command, _ []string) error {
 		errnie.Tracing(false)
 		errnie.Debugging(false)
-		// store := datura.NewS3()
-		store := datura.NewRadix()
+		store := datura.NewS3()
+		// store := datura.NewRadix()
 
 		ticker := time.NewTicker(1000 * time.Millisecond)
 		done := make(chan struct{})
 		count := 0
 
-		go func() {
-			for {
-				select {
-				case <-done:
-					return
-				case <-ticker.C:
-					// Output the count every second, then reset for
-					// the next sample.
-					errnie.Logs(count, "objs/sec", store.PoolSize()).With(errnie.INFO)
-					count = 0
-				default:
-					// Write a datapoint and increase the count.
-					dg := spd.NewCached(
-						"datapoint", "test", "test.wrkspc.org",
-						"test",
-					)
+		/*
+			go func() {
+				for {
+					select {
+					case <-done:
+						return
+					case <-ticker.C:
+						// Output the count every second, then reset for
+						// the next sample.
+						errnie.Logs(count, "objs/sec", store.PoolSize()).With(errnie.INFO)
+						count = 0
+					default:
+						// Write a datapoint and increase the count.
+						dg := spd.NewCached(
+							"datapoint", "test", "test.wrkspc.org",
+							"test",
+						)
 
-					store.Write(dg)
-					count++
+						store.Write(dg)
+						count++
+					}
 				}
-			}
-		}()
+			}()
 
-		// Run for 10 seconds, then stop.
-		time.Sleep(2 * time.Second)
-		done <- struct{}{}
+			// Run for 10 seconds, then stop.
+			time.Sleep(10 * time.Second)
+			done <- struct{}{}
+		*/
 
 		go func() {
 			for {
@@ -78,7 +80,7 @@ var testCmd = &cobra.Command{
 		}()
 
 		// Run for 10 seconds, then stop.
-		time.Sleep(2 * time.Second)
+		time.Sleep(10 * time.Second)
 		ticker.Stop()
 		done <- struct{}{}
 
