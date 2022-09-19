@@ -2,11 +2,9 @@ package datura
 
 import (
 	"bytes"
-	"errors"
 	"sync"
 
 	iradix "github.com/hashicorp/go-immutable-radix"
-	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/twoface"
 )
@@ -83,15 +81,9 @@ type writeJob struct {
 
 func (job writeJob) Do() {
 	defer job.wg.Done()
-
-	var ok bool
-	prefix := spd.Unmarshal(job.p).Prefix()
-
-	if treeCache, _, ok = treeCache.Insert(
-		[]byte(prefix), job.p,
-	); !ok {
-		errnie.Handles(errors.New("no write")).With(errnie.NOOP)
-	}
+	treeCache, _, _ = treeCache.Insert(
+		[]byte(spd.Unmarshal(job.p).Prefix()), job.p,
+	)
 }
 
 func (store *Radix) Write(p []byte) (n int, err error) {

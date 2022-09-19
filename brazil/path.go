@@ -17,7 +17,7 @@ func HomePath() string {
 	errnie.Traces()
 	home, err := os.UserHomeDir()
 
-	if e := errnie.Handles(err).With(errnie.NOOP); e.Type != errnie.NIL {
+	if e := errnie.Handles(err); e.Type != errnie.NIL {
 		return ""
 	}
 
@@ -31,7 +31,7 @@ func CleanPaths() {
 	errnie.Traces()
 	errnie.Handles(
 		os.RemoveAll(BuildPath(HomePath(), ".wrkspc")),
-	).With(errnie.NOOP)
+	)
 }
 
 /*
@@ -40,7 +40,7 @@ Workdir returns the current path.
 func Workdir() string {
 	errnie.Traces()
 	wd, err := os.Getwd()
-	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Handles(err)
 	return wd
 }
 
@@ -67,7 +67,7 @@ ReadPath returns everything in path.
 func ReadPath(path string) []fs.DirEntry {
 	errnie.Traces()
 	files, err := os.ReadDir(path)
-	errnie.Handles(err).With(errnie.KILL)
+	errnie.Handles(err)
 	return files
 }
 
@@ -81,5 +81,5 @@ func MakePath(path string) {
 		return
 	}
 
-	errnie.Handles(os.MkdirAll(path, os.ModePerm)).With(errnie.NOOP)
+	errnie.Handles(os.MkdirAll(path, os.ModePerm))
 }

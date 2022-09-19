@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/valyala/fasthttp"
 )
 
@@ -22,8 +21,8 @@ type FastHTTPClient struct {
 }
 
 func NewFastHTTPClient() *FastHTTPClient {
-	readTimeout, _ := time.ParseDuration("500ms")
-	writeTimeout, _ := time.ParseDuration("500ms")
+	readTimeout, _ := time.ParseDuration("1500ms")
+	writeTimeout, _ := time.ParseDuration("1500ms")
 	maxIdleConnDuration, _ := time.ParseDuration("1h")
 
 	return &FastHTTPClient{
@@ -36,7 +35,7 @@ func NewFastHTTPClient() *FastHTTPClient {
 			DisablePathNormalizing:        true,
 			Dial: (&fasthttp.TCPDialer{
 				Concurrency:      4096,
-				DNSCacheDuration: time.Hour,
+				DNSCacheDuration: 5 * time.Minute,
 			}).Dial,
 		},
 	}
@@ -48,7 +47,8 @@ func (client *FastHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	freq.SetRequestURI(req.URL.String())
 	freq.Header.SetContentLength(-1)
 	freq.Header.SetMethod(req.Method)
-	freq.Header.SetContentType(req.Header.Get("Content-Type"))
+	freq.Header.SetProtocol("HTTP/1.1")
+	freq.Header.SetContentType("application/json")
 
 	for key, value := range req.Header {
 		if key != "Content-Length" {
@@ -56,8 +56,6 @@ func (client *FastHTTPClient) Do(req *http.Request) (*http.Response, error) {
 		}
 	}
 
-	spew.Dump(req)
-	os.Exit(0)
 	resp := fasthttp.AcquireResponse()
 	err := client.conn.Do(freq, resp)
 	fasthttp.ReleaseRequest(freq)

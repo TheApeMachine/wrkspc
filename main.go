@@ -35,5 +35,5 @@ func main() {
 			pyroscope.ProfileBlockDuration,
 		},
 	})
-	errnie.Handles(cmd.Execute()).With(errnie.KILL)
+	errnie.Handles(cmd.Execute())
 }

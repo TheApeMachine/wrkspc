@@ -52,5 +52,5 @@ func (cluster Cluster) Provision() errnie.Error {
 			"--name", "wrkspc",
 			"--config", "cmd/cfg/.kind-config.yml",
 		},
-	)).With(errnie.NOOP)
+	))
 }

@@ -3,15 +3,18 @@ package datura
 import (
 	"bytes"
 	"context"
+	"net"
+	"net/http"
 	"sync"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/sockpuppet"
 	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/twoface"
 )
@@ -50,13 +53,11 @@ func NewS3() *S3 {
 
 	region := c["region"]
 	bucket := c["bucket"]
-	endpoint := c["endopint"]
-	// endpoint = "https://co2ok-datalake.s3-accelerate.amazonaws.com"
 
 	resolver := aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
 		return aws.Endpoint{
 			PartitionID:       "aws",
-			URL:               endpoint,
+			URL:               c["endpoint"],
 			SigningRegion:     region,
 			HostnameImmutable: true,
 		}, nil
@@ -68,7 +69,25 @@ func NewS3() *S3 {
 		EndpointResolver: resolver,
 	}, func(o *s3.Options) {
 		o.UsePathStyle = true
-		o.HTTPClient = sockpuppet.NewFastHTTPClient()
+		o.HTTPClient = awshttp.NewBuildableClient().WithTransportOptions(func(tr *http.Transport) {
+			*tr = http.Transport{
+				Proxy: http.ProxyFromEnvironment,
+				DialContext: (&net.Dialer{
+					Timeout:   3 * time.Second,
+					KeepAlive: 0,
+				}).DialContext,
+				MaxIdleConns:          0,
+				MaxIdleConnsPerHost:   100,
+				MaxConnsPerHost:       0,
+				IdleConnTimeout:       0,
+				DisableKeepAlives:     false,
+				TLSHandshakeTimeout:   3 * time.Second,
+				ExpectContinueTimeout: 3 * time.Second,
+				ResponseHeaderTimeout: 3 * time.Second,
+				ReadBufferSize:        4 << 10,
+				WriteBufferSize:       4 << 10,
+			}
+		})
 	})
 
 	ctx := twoface.NewContext()
@@ -117,7 +136,7 @@ func (job DownloadJob) Do() {
 		},
 	)
 
-	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Handles(err)
 	job.out = make([]byte, len(buf.Bytes()))
 	job.out = buf.Bytes()
 }
@@ -163,6 +182,7 @@ type UploadJob struct {
 	bucket   *string
 	uploader *manager.Uploader
 	ctx      *twoface.Context
+	delay    int64
 }
 
 func (job UploadJob) Do() {
@@ -180,7 +200,11 @@ func (job UploadJob) Do() {
 		},
 	)
 
-	errnie.Handles(err).With(errnie.NOOP)
+	if err != nil {
+		job.delay += 5
+		time.Sleep(time.Duration(job.delay))
+		job.Do()
+	}
 }
 
 /*

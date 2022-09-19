@@ -87,7 +87,7 @@ func (storage Storage) Provision(stop chan struct{}) errnie.Error {
 			crd.Spec.Conversion.Webhook.ClientConfig.CABundle = caContent
 			crd.Spec.Conversion.Webhook.ClientConfig.Service.Namespace = miniov2.GetNSFromFile()
 			_, err := storage.client.ExtClient.ApiextensionsV1().CustomResourceDefinitions().Update(context.Background(), crd, metav1.UpdateOptions{})
-			errnie.Handles(err).With(errnie.NOOP)
+			errnie.Handles(err)
 		}
 	}
 
@@ -116,5 +116,5 @@ func (storage Storage) Provision(stop chan struct{}) errnie.Error {
 	go kubeInformerFactory.Start(stop)
 	go minioInformerFactory.Start(stop)
 
-	return errnie.Handles(mainController.Start(2, stop)).With(errnie.NOOP)
+	return errnie.Handles(mainController.Start(2, stop))
 }

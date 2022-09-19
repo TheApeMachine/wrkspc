@@ -20,20 +20,27 @@ type Scaler struct {
 	level    int
 	samples  int
 	overload bool
+	lower    bool
 	pool     *Pool
 }
 
+/*
+NewScaler constructs a scaler which controls the size of a
+worker pool dynamically, based on the consumption of
+machine resources.
+*/
 func NewScaler(pool *Pool) *Scaler {
 	errnie.Traces()
 
 	return &Scaler{
-		interval: 100,
+		interval: 10,
 		rate:     10,
 		stats:    0,
 		period:   0,
 		level:    1,
-		samples:  3,
+		samples:  2,
 		overload: false,
+		lower:    false,
 		pool:     pool,
 	}
 }
@@ -64,17 +71,12 @@ property of the scaler to true, indicating we should scale down.
 */
 func (scaler *Scaler) load() {
 	errnie.Traces()
+	scaler.period++
 
 	// stats will contain the value from the previous iteration, which
 	// we need to keep around to compare against.
 	prev := scaler.stats
 	scaler.stats = 0
-
-	// We should only evaluate if we have previously
-	// collected statistics.
-	if prev == 0 {
-		return
-	}
 
 	var count int
 	var worker *Worker
@@ -89,7 +91,9 @@ func (scaler *Scaler) load() {
 		}
 	}
 
-	if count == 0 || scaler.stats == 0 {
+	// We should only evaluate if we have previously
+	// collected statistics.
+	if prev == 0 || scaler.stats == 0 {
 		return
 	}
 
@@ -97,40 +101,35 @@ func (scaler *Scaler) load() {
 	// into stats, so it is ready for the next iteration.
 	scaler.stats = scaler.stats / int64(count)
 
-	if scaler.stats > prev {
-		// Our current average worker runtime duration is higher than
-		// the iteration before. We want to see if this is a trend, so
-		// for now just increase the period counter.
-		scaler.period++
+	lower := scaler.stats > prev
 
-		if scaler.period < scaler.samples {
-			// We have not collected enough samples to determine
-			// if there is a trend downwards.
-			return
-		}
-
-		// A trend of performance degradation was detected. Reset the
-		// period counter and indicate we are overloaded.
+	if scaler.lower != lower {
 		scaler.period = 0
-		scaler.overload = true
 
 		if scaler.level > 1 {
 			scaler.level--
 		}
-
-		return
 	}
 
-	scaler.period++
+	scaler.lower = lower
 
 	if scaler.period >= scaler.samples {
+		errnie.Debugs("period")
+		scaler.period = 0
+
 		if scaler.level < 3 {
 			scaler.level++
 		}
 
-		scaler.period = 0
+		if scaler.stats > prev {
+			scaler.overload = true
+			return
+		}
+
 		scaler.overload = false
+		return
 	}
+
 }
 
 /*
@@ -162,7 +161,7 @@ func (scaler *Scaler) Shrink() {
 	}
 
 	if scaler.overload {
-		for i := 0; i < (scaler.rate/2)*scaler.level; i++ {
+		for i := 0; i < scaler.rate*scaler.level; i++ {
 			// Stop the worker, once it finishes its current job.
 			scaler.drain(scaler.pool.handles[i], i)
 		}
@@ -172,7 +171,6 @@ func (scaler *Scaler) Shrink() {
 
 	for i := 0; i < len(scaler.pool.handles); i++ {
 		worker := scaler.pool.handles[i]
-
 		if !worker.working {
 			// The worker is currently not working, increase
 			// the idleCount.
@@ -192,7 +190,10 @@ func (scaler *Scaler) Shrink() {
 
 func (scaler *Scaler) drain(worker *Worker, i int) {
 	worker.Drain()
+	hCnt := 0
+
 	copy(scaler.pool.handles[i:], scaler.pool.handles[i+1:])
-	scaler.pool.handles[len(scaler.pool.handles)-1] = nil
+	hCnt = len(scaler.pool.handles) - 1
+	scaler.pool.handles[hCnt] = nil
 	scaler.pool.handles = scaler.pool.handles[:len(scaler.pool.handles)-1]
 }

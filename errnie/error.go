@@ -8,6 +8,8 @@ type ErrorType uint
 const (
 	// NIL represents the empty value for an error.
 	NIL ErrorType = iota
+	// NOK represents a Not OK state.
+	NOK
 	// TEST represents a test context which should be ignored.
 	TEST
 )
@@ -24,16 +26,16 @@ type Error struct {
 NewError constructs a new errnie Error type.
 */
 func NewError(err error) Error {
-	out := Error{Msg: err.Error()}
-
-	switch out.Msg {
-	case "":
-		out.Type = NIL
-	case "test error":
-		out.Type = TEST
+	if err == nil {
+		return Error{Type: NIL}
 	}
 
-	return out
+	switch err.Error() {
+	case "":
+		return Error{Type: NIL}
+	default:
+		return Error{Type: NOK, Msg: err.Error()}
+	}
 }
 
 func (err Error) Error() string {

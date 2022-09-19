@@ -1,5 +1,16 @@
 package twoface
 
+import "io"
+
+/*
+Employer is an interface that can be implemented by objects that want
+to be able to be scheduled onto a worker pool.
+*/
+type Employer interface {
+	io.ReadWriter
+	PoolSize() int
+}
+
 /*
 Pool is a set of Worker types, each running their own (pre-warmed) goroutine.
 Any object that implements the Job interface is able to schedule work on the
@@ -26,14 +37,21 @@ func NewPool(disposer *Context) *Pool {
 	}
 }
 
+/*
+Wait until the pool is fully drained, meaning all workers are done and cancelled.
+*/
 func (pool *Pool) Wait() {
 	for {
 		if len(pool.handles) == 0 {
+			// All workers done, exit.
 			return
 		}
 	}
 }
 
+/*
+Size returns the current size of the pool by counting the currently active workers.
+*/
 func (pool *Pool) Size() int {
 	return len(pool.handles)
 }
@@ -50,11 +68,13 @@ func (pool *Pool) Do(jobType Job) {
 /*
 Run the workers, after creating and assigning them to the pool.
 */
-func (pool *Pool) Run() {
+func (pool *Pool) Run() *Pool {
+	// Start the auto-scaler to control the pool size dynamically.
 	NewScaler(pool).Run()
 
 	// Start the job scheduling process.
 	go pool.dispatch()
+	return pool
 }
 
 func (pool *Pool) dispatch() {

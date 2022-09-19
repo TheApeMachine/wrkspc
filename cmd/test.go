@@ -7,10 +7,38 @@ import (
 	"github.com/theapemachine/wrkspc/datura"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spd"
+	"github.com/theapemachine/wrkspc/twoface"
 )
 
 func init() {
 	rootCmd.AddCommand(testCmd)
+}
+
+func do(manager twoface.Employer, dg []byte) {
+	ticker := time.NewTicker(1000 * time.Millisecond)
+	done := make(chan struct{})
+	count := 0
+
+	go func() {
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				// Output the count every second, then reset for
+				// the next sample.
+				errnie.Logs(count, "objs/sec", manager.PoolSize()).With(errnie.INFO)
+				count = 0
+			default:
+
+				manager.Write(dg)
+				count++
+			}
+		}
+	}()
+
+	time.Sleep(10 * time.Second)
+	done <- struct{}{}
 }
 
 var testCmd = &cobra.Command{
@@ -20,69 +48,25 @@ var testCmd = &cobra.Command{
 	RunE: func(_ *cobra.Command, _ []string) error {
 		errnie.Tracing(false)
 		errnie.Debugging(false)
-		store := datura.NewS3()
+		manager := datura.NewManager()
 		// store := datura.NewRadix()
 
-		ticker := time.NewTicker(1000 * time.Millisecond)
-		done := make(chan struct{})
-		count := 0
+		// Write a datapoint and increase the count.
+		dg := spd.NewCached(
+			"datapoint", "test", "test.wrkspc.org",
+			"test",
+		)
 
-		/*
-			go func() {
-				for {
-					select {
-					case <-done:
-						return
-					case <-ticker.C:
-						// Output the count every second, then reset for
-						// the next sample.
-						errnie.Logs(count, "objs/sec", store.PoolSize()).With(errnie.INFO)
-						count = 0
-					default:
-						// Write a datapoint and increase the count.
-						dg := spd.NewCached(
-							"datapoint", "test", "test.wrkspc.org",
-							"test",
-						)
+		errnie.Debugs("writing...")
+		do(manager, dg)
 
-						store.Write(dg)
-						count++
-					}
-				}
-			}()
+		dg = spd.NewCached(
+			"datapoint", "test", "test.wrkspc.org",
+			"v4.0.0/datapoint/test/test.wrkspc.org",
+		)
 
-			// Run for 10 seconds, then stop.
-			time.Sleep(10 * time.Second)
-			done <- struct{}{}
-		*/
-
-		go func() {
-			for {
-				select {
-				case <-done:
-					return
-				case <-ticker.C:
-					// Output the count every second, then reset for
-					// the next sample.
-					errnie.Logs(count, "objs/sec", store.PoolSize()).With(errnie.INFO)
-					count = 0
-				default:
-					// Write a datapoint and increase the count.
-					dg := spd.NewCached(
-						"datapoint", "test", "test.wrkspc.org",
-						"v4.0.0/datapoint/test/test.wrkspc.org",
-					)
-
-					store.Read(dg)
-					count++
-				}
-			}
-		}()
-
-		// Run for 10 seconds, then stop.
-		time.Sleep(10 * time.Second)
-		ticker.Stop()
-		done <- struct{}{}
+		errnie.Debugs("reading...")
+		do(manager, dg)
 
 		return nil
 	},

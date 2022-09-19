@@ -7,16 +7,16 @@ import (
 	"github.com/theapemachine/wrkspc/spd"
 )
 
-func TestRadixiWriteRead(t *testing.T) {
-	Convey("Given a radix tree", t, func() {
-		tree := NewRadix()
+func TestManagerReadWrite(t *testing.T) {
+	Convey("Given a manager", t, func() {
+		manager := NewManager()
 
 		Convey("And a value is written", func() {
 			dg := spd.NewCached(
 				"datapoint", "test", "test.wrkspc.org", "test",
 			)
 
-			tree.Write(dg)
+			manager.Write(dg)
 
 			Convey("It should be able to retrieve the value", func() {
 				for _, key := range []string{
@@ -29,7 +29,7 @@ func TestRadixiWriteRead(t *testing.T) {
 						key,
 					)
 
-					tree.Read(q)
+					manager.Read(q)
 
 					So(
 						string(spd.Unmarshal(q).Payload()),

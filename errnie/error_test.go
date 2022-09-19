@@ -18,7 +18,7 @@ func TestNewError(t *testing.T) {
 		err := NewError(errors.New("test error"))
 
 		Convey("It should have the correct type", func() {
-			So(err.Type, ShouldEqual, TEST)
+			So(err.Type, ShouldEqual, NOK)
 		})
 
 		Convey("It should wrap teh error message", func() {

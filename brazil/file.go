@@ -27,7 +27,7 @@ func NewFile(path string) File {
 		strings.ReplaceAll(path, "~", HomePath()),
 	)
 
-	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Handles(err)
 	return File{Data: *bytes.NewBuffer(buf)}
 }
 
@@ -66,7 +66,7 @@ func GetEmbedded(embedded embed.FS, cfgFile string) fs.File {
 	chunks := strings.Split(cfgFile, "/")
 
 	fs, err := embedded.Open("cfg/" + chunks[len(chunks)-1])
-	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Handles(err)
 
 	return fs
 }
@@ -77,7 +77,7 @@ ReadFile takes a file handle and reads the contents into a buffer.
 func ReadFile(fs fs.File) []byte {
 	errnie.Traces()
 	buf, err := io.ReadAll(fs)
-	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Handles(err)
 	return buf
 }
 
@@ -88,7 +88,7 @@ func WriteFile(path string, buf []byte) {
 	errnie.Traces()
 	errnie.Handles(
 		os.WriteFile(path, buf, 0644),
-	).With(errnie.NOOP)
+	)
 }
 
 /*
@@ -97,10 +97,10 @@ Copy a file from one location to another.
 func Copy(origin string, destination string) {
 	errnie.Traces()
 	bytesRead, err := os.ReadFile(origin)
-	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Handles(err)
 
 	err = os.WriteFile(destination, bytesRead, 0755)
-	errnie.Handles(err).With(errnie.NOOP)
+	errnie.Handles(err)
 }
 
 /*

@@ -10,6 +10,10 @@ import (
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
+/*
+FilterJob allows the filtering workload to be scheduled
+onto the worker pool.
+*/
 type FilterJob struct {
 	paginator *s3.ListObjectsV2Paginator
 	modifier  Modifier
@@ -17,13 +21,22 @@ type FilterJob struct {
 	wg        *sync.WaitGroup
 }
 
+/*
+Do implements the twoface.Job interface.
+*/
 func (job FilterJob) Do() {
 	errnie.Traces()
 	defer job.wg.Done()
 
 	for job.paginator.HasMorePages() {
 		page, err := job.paginator.NextPage(context.TODO())
-		errnie.Handles(err).With(errnie.NOOP)
+		errnie.Handles(err)
+
+		// Page can end up to be nil, so we should have an
+		// escape route for this situation.
+		if page == nil {
+			continue
+		}
 
 		for _, obj := range page.Contents {
 			key := *obj.Key
@@ -35,13 +48,18 @@ func (job FilterJob) Do() {
 				key = key[1 : len(split)-1]
 			}
 
+			// Try to read a datapoint from the cache for this key.
 			val, ok := job.listCache.Load(key)
 
 			if ok && obj.LastModified.After(val.(time.Time)) {
+				// The datapoint is newer than then one currently sitting
+				// in the cache, so we need to update the cache.
 				job.listCache.Store(key, val)
 			}
 
 			if !ok {
+				// We don't have a datapoint in the cache yet for this key,
+				// so we need to start things off by writing the first one.
 				job.listCache.Store(key, *obj.LastModified)
 			}
 		}

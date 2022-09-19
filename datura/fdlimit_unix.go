@@ -11,6 +11,8 @@ import (
 )
 
 const (
+	// By increasing the minimum open files limit on Linux
+	// based systems, we enable more network connections.
 	minOpenFilesLimit = 65535
 )
 
@@ -22,7 +24,7 @@ func Raise() error {
 
 	if err = errnie.Handles(
 		syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit),
-	).With(errnie.KILL); err.Type != errnie.NIL {
+	); err.Type != errnie.NIL {
 		return err
 	}
 
@@ -36,7 +38,7 @@ func Raise() error {
 
 	if err = errnie.Handles(syscall.Setrlimit(
 		syscall.RLIMIT_NOFILE, &rLimit,
-	)).With(errnie.KILL); err.Type == errnie.NIL {
+	)); err.Type == errnie.NIL {
 		errnie.Logs(fmt.Sprintf("new ulimit set of %d", rLimit.Cur))
 	}
 

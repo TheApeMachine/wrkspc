@@ -72,5 +72,5 @@ func initConfig() {
 	// the command line interface, which is automatically generated.
 	errnie.Handles(
 		doc.GenMarkdownTree(rootCmd, "./docs/"),
-	).With(errnie.NOOP)
+	)
 }

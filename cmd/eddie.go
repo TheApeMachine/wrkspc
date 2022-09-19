@@ -18,7 +18,7 @@ var eddieCmd = &cobra.Command{
 	RunE: func(_ *cobra.Command, args []string) error {
 		return errnie.Handles(
 			tea.NewProgram(eddie.Buffer{}).Start(),
-		).With(errnie.KILL)
+		)
 	},
 }
 

@@ -2,6 +2,7 @@ package errnie
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/theapemachine/wrkspc/tui"
@@ -23,6 +24,25 @@ func (logger Console) Print(l, t, c, i string) {
 		tui.NewIcon(i),
 		tui.NewColor(c, l).Print(),
 	)
+}
+
+func Debugs(args ...interface{}) {
+	t, c, i := DEBUG()
+
+	var builder strings.Builder
+
+	for idx, a := range args {
+		if idx > 0 {
+			builder.WriteString(" ")
+		}
+
+		builder.WriteString(a.(string))
+	}
+
+	if l := ambctx.loggers[0]; l != nil {
+		l.Print(builder.String(), t, c, i)
+	}
+
 }
 
 func (logger Console) Error(message string) {
