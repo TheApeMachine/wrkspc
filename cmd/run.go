@@ -44,14 +44,7 @@ var runCmd = &cobra.Command{
 			cluster.IsProvisioned = true
 		}
 
-		// We are setting up a new cluster, so we must deploy everything needed
-		// for it to be able to host our container workloads.
-		if !cluster.IsProvisioned {
-			storage := kube.NewStorage(cluster)
-			if err := storage.Provision(stop); err.Type != errnie.NIL {
-				return err
-			}
-		}
+		stop <- struct{}{}
 
 		return nil
 	},

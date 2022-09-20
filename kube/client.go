@@ -68,5 +68,7 @@ func NewClient() *Client {
 
 func (client *Client) Apply(fname string) {
 	applyOpts := apply.NewApplyOptions(client.dynamicClient, client.discoveryClient)
-	errnie.Handles(applyOpts.Apply(context.TODO(), os.ReadFile(fname)))
+	data, err := os.ReadFile(fname)
+	errnie.Handles(err)
+	errnie.Handles(applyOpts.Apply(context.TODO(), data))
 }

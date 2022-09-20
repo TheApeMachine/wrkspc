@@ -32,8 +32,8 @@ type Cluster struct {
 NewCluster constructs, or connects to, a Kubernetes environment so we have
 a location where we can deploy our containers.
 */
-func NewCluster(clusterType ClusterType) Cluster {
-	return Cluster{
+func NewCluster(clusterType ClusterType) *Cluster {
+	return &Cluster{
 		clusterType: clusterType,
 	}
 }
@@ -41,7 +41,7 @@ func NewCluster(clusterType ClusterType) Cluster {
 /*
 Provision the selected cluster so we can deploy containers onto it.
 */
-func (cluster Cluster) Provision() errnie.Error {
+func (cluster *Cluster) Provision() errnie.Error {
 	// Start a new KIND (Kubernetes In Docker) cluster for a local setup.
 	// I have implemented the kind/pkg/log/types interfaces in errnie, so we
 	// can keep a consistent terminal log experience.
@@ -51,6 +51,19 @@ func (cluster Cluster) Provision() errnie.Error {
 			"cluster",
 			"--name", "wrkspc",
 			"--config", "cmd/cfg/.kind-config.yml",
+		},
+	))
+}
+
+/*
+Teardown brings everything back down.
+*/
+func (cluster *Cluster) Teardown() errnie.Error {
+	return errnie.Handles(app.Run(
+		errnie.GetErrnie(), cmd.StandardIOStreams(), []string{
+			"delete",
+			"cluster",
+			"--name", "wrkspc",
 		},
 	))
 }

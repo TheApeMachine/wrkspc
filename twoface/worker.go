@@ -11,8 +11,7 @@ type Worker struct {
 	WorkerPool   chan chan Job
 	JobChannel   chan Job
 	disposer     Context
-	working      bool
-	idleCount    int
+	lastUse      time.Time
 	lastDuration int64
 	drain        bool
 }
@@ -27,11 +26,14 @@ func NewWorker(
 		WorkerPool: workerPool,
 		JobChannel: make(chan Job),
 		disposer:   disposer,
-		working:    false,
+		lastUse:    time.Now(),
 		drain:      false,
 	}
 }
 
+/*
+Start the worker to be ready to accept jobs from the job queue.
+*/
 func (worker *Worker) Start() *Worker {
 	go func() {
 		defer close(worker.JobChannel)
@@ -43,18 +45,20 @@ func (worker *Worker) Start() *Worker {
 			// Pick up a new job if available.
 			job := <-worker.JobChannel
 
-			// Reset the idle count to 0 always, because if this
-			// reaches anything then 1, which is controller by the
-			// pool scaler, the worker will be retired.
-			worker.idleCount = 0
-			worker.working = true
-			t := time.Now()
+			// Keep track of the time before the work starts, with a
+			// secondary benefit of helping to determine if the worker
+			// is idle for a significant amount of time later on.
+			worker.lastUse = time.Now()
 
+			// Do the work by calling the interface method on the current
+			// instance.
 			job.Do()
 
-			worker.lastDuration = time.Since(t).Nanoseconds()
-			worker.working = false
+			// Store the duration of the job load so it can later be used to
+			// determine if the worker pool is overloaded.
+			worker.lastDuration = time.Since(worker.lastUse).Nanoseconds()
 
+			// This worker is about to get retired in a pool schrink.
 			if worker.drain {
 				return
 			}
@@ -62,11 +66,6 @@ func (worker *Worker) Start() *Worker {
 	}()
 
 	return worker
-}
-
-func (worker *Worker) Stop() {
-	errnie.Traces()
-	worker.disposer.cancel()
 }
 
 /*

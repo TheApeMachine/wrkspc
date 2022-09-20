@@ -10,4 +10,4 @@ func NewAnsi() *Ansi {
 	return &Ansi{}
 }
 
-func (screen *Ansi) ToggleAltScreen()
+func (screen *Ansi) ToggleAltScreen() {}

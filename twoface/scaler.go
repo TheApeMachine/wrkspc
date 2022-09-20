@@ -1,6 +1,7 @@
 package twoface
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/theapemachine/wrkspc/errnie"
@@ -22,6 +23,7 @@ type Scaler struct {
 	overload bool
 	lower    bool
 	pool     *Pool
+	maxIdle  time.Duration
 }
 
 /*
@@ -33,15 +35,16 @@ func NewScaler(pool *Pool) *Scaler {
 	errnie.Traces()
 
 	return &Scaler{
-		interval: 10,
+		interval: 100,
 		rate:     10,
 		stats:    0,
 		period:   0,
 		level:    1,
-		samples:  2,
+		samples:  3,
 		overload: false,
 		lower:    false,
 		pool:     pool,
+		maxIdle:  1 * time.Second,
 	}
 }
 
@@ -114,7 +117,7 @@ func (scaler *Scaler) load() {
 	scaler.lower = lower
 
 	if scaler.period >= scaler.samples {
-		errnie.Debugs("period")
+		errnie.Debugs(fmt.Sprintf("period %d", scaler.pool.Size()))
 		scaler.period = 0
 
 		if scaler.level < 3 {
@@ -161,7 +164,10 @@ func (scaler *Scaler) Shrink() {
 	}
 
 	if scaler.overload {
-		for i := 0; i < scaler.rate*scaler.level; i++ {
+		for i := 0; i < scaler.rate; i++ {
+			if i > len(scaler.pool.handles)-1 {
+				return
+			}
 			// Stop the worker, once it finishes its current job.
 			scaler.drain(scaler.pool.handles[i], i)
 		}
@@ -169,21 +175,10 @@ func (scaler *Scaler) Shrink() {
 		return
 	}
 
-	for i := 0; i < len(scaler.pool.handles); i++ {
-		worker := scaler.pool.handles[i]
-		if !worker.working {
-			// The worker is currently not working, increase
-			// the idleCount.
-			worker.idleCount++
-		}
-
-		// We want to make sure the worker is actually idling. It will
-		// reset idleCount every time it starts a job, so if we see
-		// and idleCount of 2, we can be reasonably sure.
-		if worker.idleCount >= 2 {
-			// This worker ain't doing shit. Schedule for
-			// death by shrinking.
-			scaler.drain(worker, i)
+	// Drain any workers that are just sitting around idling.
+	for idx, handle := range scaler.pool.handles {
+		if time.Now().Sub(handle.lastUse) > scaler.maxIdle {
+			scaler.drain(handle, idx)
 		}
 	}
 }

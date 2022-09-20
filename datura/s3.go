@@ -5,7 +5,6 @@ import (
 	"context"
 	"net"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -120,12 +119,10 @@ type DownloadJob struct {
 	downloader *manager.Downloader
 	key        string
 	out        []byte
-	wg         *sync.WaitGroup
 }
 
 func (job DownloadJob) Do() {
 	errnie.Traces()
-	defer job.wg.Done()
 
 	buf := manager.NewWriteAtBuffer([]byte{})
 
@@ -152,23 +149,17 @@ func (store *S3) Read(p []byte) (n int, err error) {
 	filtered := store.Filter(store.List(spd.Payload(dg)))
 	jobs := make([]DownloadJob, len(filtered))
 
-	var wg sync.WaitGroup
-
 	for idx, key := range filtered {
-		wg.Add(1)
-
 		jobs[idx] = DownloadJob{
 			bucket:     store.bucket,
 			downloader: store.downloader,
 			key:        key,
-			wg:         &wg,
 		}
 
 		store.pool.Do(jobs[idx])
 	}
 
 	p = nil
-	wg.Wait()
 
 	for _, job := range jobs {
 		p = append(p, job.out...)

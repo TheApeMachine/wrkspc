@@ -94,7 +94,7 @@ func (pool *Pool) dispatch() {
 		case <-pool.disposer.Done():
 			// The disposer was triggered, clean up, and bail out.
 			for _, worker := range pool.handles {
-				worker.Stop()
+				worker.Drain()
 			}
 
 			return
