@@ -81,9 +81,25 @@ type writeJob struct {
 
 func (job writeJob) Do() {
 	defer job.wg.Done()
+	prefix := spd.Unmarshal(job.p).Prefix()
+
 	treeCache, _, _ = treeCache.Insert(
-		[]byte(spd.Unmarshal(job.p).Prefix()), job.p,
+		[]byte(prefix), job.p,
 	)
+
+	// Auto relational mapping.
+	split := bytes.Split([]byte(prefix), []byte("/"))[1:3]
+	var buf bytes.Buffer
+
+	// We are taking the role, scope, and identity positions
+	// and shuffle them around so we generate the relational
+	// prefixes under which it will group data.
+	for idx := range split {
+		for i := 0; i < len(split); i++ {
+			buf.Write(split[(i+idx)%len(split)])
+		}
+		treeCache, _, _ = treeCache.Insert(buf.Bytes(), job.p)
+	}
 }
 
 func (store *Radix) Write(p []byte) (n int, err error) {
