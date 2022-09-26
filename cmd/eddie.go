@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 
@@ -30,8 +31,11 @@ var eddieCmd = &cobra.Command{
 		}
 
 		buffer := eddie.NewBuffer(fh)
-		buffer.Init().Focus()
+		for a := range buffer.Init().Focus() {
+			fmt.Print(a)
+		}
 
+		select {}
 		return nil
 	},
 }

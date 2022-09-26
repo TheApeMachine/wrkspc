@@ -7,14 +7,13 @@ import (
 	"github.com/theapemachine/wrkspc/datura"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spd"
-	"github.com/theapemachine/wrkspc/twoface"
 )
 
 func init() {
 	rootCmd.AddCommand(testCmd)
 }
 
-func do(manager twoface.Employer, dg []byte) {
+func do(op func(p []byte) (n int, err error), manager Employer, dg []byte) {
 	ticker := time.NewTicker(1000 * time.Millisecond)
 	done := make(chan struct{})
 	count := 0
@@ -31,7 +30,7 @@ func do(manager twoface.Employer, dg []byte) {
 				count = 0
 			default:
 
-				manager.Write(dg)
+				op(dg)
 				count++
 			}
 		}
@@ -58,7 +57,7 @@ var testCmd = &cobra.Command{
 		)
 
 		errnie.Debugs("writing...")
-		do(manager, dg)
+		do(manager.Write, manager, dg)
 
 		dg = spd.NewCached(
 			"datapoint", "test", "test.wrkspc.org",
@@ -66,7 +65,7 @@ var testCmd = &cobra.Command{
 		)
 
 		errnie.Debugs("reading...")
-		do(manager, dg)
+		do(manager.Read, manager, dg)
 
 		return nil
 	},

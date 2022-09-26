@@ -2,10 +2,15 @@ package eddie
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"io"
 	"os"
+	"unicode/utf8"
 
 	"github.com/containerd/console"
+	"github.com/mattn/go-localereader"
+	"github.com/muesli/cancelreader"
 	"github.com/muesli/termenv"
 	"github.com/theapemachine/wrkspc/errnie"
 )
@@ -50,7 +55,7 @@ func (buffer *Buffer) Init() *Buffer {
 	return buffer
 }
 
-func (buffer *Buffer) Focus() {
+func (buffer *Buffer) Focus() chan []interface{} {
 	if buffer.console != nil {
 		// Set the terminal raw mode and hide the cursor.
 		errnie.Handles(buffer.console.SetRaw())
@@ -64,7 +69,98 @@ func (buffer *Buffer) Focus() {
 		}()
 	}
 
-	<-make(chan struct{})
+	readDone := make(chan struct{})
+	out := make(chan []interface{})
+	reader, err := cancelreader.NewReader(buffer.input.(*os.File))
+	errnie.Handles(err)
+
+	go func() {
+		defer close(readDone)
+
+		for {
+			var buf [256]byte
+			numBytes, err := reader.Read(buf[:])
+			errnie.Handles(err)
+
+			b := buf[:numBytes]
+			b, err = localereader.UTF8(b)
+			errnie.Handles(err)
+
+			var runeSets [][]rune
+			var runes []rune
+
+			for i, w := 0, 0; i < len(b); i += w {
+				r, width := utf8.DecodeRune(b[i:])
+
+				if r == utf8.RuneError {
+					errnie.Handles(errors.New("could not decode rune"))
+					return
+				}
+
+				if r == '\x1b' && len(runes) > 1 {
+					runeSets = append(runeSets, runes)
+					runes = []rune{}
+				}
+
+				runes = append(runes, r)
+				w = width
+			}
+
+			runeSets = append(runeSets, runes)
+
+			if len(runeSets) == 0 {
+				errnie.Handles(errors.New("received 0 runes from input"))
+				return
+			}
+
+			var msgs []interface{}
+			for _, runes := range runeSets {
+				// Is it a sequence, like an arrow key?
+				if k, ok := sequences[string(runes)]; ok {
+					msgs = append(msgs, KeyMsg(k))
+					continue
+				}
+
+				// Some of these need special handling.
+				hex := fmt.Sprintf("%x", runes)
+				if k, ok := hexes[hex]; ok {
+					msgs = append(msgs, KeyMsg(k))
+					continue
+				}
+
+				// Is the alt key pressed? If so, the buffer will be prefixed with an
+				// escape.
+				alt := false
+				if len(runes) > 1 && runes[0] == 0x1b {
+					alt = true
+					runes = runes[1:]
+				}
+
+				for _, v := range runes {
+					// Is the first rune a control character?
+					r := KeyType(v)
+					if r <= keyUS || r == keyDEL {
+						msgs = append(msgs, KeyMsg(Key{Type: r, Alt: alt}))
+						continue
+					}
+
+					// If it's a space, override the type with KeySpace (but still include
+					// the rune).
+					if r == ' ' {
+						msgs = append(msgs, KeyMsg(Key{Type: KeySpace, Runes: []rune{v}, Alt: alt}))
+						continue
+					}
+
+					// Welp, just regular, ol' runes.
+					msgs = append(msgs, KeyMsg(Key{Type: KeyRunes, Runes: []rune{v}, Alt: alt}))
+				}
+			}
+
+			out <- msgs
+		}
+	}()
+
+	return out
 }
 
 func (buffer *Buffer) Read(p []byte) (n int, err error) {

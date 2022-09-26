@@ -21,8 +21,8 @@ type FastHTTPClient struct {
 }
 
 func NewFastHTTPClient() *FastHTTPClient {
-	readTimeout, _ := time.ParseDuration("1500ms")
-	writeTimeout, _ := time.ParseDuration("1500ms")
+	readTimeout, _ := time.ParseDuration("500ms")
+	writeTimeout, _ := time.ParseDuration("500ms")
 	maxIdleConnDuration, _ := time.ParseDuration("1h")
 
 	return &FastHTTPClient{

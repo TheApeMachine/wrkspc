@@ -1,4 +1,4 @@
-package datura
+package passepartout
 
 import (
 	"testing"

@@ -165,9 +165,6 @@ func (scaler *Scaler) Shrink() {
 
 	if scaler.overload {
 		for i := 0; i < scaler.rate; i++ {
-			if i > len(scaler.pool.handles)-1 {
-				return
-			}
 			// Stop the worker, once it finishes its current job.
 			scaler.drain(scaler.pool.handles[i], i)
 		}
@@ -177,7 +174,7 @@ func (scaler *Scaler) Shrink() {
 
 	// Drain any workers that are just sitting around idling.
 	for idx, handle := range scaler.pool.handles {
-		if time.Now().Sub(handle.lastUse) > scaler.maxIdle {
+		if time.Since(handle.lastUse) > scaler.maxIdle {
 			scaler.drain(handle, idx)
 		}
 	}
@@ -190,5 +187,5 @@ func (scaler *Scaler) drain(worker *Worker, i int) {
 	copy(scaler.pool.handles[i:], scaler.pool.handles[i+1:])
 	hCnt = len(scaler.pool.handles) - 1
 	scaler.pool.handles[hCnt] = nil
-	scaler.pool.handles = scaler.pool.handles[:len(scaler.pool.handles)-1]
+	scaler.pool.handles = scaler.pool.handles[:hCnt]
 }

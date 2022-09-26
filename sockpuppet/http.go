@@ -2,10 +2,14 @@ package sockpuppet
 
 import "github.com/valyala/fasthttp"
 
-type HTTP struct{}
+type HTTP struct {
+	manager Manager
+}
 
-func NewHTTP() Conn {
-	return &HTTP{}
+func NewHTTP(manager Manager) Conn {
+	return &HTTP{
+		manager: manager,
+	}
 }
 
 func (conn *HTTP) Up(port string) error {
