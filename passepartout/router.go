@@ -1,8 +1,13 @@
 package passepartout
 
 import (
+	"io"
 	"sync"
 
+	"github.com/theapemachine/wrkspc/datura"
+	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/sockpuppet"
+	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/twoface"
 )
 
@@ -26,11 +31,59 @@ func NewRouter() *Router {
 }
 
 /*
+load a manager from the routes cache or make a new instance if the
+requested object does not already exist.
+*/
+func (router *Router) load(
+	role string, cached io.ReadWriter,
+) io.ReadWriter {
+	r, _ := router.routes.LoadOrStore(
+		role, cached,
+	)
+
+	return r.(io.ReadWriter)
+}
+
+/*
+readCached loads a manager from the routes cache, or instantiates it
+first if it does not already exist. It then fills p with the return
+value from the manager's distinct operation.
+*/
+func (router *Router) readCached(
+	role string, cached io.ReadWriter, p []byte,
+) {
+	router.load(role, cached).Read(p)
+}
+
+/*
+readCached loads a manager from the routes cache, or instantiates it
+first if it does not already exist. It then writes p to the
+manager's distinct operation.
+*/
+func (router *Router) writeCached(
+	role string, cached io.ReadWriter, p []byte,
+) {
+	router.load(role, cached).Write(p)
+}
+
+/*
 Read implements io.Reader and is used to parse incoming data from
 requests and map it to a route. If a route does not exist yet, it
 will be dynamically created.
 */
 func (router *Router) Read(p []byte) (n int, err error) {
+	errnie.Traces()
+	dg := spd.Unmarshal(p)
+	role, err := dg.Role()
+	errnie.Handles(err)
+
+	switch role {
+	case "datapoint":
+		router.readCached(role, datura.NewS3(), p)
+	case "service":
+		router.readCached(role, sockpuppet.NewFastHTTPClient(), p)
+	}
+
 	return
 }
 

@@ -72,7 +72,7 @@ func NewS3() *S3 {
 			*tr = http.Transport{
 				Proxy: http.ProxyFromEnvironment,
 				DialContext: (&net.Dialer{
-					Timeout:   3 * time.Second,
+					Timeout:   1 * time.Second,
 					KeepAlive: 0,
 				}).DialContext,
 				MaxIdleConns:          0,
@@ -80,9 +80,9 @@ func NewS3() *S3 {
 				MaxConnsPerHost:       0,
 				IdleConnTimeout:       0,
 				DisableKeepAlives:     false,
-				TLSHandshakeTimeout:   3 * time.Second,
-				ExpectContinueTimeout: 3 * time.Second,
-				ResponseHeaderTimeout: 3 * time.Second,
+				TLSHandshakeTimeout:   1 * time.Second,
+				ExpectContinueTimeout: 1 * time.Second,
+				ResponseHeaderTimeout: 1 * time.Second,
 				ReadBufferSize:        4 << 10,
 				WriteBufferSize:       4 << 10,
 			}
