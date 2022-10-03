@@ -78,7 +78,7 @@ func (router *Router) Read(p []byte) (n int, err error) {
 	errnie.Handles(err)
 
 	switch role {
-	case "datapoint":
+	case "question":
 		router.readCached(role, datura.NewS3(), p)
 	case "service":
 		router.readCached(role, sockpuppet.NewFastHTTPClient(), p)

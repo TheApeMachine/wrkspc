@@ -3,11 +3,11 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/zaha"
 )
 
-var conns string
-var stores string
-var jobs string
+var service string
+var port string
 
 /*
 init will run before anything else (including main function).
@@ -16,19 +16,15 @@ func init() {
 	// Add a new command to the Cobra Commander root command
 	// (which is the compiled binary).
 	rootCmd.AddCommand(serveCmd)
+
 	rootCmd.PersistentFlags().StringVarP(
-		&conns, "conns", "c", "http",
-		"The available network connections for the service.",
+		&service, "service", "s", "gateway",
+		"The service that should be constructed.",
 	)
 
 	rootCmd.PersistentFlags().StringVarP(
-		&stores, "stores", "s", "s3,radix",
-		"The available stores for the service.",
-	)
-
-	rootCmd.PersistentFlags().StringVarP(
-		&conns, "conns", "c", "http",
-		"The available network connections for the service.",
+		&port, "port", "p", "8090",
+		"The port the service should run on.",
 	)
 }
 
@@ -44,7 +40,8 @@ var serveCmd = &cobra.Command{
 		errnie.Tracing(true)
 		errnie.Debugging(true)
 
-		return nil
+		architecture := zaha.NewArchitecture(service)
+		return architecture.Build().Up(port)
 	},
 }
 

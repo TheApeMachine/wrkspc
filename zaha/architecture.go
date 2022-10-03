@@ -5,14 +5,8 @@ import (
 	"github.com/theapemachine/wrkspc/sockpuppet"
 )
 
-type Service uint
-
-const (
-	GATEWAY Service = iota
-)
-
-var services = map[Service]sockpuppet.Conn{
-	GATEWAY: sockpuppet.NewHTTP(passepartout.NewRouter()),
+var services = map[string]sockpuppet.Conn{
+	"gateway": sockpuppet.NewHTTP(passepartout.NewRouter()),
 }
 
 /*
@@ -22,7 +16,7 @@ or more jobs to be able to provide a network endpoint that moves
 data upon request.
 */
 type Architecture struct {
-	service Service
+	service string
 }
 
 /*
@@ -30,7 +24,7 @@ NewArchitecture constructs a service. This should be done using a
 self-contained CLI command in the ./cmd folder so that this project
 can be specifically run as that service using a container.
 */
-func NewArchitecture(service Service) *Architecture {
+func NewArchitecture(service string) *Architecture {
 	return &Architecture{service: service}
 }
 
