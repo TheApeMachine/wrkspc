@@ -1,6 +1,7 @@
 package zaha
 
 import (
+	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/passepartout"
 	"github.com/theapemachine/wrkspc/sockpuppet"
 )
@@ -25,6 +26,7 @@ self-contained CLI command in the ./cmd folder so that this project
 can be specifically run as that service using a container.
 */
 func NewArchitecture(service string) *Architecture {
+	errnie.Traces()
 	return &Architecture{service: service}
 }
 
@@ -33,5 +35,6 @@ Build the architecture so that it is ready to be served using the serve
 cli command. This allows the binary to be deployed as many services.
 */
 func (architecture *Architecture) Build() sockpuppet.Conn {
+	errnie.Traces()
 	return services[architecture.service]
 }

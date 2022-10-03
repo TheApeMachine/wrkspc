@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/theapemachine/wrkspc/datura"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/passepartout"
 	"github.com/theapemachine/wrkspc/spd"
 )
 
@@ -13,7 +14,7 @@ func init() {
 	rootCmd.AddCommand(testCmd)
 }
 
-func do(op func(p []byte) (n int, err error), manager Employer, dg []byte) {
+func do(op func(p []byte) (n int, err error), manager passepartout.Store, dg []byte) {
 	ticker := time.NewTicker(1000 * time.Millisecond)
 	done := make(chan struct{})
 	count := 0
@@ -47,7 +48,10 @@ var testCmd = &cobra.Command{
 	RunE: func(_ *cobra.Command, _ []string) error {
 		errnie.Tracing(false)
 		errnie.Debugging(false)
-		manager := datura.NewManager()
+		manager := passepartout.NewManager(
+			datura.NewS3(),
+			datura.NewRadix(),
+		)
 		// store := datura.NewRadix()
 
 		// Write a datapoint and increase the count.

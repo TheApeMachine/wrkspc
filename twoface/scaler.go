@@ -1,7 +1,6 @@
 package twoface
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/theapemachine/wrkspc/errnie"
@@ -60,8 +59,17 @@ func (scaler *Scaler) Run() {
 				return
 			case <-ticker.C:
 				scaler.load()
-				scaler.Grow()
-				scaler.Shrink()
+
+				// Start growing the worker pool when it is not
+				// overloaded and there are actually jobs in the queue.
+				if !scaler.overload && len(scaler.pool.jobs) > 0 {
+					scaler.Grow()
+				}
+
+				// Start shrinking the worker pool when overloaded.
+				if scaler.overload {
+					scaler.Shrink()
+				}
 			}
 		}
 	}()
@@ -73,7 +81,6 @@ across a period (number of interations) and if so will set the overload
 property of the scaler to true, indicating we should scale down.
 */
 func (scaler *Scaler) load() {
-	errnie.Traces()
 	scaler.period++
 
 	// stats will contain the value from the previous iteration, which
@@ -117,7 +124,7 @@ func (scaler *Scaler) load() {
 	scaler.lower = lower
 
 	if scaler.period >= scaler.samples {
-		errnie.Debugs(fmt.Sprintf("period %d", scaler.pool.Size()))
+		errnie.Debugs("period", scaler.pool.Size())
 		scaler.period = 0
 
 		if scaler.level < 3 {
@@ -133,6 +140,7 @@ func (scaler *Scaler) load() {
 		return
 	}
 
+	errnie.Debugs("load", "prev", prev, "stats", scaler.stats)
 }
 
 /*

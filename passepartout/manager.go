@@ -3,6 +3,7 @@ package passepartout
 import (
 	"sync"
 
+	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/twoface"
 )
 
@@ -23,6 +24,7 @@ service architecture. Manager implements the Store interface itself,
 meaning that managers are chainable.
 */
 func NewManager(stores ...Store) *Manager {
+	errnie.Traces()
 	ctx := twoface.NewContext()
 
 	return &Manager{
@@ -39,6 +41,7 @@ Stores always compete to be the first to deliver the data and the
 winner should cancel any other ongoing lookups.
 */
 func (manager *Manager) Read(p []byte) (n int, err error) {
+	errnie.Traces()
 	var wgs []*sync.WaitGroup
 
 	for idx, store := range manager.stores {
@@ -62,6 +65,7 @@ Write implements the io.Writer interface, and allows us to write data
 into our data stores.
 */
 func (manager *Manager) Write(p []byte) (n int, err error) {
+	errnie.Traces()
 	for _, store := range manager.stores {
 		manager.pool.Do(ManagerWriteJob{
 			store: store,
@@ -73,5 +77,6 @@ func (manager *Manager) Write(p []byte) (n int, err error) {
 }
 
 func (manager *Manager) PoolSize() int {
+	errnie.Traces()
 	return manager.pool.Size()
 }

@@ -21,6 +21,7 @@ type Router struct {
 }
 
 func NewRouter() *Router {
+	errnie.Traces()
 	ctx := twoface.NewContext()
 
 	return &Router{
@@ -37,6 +38,7 @@ requested object does not already exist.
 func (router *Router) load(
 	role string, cached io.ReadWriter,
 ) io.ReadWriter {
+	errnie.Traces()
 	r, _ := router.routes.LoadOrStore(
 		role, cached,
 	)
@@ -52,6 +54,7 @@ value from the manager's distinct operation.
 func (router *Router) readCached(
 	role string, cached io.ReadWriter, p []byte,
 ) {
+	errnie.Traces()
 	router.load(role, cached).Read(p)
 }
 
@@ -63,6 +66,7 @@ manager's distinct operation.
 func (router *Router) writeCached(
 	role string, cached io.ReadWriter, p []byte,
 ) {
+	errnie.Traces()
 	router.load(role, cached).Write(p)
 }
 
@@ -93,6 +97,7 @@ requests and map it to a route. If a route does not exist yet, it
 will be dynamically created.
 */
 func (router *Router) Write(p []byte) (n int, err error) {
+	errnie.Traces()
 	return
 }
 
@@ -100,5 +105,6 @@ func (router *Router) Write(p []byte) (n int, err error) {
 PoolSize returns the current size of the autoscaling worker pool.
 */
 func (router *Router) PoolSize() int {
+	errnie.Traces()
 	return router.pool.Size()
 }

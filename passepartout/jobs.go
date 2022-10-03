@@ -1,6 +1,10 @@
 package passepartout
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/theapemachine/wrkspc/errnie"
+)
 
 /*
 switchJob cancels out any parallel lookups that may be ongoing as soon
@@ -9,6 +13,7 @@ as the data has been found.
 func (manager *Manager) switchJob(
 	p []byte, wgs []*sync.WaitGroup,
 ) (n int, err error) {
+	errnie.Traces()
 	for _, wg := range wgs {
 		wg.Wait()
 
@@ -35,6 +40,7 @@ type ReadJob struct {
 Do implements the twoface.Job interface.
 */
 func (job ReadJob) Do() {
+	errnie.Traces()
 	defer job.wg.Done()
 	job.store.Read(job.p)
 }
@@ -52,5 +58,6 @@ type ManagerWriteJob struct {
 Do implements the twoface.Job interface.
 */
 func (job ManagerWriteJob) Do() {
+	errnie.Traces()
 	job.store.Write(job.p)
 }

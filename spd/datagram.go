@@ -95,9 +95,25 @@ func Payload(dg Datagram) []byte {
 	return data
 }
 
+/*
+Unmarshal the byte slice into a Datagram. This actually does
+no desrialization at all, given Cap 'n Proto is operating
+directly on byte arrays.
+*/
 func Unmarshal(p []byte) Datagram {
 	msg, err := capnp.Unmarshal(p)
-	errnie.Handles(err)
+
+	if err := errnie.Handles(err); err.Type != errnie.NIL {
+		m, e := capnp.Unmarshal(
+			NewCached("error", "unmarshal", "wrkspc", err.Msg),
+		)
+
+		errnie.Handles(e)
+
+		dg, e := ReadRootDatagram(m)
+		errnie.Handles(e)
+		return dg
+	}
 
 	dg, err := ReadRootDatagram(msg)
 	errnie.Handles(err)

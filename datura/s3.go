@@ -9,7 +9,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -54,21 +53,19 @@ func NewS3() *S3 {
 	region := c["region"]
 	bucket := c["bucket"]
 
-	resolver := aws.EndpointResolverWithOptionsFunc(
-		func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-			return aws.Endpoint{
-				PartitionID:       "aws",
-				URL:               c["endpoint"],
-				SigningRegion:     region,
-				HostnameImmutable: true,
-			}, &aws.EndpointNotFoundError{}
-		},
-	)
+	resolver := aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
+		return aws.Endpoint{
+			PartitionID:       "aws",
+			URL:               c["endpoint"],
+			SigningRegion:     region,
+			HostnameImmutable: true,
+		}, nil
+	})
 
 	conn := s3.NewFromConfig(aws.Config{
 		Region:           region,
 		Credentials:      credentials.NewStaticCredentialsProvider(c["key"], c["secret"], ""),
-		EndpointResolver: config.WithEndpointResolverWithOptions(resolver),
+		EndpointResolver: resolver,
 	}, func(o *s3.Options) {
 		o.UsePathStyle = true
 		o.HTTPClient = awshttp.NewBuildableClient().WithTransportOptions(func(tr *http.Transport) {

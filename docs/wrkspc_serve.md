@@ -1,21 +1,21 @@
-## wrkspc test
+## wrkspc serve
 
-A command to test functionalities.
+Serve the service
 
 ### Synopsis
 
 
-A "playground" command to test functionalities quickly.
+TODO: explanation.
 
 
 ```
-wrkspc test [flags]
+wrkspc serve [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for test
+  -h, --help   help for serve
 ```
 
 ### Options inherited from parent commands

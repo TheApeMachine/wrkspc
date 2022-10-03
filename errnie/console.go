@@ -2,6 +2,7 @@ package errnie
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -36,7 +37,16 @@ func Debugs(args ...interface{}) {
 			builder.WriteString(" ")
 		}
 
-		builder.WriteString(a.(string))
+		switch v := a.(type) {
+		case string:
+			builder.WriteString(v)
+		case uint64:
+			builder.WriteString(strconv.FormatUint(v, 10))
+		case int64:
+			builder.WriteString(strconv.Itoa(int(v)))
+		default:
+			builder.WriteString(fmt.Sprintf("%v", v))
+		}
 	}
 
 	if l := ambctx.loggers[0]; l != nil {
