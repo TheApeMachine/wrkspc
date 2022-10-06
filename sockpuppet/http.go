@@ -1,10 +1,10 @@
 package sockpuppet
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spd"
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/fastjson"
 )
 
 type HTTP struct {
@@ -22,17 +22,19 @@ func (conn *HTTP) Up(port string) error {
 	errnie.Debugs("HTTP going for up on", port)
 	return fasthttp.ListenAndServe(
 		":"+port, func(ctx *fasthttp.RequestCtx) {
-			spew.Dump(ctx.PostBody())
+			data := ctx.PostBody()
+			dg := spd.NewCached(
+				fastjson.GetString(data, "role"),
+				fastjson.GetString(data, "scope"),
+				fastjson.GetString(data, "identity"),
+				fastjson.GetString(data, "payload"),
+			)
 
-			dg := spd.Unmarshal(ctx.PostBody())
-			role, err := dg.Role()
-			errnie.Handles(err)
-
-			switch role {
+			switch fastjson.GetString(data, "role") {
 			case "question":
-				conn.manager.Read(ctx.PostBody())
+				conn.manager.Read(dg)
 			case "datapoint":
-				conn.manager.Write(ctx.PostBody())
+				conn.manager.Write(dg)
 			}
 		},
 	)

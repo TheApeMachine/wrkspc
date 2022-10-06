@@ -9,15 +9,8 @@ import (
 func main() {
 	pyroscope.Start(pyroscope.Config{
 		ApplicationName: "theapemachine.wrkspc.app",
-
-		// replace this with the address of pyroscope server
-		ServerAddress: "http://localhost:4040",
-
-		// you can disable logging by setting this to nil
-		Logger: nil,
-
-		// optionally, if authentication is enabled, specify the API key:
-		// AuthToken: os.Getenv("PYROSCOPE_AUTH_TOKEN"),
+		ServerAddress:   "http://localhost:4040",
+		Logger:          nil,
 
 		ProfileTypes: []pyroscope.ProfileType{
 			// these profile types are enabled by default:
@@ -35,5 +28,6 @@ func main() {
 			pyroscope.ProfileBlockDuration,
 		},
 	})
+
 	errnie.Handles(cmd.Execute())
 }
