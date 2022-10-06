@@ -86,6 +86,10 @@ func (router *Router) Read(p []byte) (n int, err error) {
 		router.readCached(role, datura.NewS3(), p)
 	case "service":
 		router.readCached(role, sockpuppet.NewFastHTTPClient(), p)
+	default:
+		// Do whatever the prefix defines. This implements the read
+		// part of endpoints as data.
+		router.readCached(role, datura.NewS3(), p)
 	}
 
 	return
@@ -98,6 +102,19 @@ will be dynamically created.
 */
 func (router *Router) Write(p []byte) (n int, err error) {
 	errnie.Traces()
+	dg := spd.Unmarshal(p)
+	role, err := dg.Role()
+	errnie.Handles(err)
+
+	switch role {
+	case "datapoint":
+		router.writeCached(role, datura.NewS3(), p)
+	default:
+		// Do whatever the prefix defines. This implements the write
+		// part of endpoints as data.
+		router.writeCached(role, datura.NewS3(), p)
+	}
+
 	return
 }
 
