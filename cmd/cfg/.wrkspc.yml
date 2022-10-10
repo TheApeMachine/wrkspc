@@ -15,6 +15,17 @@ wrkspc:
         bucket: wrkspc
         endpoint: "http://127.0.0.1:9000"
 
+    test:
+      server:
+        port: "1984"
+
+      s3:
+        key: minioadmin
+        secret: minioadmin
+        region: us-east-2
+        bucket: wrkspc
+        endpoint: "http://127.0.0.1:9000"
+
     production:
       server:
         port: "1984"
