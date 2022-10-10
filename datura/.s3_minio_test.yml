@@ -1,0 +1,15 @@
+program: informationRetrieval
+
+informationRetrieval:
+  stage: development
+
+  stages:
+    development:
+      server:
+        port: "8899"
+      s3:
+        key: minioadmin
+        secret: minioadmin
+        region: eu-central-1
+        bucket: cnc-development-datalake
+        endpoint: 127.0.0.1:38744
