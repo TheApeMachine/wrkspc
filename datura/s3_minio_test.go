@@ -19,17 +19,17 @@ import (
 	"os"
 	"testing"
 	"time"
-	"unsafe"
 
 	madmin "github.com/minio/madmin-go"
 	mclient "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	minio "github.com/minio/minio/cmd"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/datura"
 	"github.com/theapemachine/wrkspc/errnie"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -118,23 +118,49 @@ func TestMinioPut(t *testing.T) {
 		t.Fatalf("while starting embedded server: %s\n", err)
 	}
 
-	mc, err := mclient.New(addr, &mclient.Options{
-		Creds:  credentials.NewStaticV4(MINIOKEY, MINIOSECRET, ""),
-		Secure: false,
+	var mc *mclient.Client
+	Convey("Given a new minio client", t, func() {
+		mc, err = mclient.New(addr, &mclient.Options{
+			Creds:  credentials.NewStaticV4(MINIOKEY, MINIOSECRET, ""),
+			Secure: false,
+		})
+
+		Convey("There should be no error", func() {
+			So(
+				err,
+				ShouldBeNil,
+			)
+		})
 	})
-	require.NoError(t, err)
 
 	data := []byte("test")
+	Convey("Using the minio client", t, func() {
+		_, err = mc.PutObject(
+			context.Background(),
+			"test",
+			"foo/var",
+			bytes.NewReader(data),
+			int64(len(data)),
+			mclient.PutObjectOptions{},
+		)
 
-	_, err = mc.PutObject(context.Background(), "test", "foo/var", bytes.NewReader(data), int64(len(data)), mclient.PutObjectOptions{})
-	require.NoError(t, err)
+		Convey("Writing an object should give no error", func() {
+			So(
+				err,
+				ShouldBeNil,
+			)
+		})
+	})
 
 	errnie.Handles(
 		cleanup(),
 	)
 }
 
-func TestDaturaS3NewS3(t *testing.T) {
+/*
+Write a datagram to the embedded Minio bucket and count the objects in the bucket.
+*/
+func TestDaturaS3WriteDatagram(t *testing.T) {
 	var cleanup func() error
 	var err error
 	addr, cleanup, err = SetupMinio("cnc-development-datalake", t)
@@ -151,11 +177,27 @@ func TestDaturaS3NewS3(t *testing.T) {
 	t.Logf("S3 Client Region: %s", mc.Region)
 	t.Logf("S3 Client Ctx: %+v", *mc.Ctx)
 	t.Logf("S3 Client Pool: %+v", *mc.Pool)
-	n := unsafe.Sizeof(mc)
-	t.Logf("S3 Client: %+v sizeOf[%d]", mc, n)
-	require.NotZero(t, n, "Empty client.")
+
+	// create a Pool
+	// .. here
+
+	// create a Context holding a test datagram
+	// .. here
+
+	// TODO: How can the datura.S3 instance access the previously created Context + Pool?
+	// Convey("Given a datagram job", t, func() {
+	// 	// Create job in queue
+
+	// 	Convey("Writing an object should give no error", func() {
+	// 		So(
+	// 			// .. ,
+	// 		)
+	// 	})
+	// })
 
 	errnie.Handles(
 		cleanup(),
 	)
+
+	t.Fatal("FAIL..")
 }
