@@ -17,25 +17,19 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/go-immutable-radix v1.3.1
 	github.com/mattn/go-localereader v0.0.1
-<<<<<<< HEAD
-	github.com/minio/operator v0.0.0-20220803201226-fe9befe2772d
-	github.com/moby/buildkit v0.10.4
-=======
-	github.com/minio/madmin-go v1.5.3
-	github.com/minio/minio v0.0.0-20221006235854-b3febe2d244f
+	github.com/minio/madmin-go v1.6.2
+	github.com/minio/minio v0.0.0-20221012190803-293900034255
 	github.com/minio/minio-go/v7 v7.0.40-0.20220928095841-8848d8affe8a
 	github.com/minio/operator v0.0.0-20220902184351-21e4073132b0
->>>>>>> fb82bcc (initialize minio test)
+	github.com/moby/buildkit v0.10.4
 	github.com/muesli/cancelreader v0.2.2
 	github.com/muesli/termenv v0.13.0
-	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/client v0.59.2
 	github.com/pyroscope-io/client v0.3.0
 	github.com/pytimer/k8sutil v0.0.0-20220203142443-87b1dfb13ebc
 	github.com/smartystreets/goconvey v1.7.2
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.13.0
-	github.com/stretchr/testify v1.8.0
 	github.com/valyala/fasthttp v1.40.0
 	github.com/valyala/fastjson v1.6.3
 	k8s.io/apiextensions-apiserver v0.25.2
@@ -52,13 +46,10 @@ require (
 	github.com/Azure/azure-storage-blob-go v0.15.0 // indirect
 	github.com/Azure/go-ntlmssp v0.0.0-20220621081337-cb9428e4ac1e // indirect
 	github.com/BurntSushi/toml v1.2.0 // indirect
-<<<<<<< HEAD
+	github.com/Shopify/sarama v1.36.0 // indirect
 	github.com/Sirupsen/logrus v0.0.0-00010101000000-000000000000 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
-=======
-	github.com/Shopify/sarama v1.36.0 // indirect
 	github.com/alecthomas/participle v0.7.1 // indirect
->>>>>>> fb82bcc (initialize minio test)
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/apache/thrift v0.16.0 // indirect
@@ -73,17 +64,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.13.17 // indirect
 	github.com/aws/smithy-go v1.13.3 // indirect
 	github.com/aymanbagabas/go-osc52 v1.0.3 // indirect
-<<<<<<< HEAD
-	github.com/containerd/containerd v1.6.3-0.20220401172941-5ff8fce1fcc6 // indirect
-	github.com/containerd/ttrpc v1.1.0 // indirect
-	github.com/containerd/typeurl v1.0.2 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
-	github.com/docker/distribution v2.8.1+incompatible // indirect
-	github.com/docker/docker v20.10.12+incompatible // indirect
-	github.com/docker/go-connections v0.4.0 // indirect
-	github.com/docker/go-units v0.4.0 // indirect
-	github.com/docker/libnetwork v0.5.6 // indirect
-=======
 	github.com/bcicen/jstream v1.0.1 // indirect
 	github.com/beevik/ntp v0.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -94,6 +74,9 @@ require (
 	github.com/charmbracelet/bubbles v0.14.0 // indirect
 	github.com/charmbracelet/bubbletea v0.22.1 // indirect
 	github.com/cheggaaa/pb v1.0.29 // indirect
+	github.com/containerd/containerd v1.6.3-0.20220401172941-5ff8fce1fcc6 // indirect
+	github.com/containerd/ttrpc v1.1.0 // indirect
+	github.com/containerd/typeurl v1.0.2 // indirect
 	github.com/coredns/coredns v1.9.4 // indirect
 	github.com/coreos/go-oidc v2.2.1+incompatible // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
@@ -103,8 +86,11 @@ require (
 	github.com/dchest/siphash v1.2.3 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
 	github.com/djherbis/atime v1.1.0 // indirect
+	github.com/docker/distribution v2.8.1+incompatible // indirect
+	github.com/docker/docker v20.10.12+incompatible // indirect
+	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
->>>>>>> fb82bcc (initialize minio test)
+	github.com/docker/libnetwork v0.5.6 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/eapache/go-resiliency v1.3.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
@@ -147,14 +133,10 @@ require (
 	github.com/google/gnostic v0.6.9 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
-<<<<<<< HEAD
-	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
-=======
 	github.com/google/pprof v0.0.0-20220829040838-70bd9ae97f40 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.1.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.5.1 // indirect
->>>>>>> fb82bcc (initialize minio test)
 	github.com/gopherjs/gopherjs v0.0.0-20220104163920-15ed2e8cf2bd // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
@@ -212,7 +194,7 @@ require (
 	github.com/minio/kes v0.21.0 // indirect
 	github.com/minio/mc v0.0.0-20221001175248-68ca2bf457e4 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
-	github.com/minio/pkg v1.4.5 // indirect
+	github.com/minio/pkg v1.5.1 // indirect
 	github.com/minio/selfupdate v0.5.0 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/minio/simdjson-go v0.4.2 // indirect
@@ -229,10 +211,6 @@ require (
 	github.com/muesli/ansi v0.0.0-20211031195517-c9f0611b6c70 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-<<<<<<< HEAD
-	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799 // indirect
-=======
 	github.com/nats-io/nats.go v1.17.0 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
@@ -242,15 +220,16 @@ require (
 	github.com/nsqio/go-nsq v1.1.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
->>>>>>> fb82bcc (initialize minio test)
+	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/philhofer/fwd v1.1.2-0.20210722190033-5c56ac6d0bb9 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pierrec/lz4/v4 v4.1.16 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/term v1.2.0-beta.2 // indirect
 	github.com/pkg/xattr v0.4.9 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/power-devops/perfstat v0.0.0-20220216144756-c35f1ee13d7c // indirect
 	github.com/pquerna/cachecontrol v0.1.0 // indirect
@@ -286,14 +265,11 @@ require (
 	github.com/tklauser/numcpus v0.5.0 // indirect
 	github.com/unrolled/secure v1.13.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-<<<<<<< HEAD
 	github.com/vishvananda/netlink v1.1.1-0.20210330154013-f5de75959ad5 // indirect
 	github.com/vishvananda/netns v0.0.0-20210104183010-2eb08e3e575f // indirect
-=======
 	github.com/xdg/scram v1.0.5 // indirect
 	github.com/xdg/stringprep v1.0.3 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
->>>>>>> fb82bcc (initialize minio test)
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.5 // indirect
@@ -317,13 +293,8 @@ require (
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.96.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-<<<<<<< HEAD
-	google.golang.org/genproto v0.0.0-20220519153652-3a47de7e79bd // indirect
-	google.golang.org/grpc v1.47.0 // indirect
-=======
 	google.golang.org/genproto v0.0.0-20220916172020-2692e8806bfa // indirect
 	google.golang.org/grpc v1.49.0 // indirect
->>>>>>> fb82bcc (initialize minio test)
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/h2non/filetype.v1 v1.0.5 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
