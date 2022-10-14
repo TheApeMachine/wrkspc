@@ -44,6 +44,15 @@ var runCmd = &cobra.Command{
 			cluster.IsProvisioned = true
 		}
 
+		client := kube.NewClient()
+
+		client.Apply("system", "system", "system")
+		client.Apply("base", "istio", "istio-system")
+		client.Apply("istiod", "istio", "istio-system")
+		client.Apply("vault", "hashicorp", "vault")
+		client.Apply("minio", "minio", "minio")
+		client.Apply("harbor", "harbor", "harbor")
+
 		stop <- struct{}{}
 
 		return nil

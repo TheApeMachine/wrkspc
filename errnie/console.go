@@ -86,5 +86,5 @@ func (info InfoLogger) Infof(format string, args ...interface{}) {
 }
 
 func (info InfoLogger) Enabled() bool {
-	return true
+	return false
 }

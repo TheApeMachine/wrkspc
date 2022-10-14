@@ -48,11 +48,12 @@ var testCmd = &cobra.Command{
 	RunE: func(_ *cobra.Command, _ []string) error {
 		errnie.Tracing(false)
 		errnie.Debugging(false)
+
+		// Set up a generic manager, and inject some stores.
 		manager := passepartout.NewManager(
 			datura.NewS3(),
 			datura.NewRadix(),
 		)
-		// store := datura.NewRadix()
 
 		// Write a datapoint and increase the count.
 		dg := spd.NewCached(

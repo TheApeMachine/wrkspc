@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: datalake
+  labels:
+    name: datalake
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: minio
+  name: minio
+  namespace: datalake
+spec:
+  containers:
+  - name: minio
+    image: quay.io/minio/minio:latest
+    command:
+    - /bin/bash
+    - -c
+    args: 
+    - minio server /data --console-address :9090
+    volumeMounts:
+    - mountPath: /data
+      name: localvolume 
+  nodeSelector:
+    kubernetes.io/hostname: kubealpha.local 
+  volumes:
+  - name: localvolume
+    hostPath:
+      path: /tmp/datalake
+      type: DirectoryOrCreate 
