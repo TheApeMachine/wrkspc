@@ -17,6 +17,8 @@ func NewConsole() Logger {
 }
 
 func (logger Console) Print(l, t, c, i string) {
+	l = strings.ReplaceAll(l, "\n", "")
+
 	fmt.Println(
 		tui.NewLabel(t).Print(),
 		tui.NewColor(
@@ -25,6 +27,34 @@ func (logger Console) Print(l, t, c, i string) {
 		tui.NewIcon(i),
 		tui.NewColor(c, l).Print(),
 	)
+}
+
+func Informs(args ...interface{}) {
+	t, c, i := INFO()
+
+	var builder strings.Builder
+
+	for idx, a := range args {
+		if idx > 0 {
+			builder.WriteString(" ")
+		}
+
+		switch v := a.(type) {
+		case string:
+			builder.WriteString(v)
+		case uint64:
+			builder.WriteString(strconv.FormatUint(v, 10))
+		case int64:
+			builder.WriteString(strconv.Itoa(int(v)))
+		default:
+			builder.WriteString(fmt.Sprintf("%v", v))
+		}
+	}
+
+	if l := ambctx.loggers[0]; l != nil {
+		l.Print(builder.String(), t, c, i)
+	}
+
 }
 
 func Debugs(args ...interface{}) {

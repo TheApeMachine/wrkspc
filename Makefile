@@ -10,3 +10,7 @@ push:
 
 run:
 	docker run --rm -ti harbor.alliedmaster.computer/cnc/wrkspc:$(USER)
+
+test:
+	kind delete cluster --name wrkspc
+	go run main.go run

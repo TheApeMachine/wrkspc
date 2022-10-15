@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"strings"
-	"time"
 
 	clientset "github.com/minio/operator/pkg/client/clientset/versioned"
 	helmclient "github.com/mittwald/go-helm-client"
@@ -22,7 +21,9 @@ import (
 
 var manifests = map[string]map[string]string{
 	"system": {
-		"type": "kubectl",
+		"type":  "kubectl",
+		"multi": "false",
+		"sub":   "",
 	},
 	"base": {
 		"type": "helm",
@@ -41,7 +42,14 @@ var manifests = map[string]map[string]string{
 		"url":  "https://helm.goharbor.io",
 	},
 	"minio": {
-		"type": "kubectl",
+		"type":  "kubectl",
+		"multi": "false",
+		"sub":   "",
+	},
+	"prometheus": {
+		"type":  "kuebctl",
+		"multi": "true",
+		"sub":   "setup",
 	},
 }
 
@@ -101,6 +109,8 @@ func NewClient() *Client {
 }
 
 func (client *Client) Apply(name, vendor, namespace string) {
+	errnie.Informs("applying", name)
+
 	if manifests[name]["type"] == "helm" {
 		// It is a helm chart, so hand it off to helm.
 		client.helm(name, vendor, namespace)
@@ -112,12 +122,43 @@ func (client *Client) Apply(name, vendor, namespace string) {
 		client.dynamicClient, client.discoveryClient,
 	)
 
-	data, err := os.ReadFile(brazil.BuildPath(
-		brazil.Workdir(), ".kubernetes", name, "deploy.yml",
-	))
+	n := []string{}
 
-	errnie.Handles(err)
-	errnie.Handles(applyOpts.Apply(context.TODO(), data))
+	if manifests[name]["sub"] != "" {
+		// There is a sub directory which needs to be handled first.
+		// Likely used for some initial setup needed to deploy the main
+		// manifest files.
+		n = append(n, name+"/"+manifests[name]["sub"])
+	}
+
+	// Append the main manifest files to the directory list.
+	n = append(n, name)
+
+	// Loop over the path listing.
+	for _, s := range n {
+		// Start a generator that yields filenames.
+		for fh := range brazil.GeneratePath(
+			brazil.BuildPath(brazil.Workdir(), ".kubernetes", s),
+		) {
+			go func(f string) {
+				for {
+					// Read the file and store as a byte slice.
+					data, err := os.ReadFile(f)
+
+					errnie.Handles(err)
+
+					if len(data) > 0 {
+						err := applyOpts.Apply(context.TODO(), data)
+						errnie.Handles(err)
+
+						if err == nil {
+							break
+						}
+					}
+				}
+			}(fh)
+		}
+	}
 }
 
 func (client *Client) helm(name, vendor, namespace string) {
@@ -141,8 +182,6 @@ func (client *Client) helm(name, vendor, namespace string) {
 		ValuesYaml:      string(data),
 		CreateNamespace: true,
 		UpgradeCRDs:     true,
-		Wait:            true,
-		Timeout:         10 * time.Second,
 		CleanupOnFail:   true,
 	}
 

@@ -2,6 +2,8 @@
 
 Workspace is an end-to-end platform that covers everything from development to production to day two operations.
 
+![wrkspc - overview](docs/assets/wrkspc - overview.png)
+
 The general concept is that it builds on container and clustering technology by using Docker and Kubernetes as packages (libraries) integrated in the code itself.
 
 This makes it such that there is truly no difference between your development environment and any other stage in the life-cycle of the project.
