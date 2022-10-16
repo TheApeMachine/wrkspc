@@ -109,9 +109,9 @@ func NewClient() *Client {
 }
 
 func (client *Client) Apply(name, vendor, namespace string) {
-	errnie.Informs("applying", name)
 
 	if manifests[name]["type"] == "helm" {
+		errnie.Informs("applying", name)
 		// It is a helm chart, so hand it off to helm.
 		client.helm(name, vendor, namespace)
 		return
@@ -140,23 +140,22 @@ func (client *Client) Apply(name, vendor, namespace string) {
 		for fh := range brazil.GeneratePath(
 			brazil.BuildPath(brazil.Workdir(), ".kubernetes", s),
 		) {
-			go func(f string) {
-				for {
-					// Read the file and store as a byte slice.
-					data, err := os.ReadFile(f)
+			errnie.Informs("applying", brazil.GetFileFromPrefix(fh))
 
-					errnie.Handles(err)
+			if fh == "" {
+				continue
+			}
 
-					if len(data) > 0 {
-						err := applyOpts.Apply(context.TODO(), data)
-						errnie.Handles(err)
+			// Read the file and store as a byte slice.
+			data, err := os.ReadFile(fh)
 
-						if err == nil {
-							break
-						}
-					}
-				}
-			}(fh)
+			errnie.Handles(err)
+
+			if len(data) > 0 && data != nil {
+				err := applyOpts.Apply(context.TODO(), data)
+				errnie.Handles(err)
+
+			}
 		}
 	}
 }

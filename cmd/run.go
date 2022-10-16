@@ -52,8 +52,8 @@ var runCmd = &cobra.Command{
 		client.Apply("vault", "hashicorp", "vault")
 		client.Apply("minio", "minio", "minio")
 		client.Apply("harbor", "harbor", "harbor")
-		client.Apply("prometheus", "", "monitoring")
-		client.Apply("services", "services", "")
+
+		kube.NewDeployment("gateway-service").Drop(client.KubeClient)
 
 		stop <- struct{}{}
 

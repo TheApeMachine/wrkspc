@@ -5,3 +5,27 @@ metadata:
   labels:
     istio-injection: enabled
     kubernetes.io/metadata.name: istio-ingress
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+  labels:
+    istio-injection: enabled
+    kubernetes.io/metadata.name: default
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vault
+  labels:
+    istio-injection: enabled
+    kubernetes.io/metadata.name: vault
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    istio-injection: enabled
+    kubernetes.io/metadata.name: monitoring

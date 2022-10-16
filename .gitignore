@@ -1,3 +1,4 @@
 wrkspc
 wrkspc.exe
 vendor/
+.DS_Store

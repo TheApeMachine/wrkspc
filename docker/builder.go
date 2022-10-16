@@ -32,10 +32,7 @@ ToLLB converts a Dockerfile to an image format that is compatible
 with BuildKit, so we can have parallel build stages and be faster.
 */
 func (builder *Builder) ToLLB(name, tag string) *dockerfile2llb.Image {
-	dockerfile := brazil.NewFile(brazil.BuildPath(
-		brazil.HomePath(), ".co2ok", name, "Dockerfile",
-	))
-
+	dockerfile := brazil.NewFile(brazil.Workdir())
 	caps := pb.Caps.CapSet(pb.Caps.All())
 
 	state, image, _, err := dockerfile2llb.Dockerfile2LLB(
@@ -43,6 +40,9 @@ func (builder *Builder) ToLLB(name, tag string) *dockerfile2llb.Image {
 			MetaResolver: imagemetaresolver.Default(),
 			Target:       name + ":" + tag,
 			LLBCaps:      &caps,
+			BuildArgs: map[string]string{
+				"USERNAME": os.Getenv("USER"),
+			},
 		},
 	)
 
