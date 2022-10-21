@@ -33,10 +33,8 @@ type Cluster struct {
 NewCluster constructs, or connects to, a Kubernetes environment so we have
 a location where we can deploy our containers.
 */
-func NewCluster(clusterType ClusterType) infra.Cluster {
-	return infra.NewCluster(Cluster{
-		clusterType: clusterType,
-	})
+func NewCluster() infra.Cluster {
+	return infra.NewCluster(Cluster{})
 }
 
 /*

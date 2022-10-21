@@ -11,6 +11,7 @@ import (
 	"github.com/pytimer/k8sutil/apply"
 	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/infra"
 	"helm.sh/helm/v3/pkg/repo"
 	apiextension "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/discovery"
@@ -70,7 +71,7 @@ type Client struct {
 /*
 NewClient returns a handle on the various clients that we will need access to.
 */
-func NewClient() *Client {
+func NewClient() infra.Client {
 	config, err := clientcmd.BuildConfigFromFlags("", brazil.BuildPath(
 		brazil.HomePath(), "/.kube/config",
 	))
@@ -97,7 +98,7 @@ func NewClient() *Client {
 	hc, err := helmclient.New(&helmclient.Options{})
 	errnie.Handles(err)
 
-	return &Client{
+	return infra.NewClient(Client{
 		KubeClient:       kubeClient,
 		dynamicClient:    dynamicClient,
 		discoveryClient:  discoveryClient,
@@ -105,11 +106,10 @@ func NewClient() *Client {
 		ExtClient:        extClient,
 		PromClient:       promClient,
 		HelmClient:       hc,
-	}
+	})
 }
 
-func (client *Client) Apply(name, vendor, namespace string) {
-
+func (client Client) Apply(name, vendor, namespace string) {
 	if manifests[name]["type"] == "helm" {
 		errnie.Informs("applying", name)
 		// It is a helm chart, so hand it off to helm.
@@ -160,7 +160,7 @@ func (client *Client) Apply(name, vendor, namespace string) {
 	}
 }
 
-func (client *Client) helm(name, vendor, namespace string) {
+func (client Client) helm(name, vendor, namespace string) {
 	// Add a chart-repository to the client.
 	errnie.Handles(client.HelmClient.AddOrUpdateChartRepo(
 		repo.Entry{

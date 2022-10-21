@@ -17,6 +17,11 @@ var orchestratorMap = map[string]func() infra.Cluster{
 	"kubernetes": kube.NewCluster,
 }
 
+var clientMap = map[string]func() infra.Client{
+	"nomad":      nomad.NewClient,
+	"kubernetes": kube.NewClient,
+}
+
 /*
 init will run before anything else (including main function).
 */
@@ -48,7 +53,7 @@ var runCmd = &cobra.Command{
 		stop := signals.Run()
 
 		// Get a handle on a new cluster object.
-		cluster := kube.NewCluster(kube.KIND)
+		cluster := orchestratorMap[orchestrator]()
 
 		// Provision the cluster and report back an errnie.Error, which we
 		// convert to a native Go error before returning.
@@ -59,10 +64,9 @@ var runCmd = &cobra.Command{
 			errnie.Logs("cluster already provisioned").With(
 				errnie.SUCCESS,
 			)
-			cluster.IsProvisioned = true
 		}
 
-		client := kube.NewClient()
+		client := clientMap[orchestrator]()
 
 		client.Apply("system", "system", "system")
 		client.Apply("base", "istio", "istio-system")
@@ -79,7 +83,7 @@ var runCmd = &cobra.Command{
 
 		builder.ToLLB()
 
-		kube.NewDeployment("gateway-service").Drop(client.KubeClient)
+		// kube.NewDeployment("gateway-service").Drop(client.KubeClient)
 
 		stop <- struct{}{}
 
