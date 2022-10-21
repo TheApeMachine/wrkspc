@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gateway-service
+  name: gateway-service
+  namespace: services
+spec:
+  selector:
+    matchLabels:
+      app: gateway-service
+  template:
+    metadata:
+      labels:
+        app: gateway-service
+    spec:
+      volumes:
+        - name: gateway-service-volume
+          configMap:
+            name: gateway-service-config
+            items:
+              - key: gateway-service-yml
+                path: .gateway-service.yml
+            defaultMode: 420
+      containers:
+        - name: gateway-service
+          imagePullPolicy: Always
+          image: theapemachine/gateway-service:USERTAG
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "256m"
+            limits:
+              memory: "512Mi"
+              cpu: "512m"
+          ports:
+            - containerPort: 8091
+              name: http
+          volumeMounts:
+            - name: gateway-service-volume
+              mountPath: /root/
+      imagePullSecrets:
+        - name: regcred
+      restartPolicy: Always
+

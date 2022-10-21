@@ -3,6 +3,7 @@ package docker
 import (
 	"context"
 	"os"
+	"strings"
 
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/client/llb/imagemetaresolver"
@@ -31,14 +32,21 @@ func NewBuilder(org, name, tag string) *Builder {
 ToLLB converts a Dockerfile to an image format that is compatible
 with BuildKit, so we can have parallel build stages and be faster.
 */
-func (builder *Builder) ToLLB(name, tag string) *dockerfile2llb.Image {
+func (builder *Builder) ToLLB() *dockerfile2llb.Image {
 	dockerfile := brazil.NewFile(brazil.Workdir())
 	caps := pb.Caps.CapSet(pb.Caps.All())
+
+	target := strings.Builder{}
+	target.WriteString(builder.org)
+	target.WriteString("/")
+	target.WriteString(builder.name)
+	target.WriteString(":")
+	target.WriteString(builder.tag)
 
 	state, image, _, err := dockerfile2llb.Dockerfile2LLB(
 		appcontext.Context(), dockerfile.Data.Bytes(), dockerfile2llb.ConvertOpt{
 			MetaResolver: imagemetaresolver.Default(),
-			Target:       name + ":" + tag,
+			Target:       target.String(),
 			LLBCaps:      &caps,
 			BuildArgs: map[string]string{
 				"USERNAME": os.Getenv("USER"),

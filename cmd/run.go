@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/theapemachine/wrkspc/docker"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/kube"
 	"github.com/theapemachine/wrkspc/twoface"
@@ -40,7 +41,9 @@ var runCmd = &cobra.Command{
 			// TODO: It is not really correct to assume any error here just
 			// means our cluster already exists, but for now this should not
 			// present any issues.
-			errnie.Logs("cluster already provisioned").With(errnie.SUCCESS)
+			errnie.Logs("cluster already provisioned").With(
+				errnie.SUCCESS,
+			)
 			cluster.IsProvisioned = true
 		}
 
@@ -49,9 +52,17 @@ var runCmd = &cobra.Command{
 		client.Apply("system", "system", "system")
 		client.Apply("base", "istio", "istio-system")
 		client.Apply("istiod", "istio", "istio-system")
-		client.Apply("vault", "hashicorp", "vault")
-		client.Apply("minio", "minio", "minio")
+		// client.Apply("vault", "hashicorp", "vault")
+		// client.Apply("minio", "minio", "minio")
 		client.Apply("harbor", "harbor", "harbor")
+
+		builder := docker.NewBuilder(
+			"wrkgrp",
+			"wrkspc",
+			"test",
+		)
+
+		builder.ToLLB()
 
 		kube.NewDeployment("gateway-service").Drop(client.KubeClient)
 

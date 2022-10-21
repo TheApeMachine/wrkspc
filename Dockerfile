@@ -16,13 +16,14 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
-USER $USERNAME
-WORKDIR /tmp/wrkspc
+WORKDIR /home/$USERNAME
 COPY . .
+RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
+USER $USERNAME
 
 RUN go build -o wrkspc
 
-FROM gcr.io/distroless/base-debian11 AS runtime
+FROM --platform=linux/amd64 gcr.io/distroless/base-debian11 AS runtime
 WORKDIR /tmp/wrkspc
 
 COPY --from=builder /tmp/wrkspc/wrkspc /tmp/wrkspc/
