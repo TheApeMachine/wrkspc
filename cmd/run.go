@@ -4,9 +4,18 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/theapemachine/wrkspc/docker"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/infra"
 	"github.com/theapemachine/wrkspc/kube"
+	"github.com/theapemachine/wrkspc/nomad"
 	"github.com/theapemachine/wrkspc/twoface"
 )
+
+var orchestrator string
+
+var orchestratorMap = map[string]func() infra.Cluster{
+	"nomad":      nomad.NewCluster,
+	"kubernetes": kube.NewCluster,
+}
 
 /*
 init will run before anything else (including main function).
@@ -15,6 +24,10 @@ func init() {
 	// Add a new command to the Cobra Commander root command
 	// (which is the compiled binary).
 	rootCmd.AddCommand(runCmd)
+	rootCmd.PersistentFlags().StringVarP(
+		&orchestrator, "orchestrator", "o", "nomad",
+		"The orchestrator to use <nomad|kubernetes>.",
+	)
 }
 
 /*
@@ -26,13 +39,15 @@ var runCmd = &cobra.Command{
 	Short: "Run the service with the ~/.wrkspc.yml config values.",
 	Long:  runtxt,
 	RunE: func(_ *cobra.Command, _ []string) error {
+		// Set verbosity level for errnie.
 		errnie.Tracing(true)
 		errnie.Debugging(true)
 
+		// Setup os interrupt signal handling.
 		signals := twoface.NewSignal()
 		stop := signals.Run()
 
-		// Get a handle on a new KIND (Kubernetes In Docker) cluster object.
+		// Get a handle on a new cluster object.
 		cluster := kube.NewCluster(kube.KIND)
 
 		// Provision the cluster and report back an errnie.Error, which we

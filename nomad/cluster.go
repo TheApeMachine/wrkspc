@@ -1,6 +1,8 @@
 package nomad
 
 import (
+	"errors"
+	"fmt"
 	"os"
 
 	// These packages have init() funcs which check os.Args and drop directly
@@ -11,6 +13,7 @@ import (
 	_ "github.com/hashicorp/nomad/drivers/docker/docklog"
 	_ "github.com/hashicorp/nomad/drivers/shared/executor"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/infra"
 
 	// Don't move any other code imports above the import block above!
 	"github.com/hashicorp/nomad/command"
@@ -23,17 +26,17 @@ func init() {
 	seed.Init()
 }
 
-type Infra struct {
+type Cluster struct {
 }
 
-func NewInfra() *Infra {
-	return &Infra{}
+func NewCluster() infra.Cluster {
+	return infra.NewCluster(Cluster{})
 }
 
-func (infra *Infra) Run(args []string) int {
+func (cluster Cluster) Provision() errnie.Error {
 	// Create the meta object
 	metaPtr := new(command.Meta)
-	metaPtr.SetupUi(args)
+	metaPtr.SetupUi([]string{})
 
 	// The Nomad agent never outputs color
 	agentUi := &cli.BasicUi{
@@ -42,10 +45,17 @@ func (infra *Infra) Run(args []string) int {
 		ErrorWriter: os.Stderr,
 	}
 
-	return infra.exec(metaPtr, agentUi, []string{})
+	status := cluster.exec(metaPtr, agentUi, []string{})
+	return errnie.NewError(fmt.Errorf(
+		"status %d", status,
+	))
 }
 
-func (infra *Infra) exec(
+func (cluster Cluster) Teardown() errnie.Error {
+	return errnie.NewError(errors.New("not implemented"))
+}
+
+func (cluster Cluster) exec(
 	metaPtr *command.Meta,
 	agentUi *cli.BasicUi,
 	args []string,
