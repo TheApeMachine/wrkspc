@@ -85,6 +85,7 @@ var runCmd = &cobra.Command{
 
 		// kube.NewDeployment("gateway-service").Drop(client.KubeClient)
 
+		// Send a message to the interrupt handler to stop the program.
 		stop <- struct{}{}
 
 		return nil
