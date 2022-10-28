@@ -7,7 +7,10 @@ import (
 	svg "github.com/ajstarks/svgo"
 )
 
-type Button struct{}
+type Button struct {
+	fill  string
+	state int
+}
 
 func NewButton() Element {
 	return NewElement(

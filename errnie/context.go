@@ -19,7 +19,6 @@ type AmbientContext struct {
 	Status
 	errors    []Error
 	loggers   []Logger
-	logs      []interface{}
 	tracer    Tracer
 	Tracing   bool
 	Debugging bool

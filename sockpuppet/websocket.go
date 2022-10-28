@@ -21,6 +21,10 @@ func NewWebsocket(manager Manager) *WebSocket {
 	}
 }
 
+func (socket *WebSocket) Up(port string) error {
+	return nil
+}
+
 func (socket *WebSocket) Handle(
 	w http.ResponseWriter, r *http.Request,
 ) {

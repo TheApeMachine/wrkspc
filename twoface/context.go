@@ -45,6 +45,6 @@ func (ctx *Context) Write(key stringKey, value any) {
 	ctx.ctx = context.WithValue(ctx.ctx, key, value)
 }
 
-func (ctx *Context) Read(key stringKey) any {
+func (ctx *Context) Value(key any) any {
 	return ctx.ctx.Value(key)
 }

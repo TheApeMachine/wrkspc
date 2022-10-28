@@ -65,7 +65,7 @@ type HTTPJob struct {
 Do implements the Job interface, which enables the HTTP request to
 be scheduled onto a worker pool.
 */
-func (job HTTPJob) Do() {
+func (job *HTTPJob) Do() {
 	defer job.wg.Done()
 
 	dg := spd.Unmarshal(job.p)
@@ -99,7 +99,7 @@ func (client *FastHTTPClient) Read(p []byte) (n int, err error) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	client.pool.Do(HTTPJob{
+	client.pool.Do(&HTTPJob{
 		wg:     &wg,
 		method: fasthttp.MethodGet,
 		p:      p,
@@ -118,7 +118,7 @@ func (client *FastHTTPClient) Write(p []byte) (n int, err error) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	client.pool.Do(HTTPJob{
+	client.pool.Do(&HTTPJob{
 		wg:     &wg,
 		method: fasthttp.MethodPost,
 		p:      p,
