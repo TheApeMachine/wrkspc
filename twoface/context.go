@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+type stringKey string
+
 /*
 Context is a conveniance wrapper around Go contexts to improve
 developer ergonomics.
@@ -39,6 +41,10 @@ func (ctx *Context) Err() error {
 	return nil
 }
 
-func (ctx *Context) Value(key any) any {
-	return nil
+func (ctx *Context) Write(key stringKey, value any) {
+	ctx.ctx = context.WithValue(ctx.ctx, key, value)
+}
+
+func (ctx *Context) Read(key stringKey) any {
+	return ctx.ctx.Value(key)
 }

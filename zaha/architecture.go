@@ -4,10 +4,12 @@ import (
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/passepartout"
 	"github.com/theapemachine/wrkspc/sockpuppet"
+	"github.com/theapemachine/wrkspc/twoface"
 )
 
 var services = map[string]sockpuppet.Conn{
 	"gateway": sockpuppet.NewHTTP(passepartout.NewRouter()),
+	"lumiere": sockpuppet.NewWebsocket(passepartout.NewHub(twoface.NewContext())),
 }
 
 /*

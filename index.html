@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SVG Button Demo</title>
+    <meta name="viewport" content="width=device-width" />
+  </head>
+  <body>
+    <div id="button"></div>
+
+    <script type="text/javascript">
+      const socket = new WebSocket('ws://localhost:8091/v3/websocket');
+      socket.binaryType = "arraybuffer";
+      const button = document.querySelector('#button');
+      let curstate = 0;
+
+      button.onclick = (e) => {
+        console.log('clicked');
+        socket.send(1);
+      };
+
+      button.onmouseenter = (e) => {
+        if (curstate == 2) {
+          return;
+        }
+
+        curstate = 2;
+        console.log('mouseenter');
+        socket.send(2);
+      };
+
+      button.onmouseout = (e) => {
+        if (curstate != 2) {
+          return;
+        }
+
+        curstate = 0;
+        console.log('mouseout');
+        socket.send(3);
+      };
+
+      socket.onmessage = function(event) {
+        button.innerHTML = event.data;
+      };
+
+      socket.onopen = function(event) {
+        console.info(event);
+      };
+
+      socket.onclose = function(event) {
+        console.log(event);
+      };
+
+      socket.onerror = function(error) {
+        console.log(error);
+      };
+    </script>
+  </body>
+</html>
+

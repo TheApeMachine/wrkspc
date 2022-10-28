@@ -6,6 +6,7 @@ replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.8.0
 
 require (
 	capnproto.org/go/capnp/v3 v3.0.0-alpha.7
+	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b
 	github.com/aws/aws-sdk-go-v2 v1.17.0
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.22
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.11.36
@@ -38,6 +39,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.25.3
 	k8s.io/apimachinery v0.25.3
 	k8s.io/client-go v0.25.3
+	nhooyr.io/websocket v1.8.7
 	sigs.k8s.io/kind v0.16.0
 )
 

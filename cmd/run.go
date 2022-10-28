@@ -84,6 +84,7 @@ var runCmd = &cobra.Command{
 		builder.ToLLB()
 
 		// kube.NewDeployment("gateway-service").Drop(client.KubeClient)
+		// kube.NewDeployment("lumiere-service").Drop(client.KubeClient)
 
 		// Send a message to the interrupt handler to stop the program.
 		stop <- struct{}{}
