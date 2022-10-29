@@ -30,7 +30,7 @@ func init() {
 	// (which is the compiled binary).
 	rootCmd.AddCommand(runCmd)
 	rootCmd.PersistentFlags().StringVarP(
-		&orchestrator, "orchestrator", "o", "nomad",
+		&orchestrator, "orchestrator", "o", "kubernetes",
 		"The orchestrator to use <nomad|kubernetes>.",
 	)
 }
@@ -83,8 +83,8 @@ var runCmd = &cobra.Command{
 
 		builder.ToLLB()
 
-		// kube.NewDeployment("gateway-service").Drop(client.KubeClient)
-		// kube.NewDeployment("lumiere-service").Drop(client.KubeClient)
+		client.Apply("gateway-service", "wrkspc", "services")
+		client.Apply("lumiere-service", "wrkspc", "services")
 
 		// Send a message to the interrupt handler to stop the program.
 		stop <- struct{}{}

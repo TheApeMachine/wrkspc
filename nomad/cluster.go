@@ -1,5 +1,6 @@
 package nomad
 
+/*
 import (
 	"errors"
 	"fmt"
@@ -73,3 +74,4 @@ func (cluster Cluster) exec(
 	errnie.Handles(err)
 	return exitCode
 }
+*/
