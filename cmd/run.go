@@ -6,19 +6,18 @@ import (
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/infra"
 	"github.com/theapemachine/wrkspc/kube"
-	"github.com/theapemachine/wrkspc/nomad"
 	"github.com/theapemachine/wrkspc/twoface"
 )
 
 var orchestrator string
 
 var orchestratorMap = map[string]func() infra.Cluster{
-	"nomad":      nomad.NewCluster,
+	// "nomad":      nomad.NewCluster,
 	"kubernetes": kube.NewCluster,
 }
 
 var clientMap = map[string]func() infra.Client{
-	"nomad":      nomad.NewClient,
+	// "nomad":      nomad.NewClient,
 	"kubernetes": kube.NewClient,
 }
 
