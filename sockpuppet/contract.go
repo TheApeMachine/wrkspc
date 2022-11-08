@@ -2,7 +2,6 @@ package sockpuppet
 
 import (
 	"fmt"
-	"math/big"
 
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/valyala/fasthttp"
@@ -13,7 +12,7 @@ Notary is an interface that manages data routing and validation
 from the FastHTTP server.
 */
 type Notary interface {
-	Validate(string, *fasthttp.RequestCtx) (*big.Int, error)
+	Validate(string, *fasthttp.RequestCtx) (int, string)
 }
 
 /*
@@ -43,14 +42,14 @@ func (contract *Contract) Up(port string) error {
 			// Call the Validate method on the Notary object, which
 			// manages the incoming request data and routes it to
 			// the smart contract logic.
-			code, err := contract.notary.Validate(string(ctx.Path()), ctx)
+			code, response := contract.notary.Validate(string(ctx.Path()), ctx)
 
 			// Set the response headers on the connection context.
 			ctx.SetContentType("appplication/json")
-			ctx.SetStatusCode(int(code.Int64()))
+			ctx.SetStatusCode(code)
 
 			// Write the response data back to the calling connection.
-			fmt.Fprint(ctx, err.Error())
+			fmt.Fprint(ctx, response)
 		},
 	)
 }
