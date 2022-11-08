@@ -20,6 +20,8 @@ var (
 	WARNING Op = writeLog("WARNING", "NORM", "warn")
 	// ERROR ...
 	ERROR Op = writeLog(" ERROR ", "HIGH", "fire")
+	// ERROR ...
+	INSPECT Op = writeLog("INSPECT", "HIGH", "fire")
 )
 
 func writeLog(t, c, i string) func() (string, string, string) {
@@ -34,6 +36,7 @@ func Handles(err error) Error {
 
 	if l, ok := ambctx.loggers[0], e.Type != NIL; ok {
 		l.Print(e.Error(), t, c, i)
+		ambctx.tracer.Inspect(true)
 	}
 
 	return e

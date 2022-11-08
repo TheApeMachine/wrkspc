@@ -56,6 +56,12 @@ var labelMap = map[string]func(string) string{
 	).Background(
 		lipgloss.Color("#FF0055"),
 	).Bold(true).Padding(0, 1).Render,
+
+	"INSPECT": lipgloss.NewStyle().Foreground(
+		lipgloss.Color("#EEEEEE"),
+	).Background(
+		lipgloss.Color("#FF0055"),
+	).Bold(true).Padding(0, 1).Render,
 }
 
 type Label struct {

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/theapemachine/wrkspc/tui"
 	"sigs.k8s.io/kind/pkg/log"
 )
@@ -27,6 +28,14 @@ func (logger Console) Print(l, t, c, i string) {
 		tui.NewIcon(i),
 		tui.NewColor(c, l).Print(),
 	)
+}
+
+func Inspects(args ...interface{}) {
+	t, c, i := INSPECT()
+
+	if l := ambctx.loggers[0]; l != nil {
+		l.Print(spew.Sdump(args), t, c, i)
+	}
 }
 
 func Informs(args ...interface{}) {

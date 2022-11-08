@@ -1,7 +1,9 @@
 package errnie
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"runtime"
 	"strconv"
 	"strings"
@@ -22,7 +24,7 @@ func Traces() {
 
 	// Handover from this conveniance function to the actual
 	// implementation method.
-	ambctx.tracer.Inspect()
+	ambctx.tracer.Inspect(false)
 }
 
 func Times(t time.Time) {
@@ -51,7 +53,7 @@ func NewTracer() Tracer {
 Inspect the current runtime environment and display the file, line number,
 and function call that the call to Traces was made from.
 */
-func (tracer Tracer) Inspect() {
+func (tracer Tracer) Inspect(snippet bool) {
 	// Collect stack data.
 	pc := make([]uintptr, 15)
 	n := runtime.Callers(3, pc)
@@ -76,6 +78,32 @@ func (tracer Tracer) Inspect() {
 		tui.NewColor("MUTE", "("+fnstr+")").Print(),
 		tui.NewColor("HIGH", strconv.Itoa(frame.Line)).Print(),
 	)
+
+	if snippet {
+		wd, _ := os.Getwd()
+		buf, _ := os.OpenFile(wd+"/"+fstr, os.O_RDONLY, os.ModeAppend.Perm())
+		scanner := bufio.NewScanner(buf)
+		lastLine := 0
+
+		var builder strings.Builder
+
+		for scanner.Scan() {
+			if lastLine >= frame.Line-5 && lastLine <= frame.Line+5 {
+				suffix := ""
+				if lastLine == frame.Line {
+					suffix = tui.NewIcon("explode")
+				}
+				builder.WriteString(
+					fmt.Sprintf("%d %s\n", lastLine, scanner.Text()+suffix),
+				)
+			}
+			lastLine++
+		}
+
+		fmt.Println(
+			tui.NewColor("DARK", builder.String()).Print(),
+		)
+	}
 }
 
 func timeTrack(start time.Time) {

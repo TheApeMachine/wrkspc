@@ -12,7 +12,7 @@ Notary is an interface that manages data routing and validation
 from the FastHTTP server.
 */
 type Notary interface {
-	Validate(string, *fasthttp.RequestCtx) (int, string)
+	Validate(*fasthttp.RequestCtx) (int, string)
 }
 
 /*
@@ -39,14 +39,18 @@ Up brings up the smart contract function.
 func (contract *Contract) Up(port string) error {
 	return fasthttp.ListenAndServe(
 		":"+port, func(ctx *fasthttp.RequestCtx) {
+			errnie.Debugs(string(ctx.Request.Body()))
+
 			// Call the Validate method on the Notary object, which
 			// manages the incoming request data and routes it to
 			// the smart contract logic.
-			code, response := contract.notary.Validate(string(ctx.Path()), ctx)
+			code, response := contract.notary.Validate(ctx)
 
 			// Set the response headers on the connection context.
 			ctx.SetContentType("appplication/json")
 			ctx.SetStatusCode(code)
+
+			errnie.Debugs(string(response))
 
 			// Write the response data back to the calling connection.
 			fmt.Fprint(ctx, response)
