@@ -4,7 +4,6 @@ import (
 	context "context"
 	"crypto/ecdsa"
 	"errors"
-	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -23,13 +22,16 @@ type EthClient struct {
 	endpoint string
 	token    string
 	auth     *bind.TransactOpts
-	err      errnie.Error
+	err      error
 }
 
 /*
 NewEthClient instantiates a pointer to an Ethclient instance.
 */
 func NewEthClient(endpoint, token string) *EthClient {
+	errnie.Traces()
+	errnie.Debugs(endpoint, token)
+
 	return &EthClient{
 		endpoint: endpoint,
 		token:    token,
@@ -40,17 +42,34 @@ func NewEthClient(endpoint, token string) *EthClient {
 Dial to the ethereum blockchain.
 */
 func (client *EthClient) Dial() *EthClient {
-	var err error
-	client.conn, err = ethclient.Dial(client.endpoint)
-	client.err = errnie.Handles(err)
-	client.auth, client.err = client.getAccountAuth(client.token)
+	errnie.Traces()
+
+	if client.conn, client.err = ethclient.Dial(client.endpoint); client.err != nil {
+		errnie.Handles(client.err)
+		return nil
+	}
+
+	if client.auth, client.err = client.getAccountAuth(client.token); client.err != nil {
+		errnie.Handles(client.err)
+		return nil
+	}
+
 	return client
+}
+
+/*
+Error implements the error interface and returns the latest error.
+*/
+func (client *EthClient) Error() error {
+	errnie.Traces()
+	return client.err
 }
 
 /*
 Conn returns the connection instance.
 */
 func (client *EthClient) Conn() bind.ContractBackend {
+	errnie.Traces()
 	return client.conn
 }
 
@@ -58,6 +77,7 @@ func (client *EthClient) Conn() bind.ContractBackend {
 Auth returns the authentication instance.
 */
 func (client *EthClient) Auth() *bind.TransactOpts {
+	errnie.Traces()
 	return client.auth
 }
 
@@ -67,11 +87,16 @@ getAccountAuth retrieves an authentication instance from a private key.
 func (client *EthClient) getAccountAuth(
 	privateKeyAddress string,
 ) (*bind.TransactOpts, errnie.Error) {
+	errnie.Traces()
 	privateKey, err := crypto.HexToECDSA(privateKeyAddress)
-	errnie.Handles(err)
+
+	if e := errnie.Handles(err); e.Type != errnie.NIL {
+		return &bind.TransactOpts{}, e
+	}
 
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	errnie.Debugs("publicKeyECDSA", publicKeyECDSA)
 
 	if !ok {
 		return &bind.TransactOpts{}, errnie.Handles(
@@ -80,19 +105,22 @@ func (client *EthClient) getAccountAuth(
 	}
 
 	var nonce uint64
-
 	if nonce, err = client.conn.PendingNonceAt(
 		context.Background(), crypto.PubkeyToAddress(*publicKeyECDSA),
 	); err != nil {
 		return &bind.TransactOpts{}, errnie.Handles(err)
 	}
 
-	fmt.Println("nounce=", nonce)
+	errnie.Debugs("nonce", nonce)
+
 	chainID, err := client.conn.ChainID(context.Background())
-	errnie.Handles(err)
+	if e := errnie.Handles(err); e.Type != errnie.NIL {
+		return &bind.TransactOpts{}, e
+	}
+
+	errnie.Debugs("chainID", nonce)
 
 	var auth *bind.TransactOpts
-
 	if auth, err = bind.NewKeyedTransactorWithChainID(
 		privateKey, chainID,
 	); err != nil {
@@ -104,5 +132,6 @@ func (client *EthClient) getAccountAuth(
 	auth.GasLimit = uint64(3000000)
 	auth.GasPrice = big.NewInt(1000000)
 
+	errnie.Debugs("auth", nonce)
 	return auth, errnie.Error{}
 }
