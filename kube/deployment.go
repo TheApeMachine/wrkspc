@@ -19,14 +19,14 @@ type Deployment struct {
 /*
 NewDeployment constructs the Deployment manifest.
 */
-func NewDeployment(name string) *Deployment {
+func NewDeployment(name, tag, cmd string, args ...string) *Deployment {
 	return &Deployment{
 		name: name,
 		manifest: &appsv1.Deployment{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: name,
 			},
-			Spec: NewDeploymentSpec(name),
+			Spec: NewDeploymentSpec(name, tag, cmd, args...),
 		},
 	}
 }

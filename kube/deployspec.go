@@ -7,7 +7,7 @@ import (
 
 func int32Ptr(i int32) *int32 { return &i }
 
-func NewDeploymentSpec(name string) appsv1.DeploymentSpec {
+func NewDeploymentSpec(name, tag, cmd string, args ...string) appsv1.DeploymentSpec {
 	return appsv1.DeploymentSpec{
 		Replicas: int32Ptr(1),
 		Selector: &metav1.LabelSelector{
@@ -15,6 +15,6 @@ func NewDeploymentSpec(name string) appsv1.DeploymentSpec {
 				"app": name,
 			},
 		},
-		Template: NewPodTemplateSpec(name),
+		Template: NewPodTemplateSpec(name, tag, cmd, args...),
 	}
 }

@@ -4,10 +4,11 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-func NewContainer(name string) apiv1.Container {
+func NewContainer(name, tag, cmd string, args ...string) apiv1.Container {
 	return apiv1.Container{
-		Name:  name,
-		Image: "theapemachine/name:release",
+		Name:    name,
+		Image:   tag,
+		Command: append([]string{"./wrkspc", cmd}, args...),
 		Ports: []apiv1.ContainerPort{
 			{
 				Name:          "http",
