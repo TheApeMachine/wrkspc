@@ -18,6 +18,7 @@ const (
 Error is a thin wrapper around Go errors.
 */
 type Error struct {
+	err  error
 	Msg  string
 	Type ErrorType
 }
@@ -27,14 +28,17 @@ NewError constructs a new errnie Error type.
 */
 func NewError(err error) Error {
 	if err == nil {
-		return Error{Type: NIL}
+		return Error{
+			err:  nil,
+			Type: NIL,
+		}
 	}
 
 	switch err.Error() {
 	case "":
-		return Error{Type: NIL}
+		return Error{err: nil, Type: NIL}
 	default:
-		return Error{Type: NOK, Msg: err.Error()}
+		return Error{err: err, Type: NOK, Msg: err.Error()}
 	}
 }
 

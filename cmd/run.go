@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"sync"
+
 	"github.com/spf13/cobra"
-	"github.com/theapemachine/wrkspc/docker"
+	"github.com/spf13/viper"
+	"github.com/theapemachine/wrkspc/container"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/infra"
 	"github.com/theapemachine/wrkspc/kube"
@@ -51,6 +54,9 @@ var runCmd = &cobra.Command{
 		signals := twoface.NewSignal()
 		stop := signals.Run()
 
+		// Start the ContainerD daemon.
+		container.NewDaemon().Run()
+
 		// Get a handle on a new cluster object.
 		cluster := orchestratorMap[orchestrator]()
 
@@ -74,10 +80,33 @@ var runCmd = &cobra.Command{
 		// client.Apply("minio", "minio", "minio")
 		client.Apply("harbor", "harbor", "harbor")
 
-		docker.NewBuilder("wrkgrp", "wrkspc", "test").Build()
+		// Get a WaitGroup going so we can wait until all the
+		// container image builds are done.
+		var wg sync.WaitGroup
 
-		client.Apply("gateway-service", "wrkspc", "services")
-		client.Apply("lumiere-service", "wrkspc", "services")
+		// Build a new container image for the services.
+		for _, service := range viper.GetStringSlice("wrkspc.services") {
+			wg.Add(1)
+
+			// Start a concurrent process for the container build.
+			go func(service string, wg *sync.WaitGroup) {
+				// Once the goroutine returns, reduce the WaitGroup
+				// by one, so we don't keep infiniately waiting.
+				defer wg.Done()
+
+				// Get a new container builder going, passing in the
+				// correct command to run wrkspc as a service.
+				container.NewBuilder(&container.BuildOptions{
+					Vendor: "wrkgrp",
+					Name:   "wrkspc",
+					Tag:    viper.GetString("wrkspc.version"),
+					Cmd:    "serve --service " + service,
+				})
+			}(service, &wg)
+		}
+
+		// Wait for the container builds to be done.
+		wg.Wait()
 
 		// Send a message to the interrupt handler to stop the program.
 		stop <- struct{}{}

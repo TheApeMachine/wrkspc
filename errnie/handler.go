@@ -35,7 +35,7 @@ func Handles(err error) Error {
 	e := NewError(err)
 
 	if l, ok := ambctx.loggers[0], e.Type != NIL; ok {
-		l.Print(e.Error(), t, c, i)
+		l.Print(e.Msg, t, c, i)
 		ambctx.tracer.Inspect(true)
 	}
 

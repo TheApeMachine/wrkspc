@@ -44,7 +44,7 @@ func (cluster Cluster) Provision() errnie.Error {
 	// Start a new KIND (Kubernetes In Docker) cluster for a local setup.
 	// I have implemented the kind/pkg/log/types interfaces in errnie, so we
 	// can keep a consistent terminal log experience.
-	return errnie.Handles(app.Run(
+	return errnie.NewError(app.Run(
 		errnie.GetErrnie(), cmd.StandardIOStreams(), []string{
 			"create",
 			"cluster",
@@ -58,7 +58,7 @@ func (cluster Cluster) Provision() errnie.Error {
 Teardown brings everything back down.
 */
 func (cluster Cluster) Teardown() errnie.Error {
-	return errnie.Handles(app.Run(
+	return errnie.NewError(app.Run(
 		errnie.GetErrnie(), cmd.StandardIOStreams(), []string{
 			"delete",
 			"cluster",
