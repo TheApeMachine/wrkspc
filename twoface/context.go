@@ -48,3 +48,7 @@ func (ctx *Context) Write(key stringKey, value any) {
 func (ctx *Context) Value(key any) any {
 	return ctx.ctx.Value(key)
 }
+
+func (ctx *Context) Handle() context.Context {
+	return ctx.ctx
+}

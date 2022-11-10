@@ -74,13 +74,7 @@ var runCmd = &cobra.Command{
 		// client.Apply("minio", "minio", "minio")
 		client.Apply("harbor", "harbor", "harbor")
 
-		builder := docker.NewBuilder(
-			"wrkgrp",
-			"wrkspc",
-			"test",
-		)
-
-		builder.ToLLB()
+		docker.NewBuilder("wrkgrp", "wrkspc", "test").Build()
 
 		client.Apply("gateway-service", "wrkspc", "services")
 		client.Apply("lumiere-service", "wrkspc", "services")

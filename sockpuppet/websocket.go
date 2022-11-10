@@ -2,7 +2,6 @@ package sockpuppet
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
@@ -12,6 +11,8 @@ import (
 )
 
 type WebSocket struct {
+	err     error
+	conn    *websocket.Conn
 	manager Manager
 }
 
@@ -30,18 +31,17 @@ func (socket *WebSocket) Handle(
 ) {
 	errnie.Traces()
 
-	c, err := websocket.Accept(w, r, nil)
-	errnie.Handles(err)
+	socket.conn, socket.err = websocket.Accept(w, r, nil)
+	errnie.Handles(socket.err)
 
-	defer c.Close(websocket.StatusInternalError, err.Error())
+	defer socket.conn.Close(websocket.StatusInternalError, socket.err.Error())
 
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
 	defer cancel()
 
 	var v interface{}
-	errnie.Handles(wsjson.Read(ctx, c, &v))
+	errnie.Handles(wsjson.Read(ctx, socket.conn, &v))
+	errnie.Logs("ws rx:", v)
 
-	log.Printf("received: %v", v)
-
-	c.Close(websocket.StatusNormalClosure, "")
+	socket.conn.Close(websocket.StatusNormalClosure, "")
 }
