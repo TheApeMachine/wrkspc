@@ -1,8 +1,6 @@
 package datura
 
 import (
-	"io"
-
 	iradix "github.com/hashicorp/go-immutable-radix"
 )
 
@@ -12,16 +10,14 @@ over the network, where needed.
 */
 type Forest struct {
 	trees []*iradix.Tree
-	pipes []io.ReadWriter
 }
 
 /*
 NewForest returns a constructed replicated in-memory radix tree that
 is highly available.
 */
-func NewForest(trees []*iradix.Tree, pipes []io.ReadWriter) *Forest {
+func NewForest(trees []*iradix.Tree) *Forest {
 	return &Forest{
 		trees: trees,
-		pipes: pipes,
 	}
 }
