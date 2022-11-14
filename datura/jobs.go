@@ -2,8 +2,6 @@ package datura
 
 import (
 	"bytes"
-	"context"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -17,52 +15,50 @@ type DownloadJob struct {
 	bucket     *string
 	downloader *manager.Downloader
 	key        string
-	out        []byte
+	ctx        twoface.Context
+	p          []byte
 }
 
-func (job DownloadJob) Do() {
+func (job DownloadJob) Do() errnie.Error {
 	errnie.Traces()
 
 	buf := manager.NewWriteAtBuffer([]byte{})
 
 	_, err := job.downloader.Download(
-		context.Background(), buf, &s3.GetObjectInput{
+		job.ctx.Get(), buf, &s3.GetObjectInput{
 			Bucket: job.bucket,
 			Key:    &job.key,
 		},
 	)
 
-	errnie.Handles(err)
-	job.out = make([]byte, len(buf.Bytes()))
-	job.out = buf.Bytes()
+	if e := errnie.Handles(err); e.Type == errnie.NIL {
+		return e
+	}
+
+	job.p = append(job.p, buf.Bytes()...)
+	return errnie.NewError(nil)
 }
 
 type UploadJob struct {
 	p        []byte
 	bucket   *string
 	uploader *manager.Uploader
-	ctx      *twoface.Context
-	delay    int64
+	ctx      twoface.Context
 }
 
-func (job UploadJob) Do() {
+func (job UploadJob) Do() errnie.Error {
 	errnie.Traces()
 
 	buf := bytes.NewBuffer(job.p)
-
 	dg := spd.Unmarshal(job.p)
 
 	_, err := job.uploader.Upload(
-		job.ctx, &s3.PutObjectInput{
+		job.ctx.Get(), &s3.PutObjectInput{
 			Bucket: job.bucket,
 			Key:    aws.String(dg.Prefix()),
 			Body:   buf,
 		},
 	)
 
-	if err != nil {
-		job.delay += 5
-		time.Sleep(time.Duration(job.delay))
-		job.Do()
-	}
+	return errnie.Handles(err)
 }

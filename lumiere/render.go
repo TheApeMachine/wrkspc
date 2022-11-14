@@ -9,14 +9,14 @@ import (
 Render is a presentable UI widget projected as an SVG.
 */
 type Render struct {
-	ctx  *twoface.Context
+	ctx  twoface.Context
 	pool *twoface.Pool
 }
 
 /*
 NewRender instantiates a projectable SVG UI widget.
 */
-func NewRender(ctx *twoface.Context) *Render {
+func NewRender(ctx twoface.Context) *Render {
 	errnie.Traces()
 
 	pool := twoface.NewPool(ctx)

@@ -41,3 +41,17 @@ wrkspc:
     local: false
     debug: true
     trace: true
+
+  architectures:
+    ingress:
+      networking:
+        directions:
+          - incoming
+        connections:
+          - http
+          - websocket
+          - capnproto
+      stores:
+        - radix
+        - minio
+        - s3

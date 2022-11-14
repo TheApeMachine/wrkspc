@@ -13,7 +13,7 @@ the internal service layers. It should be sufficient for most
 use-cases.
 */
 type Manager struct {
-	ctx    *twoface.Context
+	ctx    twoface.Context
 	pool   *twoface.Pool
 	stores []Store
 }
@@ -25,7 +25,7 @@ meaning that managers are chainable.
 */
 func NewManager(stores ...Store) *Manager {
 	errnie.Traces()
-	ctx := twoface.NewContext()
+	ctx := twoface.NewContext(nil)
 
 	return &Manager{
 		ctx:    ctx,
@@ -49,11 +49,14 @@ func (manager *Manager) Read(p []byte) (n int, err error) {
 		wg.Add(1)
 		wgs = append(wgs, &wg)
 
-		manager.pool.Do(ReadJob{
-			store: store,
-			p:     p,
-			wg:    wgs[idx],
-		})
+		manager.pool.Do(twoface.NewRetriableJob(
+			manager.ctx,
+			ReadJob{
+				store: store,
+				p:     p,
+				wg:    wgs[idx],
+			},
+		))
 	}
 
 	p = nil

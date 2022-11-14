@@ -18,7 +18,6 @@ communicate with the ethereum blockchain.
 */
 type EthClient struct {
 	conn     *ethclient.Client
-	data     bind.ContractBackend
 	endpoint string
 	token    string
 	auth     *bind.TransactOpts

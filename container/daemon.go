@@ -29,7 +29,14 @@ func NewDaemon() *Daemon {
 Run the Daemon instance and start a ContainerD process.
 */
 func (daemon *Daemon) Run() *Daemon {
-	daemon.err = errnie.Handles(daemon.app.Run([]string{"run"}))
+	errnie.Traces()
+
+	// We don't want the daemon to block, so let's start it
+	// inside a goroutine.
+	go func() {
+		daemon.err = errnie.Handles(daemon.app.Run([]string{"run"}))
+	}()
+
 	return daemon
 }
 

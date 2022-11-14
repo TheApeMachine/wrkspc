@@ -18,22 +18,22 @@ worker pool, which keeps the amount of goroutines in check, while still being
 able to benefit from high concurrency in all kinds of scenarios.
 */
 type Pool struct {
-	disposer *Context
-	workers  chan chan Job
-	jobs     chan Job
-	handles  []*Worker
+	ctx     Context
+	workers chan chan Job
+	jobs    chan Job
+	handles []*Worker
 }
 
 /*
 NewPool instantiates a worker pool with bound size of maxWorkers, taking in a
 Context type to be able to cleanly cancel all of the sub processes it starts.
 */
-func NewPool(disposer *Context) *Pool {
+func NewPool(ctx Context) *Pool {
 	return &Pool{
-		disposer: disposer,
-		workers:  make(chan chan Job),
-		jobs:     make(chan Job),
-		handles:  make([]*Worker, 0),
+		ctx:     ctx,
+		workers: make(chan chan Job),
+		jobs:    make(chan Job),
+		handles: make([]*Worker, 0),
 	}
 }
 
@@ -91,8 +91,8 @@ func (pool *Pool) dispatch() {
 			jobChannel := <-pool.workers
 			// Then send the job to the worker for processing.
 			jobChannel <- job
-		case <-pool.disposer.Done():
-			// The disposer was triggered, clean up, and bail out.
+		case <-pool.ctx.TTL():
+			// Time to die.
 			for _, worker := range pool.handles {
 				worker.Drain()
 			}

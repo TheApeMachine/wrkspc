@@ -40,7 +40,7 @@ func (sig Signal) Run() chan struct{} {
 		<-c
 
 		for _, ctx := range sig.ctxs {
-			ctx.cancel()
+			ctx.Cancel()
 			errnie.Logs("context cancelled").With(errnie.INFO)
 		}
 

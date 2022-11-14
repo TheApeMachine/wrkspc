@@ -30,7 +30,7 @@ const (
 )
 
 type S3 struct {
-	ctx        *twoface.Context
+	ctx        twoface.Context
 	client     *s3.Client
 	region     string
 	bucket     *string
@@ -87,11 +87,7 @@ func NewS3() *S3 {
 		})
 	})
 
-	ctx := twoface.NewContext()
-
-	// Start a new worker pool to perform operations concurrently.
-	pool := twoface.NewPool(ctx)
-	pool.Run()
+	ctx := twoface.NewContext(nil)
 
 	return &S3{
 		ctx:        ctx,
@@ -100,7 +96,7 @@ func NewS3() *S3 {
 		bucket:     &bucket,
 		downloader: manager.NewDownloader(conn),
 		uploader:   manager.NewUploader(conn),
-		pool:       pool,
+		pool:       twoface.NewPool(ctx).Run(),
 	}
 }
 
@@ -121,22 +117,16 @@ func (store *S3) Read(p []byte) (n int, err error) {
 	dg := spd.Unmarshal(p)
 
 	filtered := store.Filter(store.List(spd.Payload(dg)))
-	jobs := make([]DownloadJob, len(filtered))
+	ctx := twoface.NewContext(nil)
 
-	for idx, key := range filtered {
-		jobs[idx] = DownloadJob{
-			bucket:     store.bucket,
-			downloader: store.downloader,
-			key:        key,
-		}
-
-		store.pool.Do(jobs[idx])
-	}
-
-	p = nil
-
-	for _, job := range jobs {
-		p = append(p, job.out...)
+	for _, key := range filtered {
+		store.pool.Do(twoface.NewRetriableJob(
+			ctx, DownloadJob{
+				key: key,
+				ctx: ctx,
+				p:   p,
+			},
+		))
 	}
 
 	return len(p), err
@@ -148,12 +138,12 @@ Write implements the io.Writer interface.
 func (store *S3) Write(p []byte) (n int, err error) {
 	errnie.Traces()
 
-	store.pool.Do(UploadJob{
-		p:        p,
-		bucket:   store.bucket,
-		uploader: store.uploader,
-		ctx:      store.ctx,
-	})
+	ctx := twoface.NewContext(nil)
+	ctx.Write(p)
+
+	store.pool.Do(twoface.NewRetriableJob(
+		ctx, UploadJob{},
+	))
 
 	return len(p), err
 }

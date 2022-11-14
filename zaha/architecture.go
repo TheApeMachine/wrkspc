@@ -2,41 +2,40 @@ package zaha
 
 import (
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/ford"
 	"github.com/theapemachine/wrkspc/passepartout"
-	"github.com/theapemachine/wrkspc/sockpuppet"
-	"github.com/theapemachine/wrkspc/twoface"
 )
 
-var services = map[string]sockpuppet.Conn{
-	"gateway": sockpuppet.NewHTTP(passepartout.NewRouter()),
-	"lumiere": sockpuppet.NewWebsocket(passepartout.NewHub(twoface.NewContext())),
-}
-
-/*
-Architecture is a generic structure with which to define a service.
-It needs some form of connection object, some data store, and one
-or more jobs to be able to provide a network endpoint that moves
-data upon request.
-*/
 type Architecture struct {
-	service string
+	name    string
+	network *Network
+	stores  []passepartout.Store
 }
 
-/*
-NewArchitecture constructs a service. This should be done using a
-self-contained CLI command in the ./cmd folder so that this project
-can be specifically run as that service using a container.
-*/
-func NewArchitecture(service string) *Architecture {
-	errnie.Traces()
-	return &Architecture{service: service}
+func NewArchitecture(
+	name string, network *Network, stores []passepartout.Store,
+) *Architecture {
+	return &Architecture{
+		name:    name,
+		network: network,
+		stores:  stores,
+	}
 }
 
-/*
-Build the architecture so that it is ready to be served using the serve
-cli command. This allows the binary to be deployed as many services.
-*/
-func (architecture *Architecture) Build() sockpuppet.Conn {
-	errnie.Traces()
-	return services[architecture.service]
+func (architecture *Architecture) Run(
+	workspace ford.Workspace,
+) errnie.Error {
+	return workspace.Add(architecture)
+}
+
+func (architecture *Architecture) Do() errnie.Error {
+	return errnie.NewError(nil)
+}
+
+func (architecture *Architecture) Read(p []byte) (n int, err error) {
+	return
+}
+
+func (architecture *Architecture) Write(p []byte) (n int, err error) {
+	return
 }

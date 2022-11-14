@@ -25,7 +25,6 @@ including KIND (Kubernetes In Docker) for local setups, and remote clusters
 when interfacing with staging/QA/Production environments.
 */
 type Cluster struct {
-	clusterType   ClusterType
 	IsProvisioned bool
 }
 

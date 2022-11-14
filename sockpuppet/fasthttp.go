@@ -21,13 +21,13 @@ FastHTTPClient is a much faster implementation compared to the standard
 library one, at the cost of not being 100% compliant.
 */
 type FastHTTPClient struct {
-	ctx  *twoface.Context
+	ctx  twoface.Context
 	pool *twoface.Pool
 	conn *fasthttp.Client
 }
 
 func NewFastHTTPClient() *FastHTTPClient {
-	ctx := twoface.NewContext()
+	ctx := twoface.NewContext(nil)
 
 	readTimeout, _ := time.ParseDuration("500ms")
 	writeTimeout, _ := time.ParseDuration("500ms")
@@ -65,7 +65,7 @@ type HTTPJob struct {
 Do implements the Job interface, which enables the HTTP request to
 be scheduled onto a worker pool.
 */
-func (job *HTTPJob) Do() {
+func (job *HTTPJob) Do() errnie.Error {
 	defer job.wg.Done()
 
 	dg := spd.Unmarshal(job.p)
@@ -82,12 +82,15 @@ func (job *HTTPJob) Do() {
 	req.Header.SetMethod(fasthttp.MethodGet)
 
 	resp := fasthttp.AcquireResponse()
-	errnie.Handles(hc.Do(req, resp))
+	if e := errnie.Handles(hc.Do(req, resp)); e.Type != errnie.NIL {
+		return e
+	}
 
 	fasthttp.ReleaseRequest(req)
 	defer fasthttp.ReleaseResponse(resp)
 
 	job.p = resp.Body()
+	return errnie.NewError(nil)
 }
 
 /*

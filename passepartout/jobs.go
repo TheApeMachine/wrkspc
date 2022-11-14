@@ -39,10 +39,11 @@ type ReadJob struct {
 /*
 Do implements the twoface.Job interface.
 */
-func (job ReadJob) Do() {
+func (job ReadJob) Do() errnie.Error {
 	errnie.Traces()
 	defer job.wg.Done()
 	job.store.Read(job.p)
+	return errnie.NewError(nil)
 }
 
 /*
@@ -57,7 +58,8 @@ type ManagerWriteJob struct {
 /*
 Do implements the twoface.Job interface.
 */
-func (job ManagerWriteJob) Do() {
+func (job ManagerWriteJob) Do() errnie.Error {
 	errnie.Traces()
 	job.store.Write(job.p)
+	return errnie.NewError(nil)
 }

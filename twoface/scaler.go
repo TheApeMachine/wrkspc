@@ -55,7 +55,7 @@ func (scaler *Scaler) Run() {
 	go func() {
 		for {
 			select {
-			case <-scaler.pool.disposer.Done():
+			case <-scaler.pool.ctx.TTL():
 				return
 			case <-ticker.C:
 				scaler.load()
@@ -158,7 +158,7 @@ func (scaler *Scaler) Grow() {
 			// disposer so we have granular control over the workers and we could
 			// potentially dynamically resize the scaler later.
 			scaler.pool.handles = append(scaler.pool.handles, NewWorker(
-				len(scaler.pool.handles), scaler.pool.workers, *NewContext(),
+				len(scaler.pool.handles), scaler.pool.workers, NewContext(nil),
 			).Start())
 		}
 	}

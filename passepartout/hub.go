@@ -6,11 +6,11 @@ import (
 )
 
 type Hub struct {
-	ctx  *twoface.Context
+	ctx  twoface.Context
 	pool *twoface.Pool
 }
 
-func NewHub(ctx *twoface.Context) *Hub {
+func NewHub(ctx twoface.Context) *Hub {
 	errnie.Traces()
 
 	return &Hub{

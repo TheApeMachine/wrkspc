@@ -24,7 +24,7 @@ type FilterJob struct {
 /*
 Do implements the twoface.Job interface.
 */
-func (job FilterJob) Do() {
+func (job FilterJob) Do() errnie.Error {
 	errnie.Traces()
 	defer job.wg.Done()
 
@@ -64,6 +64,8 @@ func (job FilterJob) Do() {
 			}
 		}
 	}
+
+	return errnie.NewError(nil)
 }
 
 /*

@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	iradix "github.com/hashicorp/go-immutable-radix"
+	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/twoface"
 )
@@ -22,7 +23,7 @@ type Radix struct {
 }
 
 func NewRadix() *Radix {
-	pool := twoface.NewPool(twoface.NewContext())
+	pool := twoface.NewPool(twoface.NewContext(nil))
 	pool.Run()
 
 	if treeCache == nil {
@@ -44,7 +45,7 @@ type readJob struct {
 	wg *sync.WaitGroup
 }
 
-func (job readJob) Do() {
+func (job readJob) Do() errnie.Error {
 	defer job.wg.Done()
 
 	it := treeCache.Root().Iterator()
@@ -58,6 +59,8 @@ func (job readJob) Do() {
 		buf.Truncate(0)
 		bytes.NewBuffer(blob.([]byte)).WriteTo(buf)
 	}
+
+	return errnie.NewError(nil)
 }
 
 func (store *Radix) Read(p []byte) (n int, err error) {
@@ -79,7 +82,7 @@ type writeJob struct {
 	wg *sync.WaitGroup
 }
 
-func (job writeJob) Do() {
+func (job writeJob) Do() errnie.Error {
 	defer job.wg.Done()
 	prefix := spd.Unmarshal(job.p).Prefix()
 
@@ -100,6 +103,8 @@ func (job writeJob) Do() {
 		}
 		treeCache, _, _ = treeCache.Insert(buf.Bytes(), job.p)
 	}
+
+	return errnie.NewError(nil)
 }
 
 func (store *Radix) Write(p []byte) (n int, err error) {

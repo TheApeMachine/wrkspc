@@ -15,14 +15,14 @@ import (
 Router builds dynamic pathways to data.
 */
 type Router struct {
-	ctx    *twoface.Context
+	ctx    twoface.Context
 	pool   *twoface.Pool
 	routes *sync.Map
 }
 
 func NewRouter() *Router {
 	errnie.Traces()
-	ctx := twoface.NewContext()
+	ctx := twoface.NewContext(nil)
 
 	return &Router{
 		ctx:    ctx,

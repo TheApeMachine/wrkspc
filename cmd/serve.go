@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/passepartout"
 	"github.com/theapemachine/wrkspc/zaha"
 )
 
@@ -40,8 +41,12 @@ var serveCmd = &cobra.Command{
 		errnie.Tracing(true)
 		errnie.Debugging(true)
 
-		architecture := zaha.NewArchitecture(service)
-		return architecture.Build().Up(port)
+		architecture := zaha.NewArchitecture(
+			service,
+			zaha.NewNetwork(nil, nil),
+			[]passepartout.Store{},
+		)
+		return architecture.Do()
 	},
 }
 
