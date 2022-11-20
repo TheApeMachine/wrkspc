@@ -7,20 +7,22 @@ import (
 )
 
 func main() {
+	// Start a connection to a Pyroscope server and
+	// collect metrics on the performance of wrkspc.
 	pyroscope.Start(pyroscope.Config{
 		ApplicationName: "theapemachine.wrkspc.app",
 		ServerAddress:   "http://localhost:4040",
 		Logger:          nil,
 
 		ProfileTypes: []pyroscope.ProfileType{
-			// these profile types are enabled by default:
+			// These profile types are enabled by default.
 			pyroscope.ProfileCPU,
 			pyroscope.ProfileAllocObjects,
 			pyroscope.ProfileAllocSpace,
 			pyroscope.ProfileInuseObjects,
 			pyroscope.ProfileInuseSpace,
 
-			// these profile types are optional:
+			// These profile types are optional.
 			pyroscope.ProfileGoroutines,
 			pyroscope.ProfileMutexCount,
 			pyroscope.ProfileMutexDuration,
@@ -29,5 +31,6 @@ func main() {
 		},
 	})
 
-	errnie.Handles(cmd.Execute())
+	// Entrypoint to the CLI handling.
+	errnie.Kills(cmd.Execute())
 }

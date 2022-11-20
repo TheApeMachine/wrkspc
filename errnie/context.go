@@ -1,49 +1,65 @@
 package errnie
 
 import (
-	"fmt"
+	"os"
 )
 
-var ambctx AmbientContext
+var ctx *Context
 
 func init() {
-	fmt.Println("errnie.init")
-	ambctx = New()
+	ctx = New()
 }
 
-/*
-AmbientContext holds the handles to the objects exposed by errnie
-as well as the data representing the current state.
-*/
-type AmbientContext struct {
-	Status
-	errors    []Error
+type Context struct {
+	tracing   bool
+	debugging bool
 	loggers   []Logger
-	tracer    Tracer
-	Tracing   bool
-	Debugging bool
 }
 
-/*
-New instantiates the AmbientContext so we can globally use errnie.
-*/
-func New() AmbientContext {
-	fmt.Println("errnie.New")
-	return AmbientContext{
-		errors:  make([]Error, 0),
-		loggers: []Logger{NewConsole()},
-		tracer:  NewTracer(),
+func New() *Context {
+	return &Context{
+		loggers: []Logger{NewConsoleLogger()},
 	}
 }
 
-func GetErrnie() Logger {
-	return ambctx.loggers[0]
+func Tracing(value bool) {
+	ctx.tracing = value
 }
 
-func Tracing(set bool) {
-	ambctx.Tracing = set
+func Debugging(value bool) {
+	ctx.debugging = value
 }
 
-func Debugging(set bool) {
-	ambctx.Debugging = set
+func Informs(msgs ...any) {
+	sendOut(msgs...)
+}
+
+func Debugs(msgs ...any) {
+	sendOut(msgs...)
+}
+
+func Handles(err error) *Error {
+	if err == nil {
+		return nil
+	}
+
+	out := NewError((err))
+	sendOut(out)
+
+	return out
+}
+
+func Kills(err error) {
+	if err == nil {
+		return
+	}
+
+	sendOut(err)
+	os.Exit(1)
+}
+
+func sendOut(msgs ...any) {
+	for _, logger := range ctx.loggers {
+		logger.Debug(msgs...)
+	}
 }

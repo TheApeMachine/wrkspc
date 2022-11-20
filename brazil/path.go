@@ -1,98 +1,52 @@
 package brazil
 
 import (
-	"io/fs"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
-/*
-HomePath does its best to give the caller back the actual home path of the
-current user, no matter which OS or environment they are on.
-*/
-func HomePath() string {
-	home, err := os.UserHomeDir()
+type Path struct {
+	Location string
+	err      *errnie.Error
+}
 
-	if e := errnie.Handles(err); e.Type != errnie.NIL {
-		return ""
+func NewPath(segments ...string) *Path {
+	path := &Path{}
+	path.Location = path.toPrefix(segments...)
+	return path
+}
+
+func (path *Path) toPrefix(segments ...string) string {
+	var out string
+	var err error
+
+	switch segments[0] {
+	case "~":
+		out, err = os.UserHomeDir()
+	case ".":
+		out, err = os.Getwd()
+	default:
+		out = strings.Join(segments, "/")
+		path.makePath(out)
 	}
 
-	return BuildPath(home)
-}
-
-/*
-CleanPaths removed all paths that were created during `wrkspc` usage.
-*/
-func CleanPaths() {
-	errnie.Handles(
-		os.RemoveAll(BuildPath(HomePath(), ".wrkspc")),
-	)
-}
-
-/*
-Workdir returns the current path.
-*/
-func Workdir() string {
-	wd, err := os.Getwd()
-	errnie.Handles(err)
-	return wd
-}
-
-/*
-BuildPath joins single strings together into a slash delimited path.
-*/
-func BuildPath(frags ...string) string {
-	return filepath.FromSlash(strings.Join(frags, "/"))
-}
-
-/*
-GetFileFromPrefix extracts the filename from a path.
-*/
-func GetFileFromPrefix(prefix string) string {
-	frags := strings.Split(prefix, "/")
-	return frags[len(frags)-1]
-}
-
-func GeneratePath(prefix string) chan string {
-	out := make(chan string)
-
-	go func() {
-		defer close(out)
-
-		filepath.Walk(
-			prefix, func(p string, info os.FileInfo, err error) error {
-				if !info.IsDir() {
-					out <- p
-				}
-
-				return err
-			},
-		)
-	}()
+	if errnie.Handles(err) != nil {
+		path.err = errnie.NewError(err)
+		return ""
+	}
 
 	return out
 }
 
-/*
-ReadPath returns everything in path.
-*/
-func ReadPath(path string) []fs.DirEntry {
-	files, err := os.ReadDir(path)
-	errnie.Handles(err)
-	return files
-}
+func (path *Path) makePath(prefix string) {
+	_, err := os.Stat(prefix)
 
-/*
-MakePath creates a new (nested) path.
-*/
-func MakePath(path string) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return
+	if errnie.Handles(err) != nil {
+		path.err = errnie.NewError(err)
+		errnie.Handles(os.MkdirAll(prefix, os.ModePerm))
+		errnie.Informs("created new path at", prefix)
 	}
 
-	errnie.Handles(os.MkdirAll(path, os.ModePerm))
 }

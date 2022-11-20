@@ -1,13 +1,17 @@
 package cmd
 
 import (
+	"bytes"
 	"embed"
+	"io"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/tweaker"
 )
 
 /*
@@ -35,6 +39,14 @@ other tooling dynamically from configures registries and repositories.
 `
 
 func Execute() error {
+	errnie.Trace()
+
+	rootCmd.PersistentFlags().StringVarP(
+		&orchestrator, "orchestrator", "o", "kubernetes",
+		"The orchestrator to use <nomad|kubernetes>.",
+	)
+
+	rootCmd.AddCommand(runCmd)
 	return rootCmd.Execute()
 }
 
@@ -59,17 +71,34 @@ initConfig does the embedded config stuff and sets the entire program up for Vip
 based config, which uses the embedded yaml config file a lot.
 */
 func initConfig() {
-	home := brazil.HomePath()
-	brazil.WriteIfNotExists(brazil.BuildPath(home, cfgFile), embedded, false)
+	// Set verbosity level for errnie.
+	errnie.Tracing(tweaker.GetBool("errnie.trace"))
+	errnie.Debugging(tweaker.GetBool("errnie.debug"))
+
+	errnie.Trace()
+
+	// Get the config file from the user home path.
+	chunks := strings.Split(cfgFile, "/")
+	fh, err := embedded.Open("cfg/" + chunks[len(chunks)-1])
+
+	errnie.Handles(err)
+	defer fh.Close()
+
+	buf, err := io.ReadAll(fh)
+	errnie.Handles(err)
+
+	home := brazil.NewPath("~").Location
+	brazil.NewFile(home, cfgFile, bytes.NewBuffer(buf))
 
 	viper.AddConfigPath(home)
 	viper.SetConfigType("yml")
-	viper.SetConfigName(".wrkspc")
+	viper.SetConfigName(cfgFile)
 	viper.AutomaticEnv()
 	viper.ReadInConfig()
 
 	// The method errnie is wrapping here writes the markdown documentation for
 	// the command line interface, which is automatically generated.
+	brazil.NewPath(brazil.NewPath(".").Location, "docs")
 	errnie.Handles(
 		doc.GenMarkdownTree(rootCmd, "./docs/"),
 	)

@@ -1,47 +1,38 @@
 package errnie
 
-/*
-ErrorType adds a stronger context to Go error types.
-*/
+import "strings"
+
 type ErrorType uint
 
 const (
-	// NIL represents the empty value for an error.
 	NIL ErrorType = iota
-	// NOK represents a Not OK state.
-	NOK
-	// TEST represents a test context which should be ignored.
-	TEST
+	UNK
 )
 
-/*
-Error is a thin wrapper around Go errors.
-*/
 type Error struct {
-	err  error
-	Msg  string
+	error
 	Type ErrorType
+	Msg  string
+	err  error
 }
 
-/*
-NewError constructs a new errnie Error type.
-*/
-func NewError(err error) Error {
-	if err == nil {
-		return Error{
-			err:  nil,
-			Type: NIL,
-		}
-	}
-
-	switch err.Error() {
-	case "":
-		return Error{err: nil, Type: NIL}
-	default:
-		return Error{err: err, Type: NOK, Msg: err.Error()}
+func NewError(err error) *Error {
+	return &Error{
+		Type: getType(err),
+		Msg:  err.Error(),
+		err:  err,
 	}
 }
 
-func (err Error) Error() string {
+func (err *Error) Error() string {
 	return err.Msg
+}
+
+func getType(err error) ErrorType {
+	switch strings.Split(err.Error(), " ")[0] {
+	case "":
+		return NIL
+	default:
+		return UNK
+	}
 }

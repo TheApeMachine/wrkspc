@@ -5,6 +5,11 @@ wrkspc:
 
   stages:
     development:
+      errnie:
+        local: false
+        debug: true
+        trace: true
+
       server:
         port: "1984"
 
@@ -16,6 +21,11 @@ wrkspc:
         endpoint: "http://127.0.0.1:9000"
 
     test:
+      errnie:
+        local: false
+        debug: true
+        trace: true
+
       server:
         port: "1984"
 
@@ -27,6 +37,11 @@ wrkspc:
         endpoint: "http://127.0.0.1:9000"
 
     production:
+      errnie:
+        local: false
+        debug: false
+        trace: false
+
       server:
         port: "1984"
 
@@ -37,10 +52,6 @@ wrkspc:
         bucket: wrkspc
         endpoint: "http://127.0.0.1:9000"
 
-  errnie:
-    local: false
-    debug: true
-    trace: true
 
   architectures:
     ingress:
