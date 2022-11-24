@@ -70,7 +70,7 @@ Run the workers, after creating and assigning them to the pool.
 */
 func (pool *Pool) Run() *Pool {
 	// Start the auto-scaler to control the pool size dynamically.
-	NewScaler(pool).Run()
+	// NewScaler(pool).Run()
 
 	// Start the job scheduling process.
 	go pool.dispatch()
@@ -93,8 +93,8 @@ func (pool *Pool) dispatch() {
 			jobChannel <- job
 		case <-pool.ctx.TTL():
 			// Time to die.
-			for _, worker := range pool.handles {
-				worker.Drain()
+			for _, _ = range pool.handles {
+				//worker.Close()
 			}
 
 			return

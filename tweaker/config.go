@@ -6,34 +6,62 @@ import (
 	"github.com/spf13/viper"
 )
 
+/*
+cfg enables tweaker to be an ambient context.
+*/
 var cfg *Config
 
+/*
+init instantiates the ambient context before any other code
+is executed.
+*/
 func init() {
 	cfg = New()
 }
 
+/*
+Config is the type that holds all data and bahavior for the
+ambient context.
+
+It wraps the viper package to provide a more convenient
+interface when dealing with multiple stages/environments.
+*/
 type Config struct {
 	v *viper.Viper
 }
 
+/*
+New is a constructor method that helps initialize the
+ambient context with its default values.
+*/
 func New() *Config {
 	return &Config{
 		v: viper.GetViper(),
 	}
 }
 
+/*
+program returns the value under the key with the same name
+from the configuration file.
+*/
 func (cfg *Config) program() string {
 	return cfg.v.GetString("program")
 }
 
+/*
+stage returns the value under the key with the same name
+from the configuration file.
+*/
 func (cfg *Config) stage() string {
 	return cfg.v.GetString(cfg.program() + ".stage")
 }
 
-func GetBool(key string) bool { return cfg.getBool(key) }
-
-func (cfg *Config) getBool(key string) bool {
-	return cfg.v.GetBool(strings.Join(
+/*
+withStage returns a key that drills down into the configuration
+file up until the actual stages blocks.
+*/
+func (cfg *Config) withStage(key string) string {
+	return strings.Join(
 		[]string{cfg.program(), "stages", cfg.stage(), key}, ".",
-	))
+	)
 }
