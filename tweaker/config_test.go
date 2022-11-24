@@ -11,11 +11,15 @@ import (
 type ConfigContext struct{}
 
 func NewConfigContext() *ConfigContext {
-	v := viper.New()
-	v.AddConfigPath("../cmd/cfg")
-	v.SetConfigType("yml")
-	v.SetConfigName(".wrkspc")
-	errnie.Handles(v.ReadInConfig())
+	// Instantiate viper manually since we are not going through the
+	// CLI while running tests.
+	viper.AddConfigPath("../cmd/cfg")
+	viper.SetConfigType("yml")
+	viper.SetConfigName(".wrkspc")
+	errnie.Handles(viper.ReadInConfig())
+
+	// Overwrite the stage to `test` so we are in the correct context.
+	viper.Set("wrkspc.stage", "test")
 
 	return &ConfigContext{}
 }
@@ -24,8 +28,6 @@ func TestNew(t *testing.T) {
 	NewConfigContext()
 
 	Convey("Given a new instance", t, func() {
-		cfg := New()
-
 		Convey("It should have an instance of viper", func() {
 			So(cfg.v, ShouldNotBeNil)
 		})
