@@ -1,17 +1,50 @@
 program: wrkspc
 
+# Configuration for the program.
 wrkspc:
+  # The current stage we are running the program under.
   stage: development
 
+  # Stage specific configuration values.
   stages:
+    # When stage is set to development, these values are used.
     development:
+      # Configures the way errnie behaves.
+      # Setting local to true will result in errnie logging its internal methods.
+      # Setting debug to true will result in errnie.Debugs(...) output.
+      # Setting trace to true will result in errnie.Trace() output.
       errnie:
         local: false
         debug: true
         trace: true
 
+      # Configuration values for the service.
       server:
         port: "1984"
+
+      # Configuration values for twoface.
+      twoface:
+        # Configuration values for worker pools.
+        pool:
+          # Set pool autoscaling value.
+          # Use workers: 0 on the next configuration value to get autoscaling that
+          # scales up from 0 and down to 0 when needed. Any other value for
+          # the workers setting will result in a "floor" of that value for the
+          # worker pool.
+          autoscaling: true
+          # Set the size of the worker pool (number of goroutines).
+          # Possible values:
+          #   - cores       (will use runtime.NumCPU())
+          #   - threads     (will use runtime.NumCPU() * 2)
+          #   - <n>         (where <n> is any integer)
+          #   - cores*<n>   (will use runtime.NumCPU() * <n>)
+          #   - threads*<n> (will use runtime.NumCPU() * <n>)
+          workers: threads
+          job:
+            # The buffer value to use for the job channel.
+            # This allows jobs to be queued and prevents job scheduling to be a
+            # blocking operation when all workers are busy.
+            buffer: 256
 
       s3:
         key: minioadmin
@@ -20,14 +53,45 @@ wrkspc:
         bucket: wrkspc
         endpoint: "http://127.0.0.1:9000"
 
+    # When stage is set to test, these values are used.
+    # NOTE: Running the tests will automatically set stage to this value.
     test:
+      # Configures the way errnie behaves.
+      # Setting local to true will result in errnie logging its internal methods.
+      # Setting debug to true will result in errnie.Debugs(...) output.
+      # Setting trace to true will result in errnie.Trace() output.
       errnie:
         local: false
         debug: true
         trace: true
 
+      # Configuration values for the service.
       server:
         port: "1984"
+
+      # Configuration values for twoface.
+      twoface:
+        # Configuration values for worker pools.
+        pool:
+          # Set pool autoscaling value.
+          # Use workers: 0 on the next configuration value to get autoscaling that
+          # scales up from 0 and down to 0 when needed. Any other value for
+          # the workers setting will result in a "floor" of that value for the
+          # worker pool.
+          autoscaling: true
+          # Set the size of the worker pool (number of goroutines).
+          # Possible values:
+          #   - cores       (will use runtime.NumCPU())
+          #   - threads     (will use runtime.NumCPU() * 2)
+          #   - <n>         (where <n> is any integer)
+          #   - cores*<n>   (will use runtime.NumCPU() * <n>)
+          #   - threads*<n> (will use runtime.NumCPU() * <n>)
+          workers: threads
+          job:
+            # The buffer value to use for the job channel.
+            # This allows jobs to be queued and prevents job scheduling to be a
+            # blocking operation when all workers are busy.
+            buffer: 256
 
       s3:
         key: minioadmin
@@ -36,14 +100,44 @@ wrkspc:
         bucket: wrkspc
         endpoint: "http://127.0.0.1:9000"
 
+    # When stage is set to production, these values are used.
     production:
+      # Configures the way errnie behaves.
+      # Setting local to true will result in errnie logging its internal methods.
+      # Setting debug to true will result in errnie.Debugs(...) output.
+      # Setting trace to true will result in errnie.Trace() output.
       errnie:
         local: false
         debug: false
         trace: false
 
+      # Configuration values for the service.
       server:
         port: "1984"
+
+      # Configuration values for twoface.
+      twoface:
+        # Configuration values for worker pools.
+        pool:
+          # Set pool autoscaling value.
+          # Use workers: 0 on the next configuration value to get autoscaling that
+          # scales up from 0 and down to 0 when needed. Any other value for
+          # the workers setting will result in a "floor" of that value for the
+          # worker pool.
+          autoscaling: true
+          # Set the size of the worker pool (number of goroutines).
+          # Possible values:
+          #   - cores       (will use runtime.NumCPU())
+          #   - threads     (will use runtime.NumCPU() * 2)
+          #   - <n>         (where <n> is any integer)
+          #   - cores*<n>   (will use runtime.NumCPU() * <n>)
+          #   - threads*<n> (will use runtime.NumCPU() * <n>)
+          workers: threads
+          job:
+            # The buffer value to use for the job channel.
+            # This allows jobs to be queued and prevents job scheduling to be a
+            # blocking operation when all workers are busy.
+            buffer: 256
 
       s3:
         key: minioadmin
