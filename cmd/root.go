@@ -15,11 +15,11 @@ import (
 )
 
 /*
-Embed a mini filesystem into the binary with the contents of . Some code below
-will check if the user has the configuration file locally, otherwise write a fresh default
-from the binary's embedded filesystem. Useful, no management needed.
+Embed a mini filesystem into the binary to hold the config file,
+and some front end templates. This will be compiled into the
+binary, so it is easier to manage.
 */
-//go:embed cfg/*
+//go:embed cfg/* tmpl/*
 var embedded embed.FS
 
 var (
@@ -33,20 +33,28 @@ var (
 )
 
 var roottxt = `
-wrkspc builds a dynamic working environment on top of containers and
-Kubernetes. It requires only a single binary to run and sources all
-other tooling dynamically from configures registries and repositories.
+wrkspc allows you to easily build and deploy platforms, and contains
+everything you need from development to infrastructure.
 `
 
+/*
+Execute configures the CLI and executes the program with the
+values that were passed in from the command line.
+*/
 func Execute() error {
 	errnie.Trace()
 
+	// Set the orchestrator we will use to build the infrastructure
+	// of our platform.
 	rootCmd.PersistentFlags().StringVarP(
 		&orchestrator, "orchestrator", "o", "kubernetes",
 		"The orchestrator to use <nomad|kubernetes>.",
 	)
 
+	// Add the `run` command to the CLI.
 	rootCmd.AddCommand(runCmd)
+
+	// Run the program and return any error that may happen.
 	return rootCmd.Execute()
 }
 
@@ -67,8 +75,9 @@ func init() {
 }
 
 /*
-initConfig does the embedded config stuff and sets the entire program up for Viper
-based config, which uses the embedded yaml config file a lot.
+initConfig unpacks the embedded file system and writes the config
+file to the home directory of the user if it is not present.
+It also automatically generates the CLI documentation for wrkspc.
 */
 func initConfig() {
 	// Set verbosity level for errnie.

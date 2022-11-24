@@ -8,17 +8,33 @@ import (
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
+/*
+File wraps the os.File struct and provides a specialized workflow.
+
+When referencing a file in wrkspc it will either be retrieved,
+or created on-the-fly if it does not exist yet.
+*/
 type File struct {
 	Location string
 	Name     string
 	Ext      string
+	Info     os.FileInfo
 	Data     *bytes.Buffer
 	err      *errnie.Error
 }
 
+/*
+NewFile is a constructor returning a pointer to a File instance.
+
+When using this constructor you can be sure that everything is
+handled correctly any time you reference a file.
+*/
 func NewFile(path, name string, data *bytes.Buffer) *File {
 	errnie.Trace()
 
+	// Split the extension off the file name, but make sure
+	// to retain all other elements in fName, which can
+	// include dots (.) for private files.
 	nSplit := strings.Split(name, ".")
 	ext := nSplit[len(nSplit)-1]
 	fName := name[:len(name)-len(nSplit)-1]
@@ -30,10 +46,9 @@ func NewFile(path, name string, data *bytes.Buffer) *File {
 		Data:     data,
 	}
 
-	fullPath := strings.Join(
-		[]string{strings.Join([]string{path, fName}, "/"), ext}, ".",
-	)
-
+	// Get a fully qualified path to the file handle, and create the file
+	// if it does not already exist. Then read the context into a buffer.
+	fullPath := strings.Join([]string{strings.Join([]string{path, fName}, "/"), ext}, ".")
 	fh.createIfNotExists(fullPath, data)
 	buf, err := os.ReadFile(fullPath)
 
@@ -41,18 +56,25 @@ func NewFile(path, name string, data *bytes.Buffer) *File {
 		return nil
 	}
 
+	// Add the file data to our object and return it.
 	fh.Data = bytes.NewBuffer(buf)
 	return fh
 }
 
+/*
+createIfNotExists writes a new file to the file system, if it does not
+already exist, using the buffer we pass in to fill the new file with data.
+*/
 func (file *File) createIfNotExists(fullPath string, data *bytes.Buffer) {
 	errnie.Trace()
 
-	_, err := os.Stat(fullPath)
+	info, err := os.Stat(fullPath)
 
-	if os.IsNotExist(err) {
+	if os.IsNotExist(file.err) {
 		file.err = errnie.Handles(errnie.NewError(err))
 		errnie.Handles(os.WriteFile(fullPath, data.Bytes(), 0644))
 		errnie.Informs("copied config to", fullPath)
 	}
+
+	file.Info = info
 }
