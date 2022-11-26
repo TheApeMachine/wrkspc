@@ -89,7 +89,7 @@ func (proto *ProtoContext) TTL() <-chan struct{} {
 Error implements the Go error interface.
 */
 func (proto *ProtoContext) Error() string {
-	return proto.err.Msg
+	return proto.err.Error()
 }
 
 /*

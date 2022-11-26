@@ -29,13 +29,13 @@ type Fibonacci struct {
 }
 
 func NewFibonacci(max int) Retrier {
-	return NewRetrier(Fibonacci{
+	return NewRetrier(&Fibonacci{
 		max: max,
 		n:   0,
 	})
 }
 
-func (strategy Fibonacci) Do(fn Job) *errnie.Error {
+func (strategy *Fibonacci) Do(fn Job) *errnie.Error {
 	errnie.Trace()
 
 	// We have reached the maximum number of retries.
@@ -45,8 +45,8 @@ func (strategy Fibonacci) Do(fn Job) *errnie.Error {
 	}
 
 	// Error, retry.
-	if err := fn.Do(); err.Type != errnie.NIL {
-		errnie.Warns(err.Msg)
+	if err := fn.Do(); err != nil {
+		err.Dump()
 
 		// Backoff delay time by using Fibonacci sequence.
 		strategy.n = int(

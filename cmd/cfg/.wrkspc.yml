@@ -9,6 +9,7 @@ wrkspc:
   stages:
     # When stage is set to development, these values are used.
     development:
+      fqdn: development.wrkspc.wrkgrp.org
       # Configures the way errnie behaves.
       # Setting local to true will result in errnie logging its internal methods.
       # Setting debug to true will result in errnie.Debugs(...) output.
@@ -56,6 +57,8 @@ wrkspc:
     # When stage is set to test, these values are used.
     # NOTE: Running the tests will automatically set stage to this value.
     test:
+      fqdn: test.wrkspc.wrkgrp.org
+
       # Configures the way errnie behaves.
       # Setting local to true will result in errnie logging its internal methods.
       # Setting debug to true will result in errnie.Debugs(...) output.
@@ -102,6 +105,8 @@ wrkspc:
 
     # When stage is set to production, these values are used.
     production:
+      fqdn: production.wrkspc.wrkgrp.org
+
       # Configures the way errnie behaves.
       # Setting local to true will result in errnie logging its internal methods.
       # Setting debug to true will result in errnie.Debugs(...) output.
