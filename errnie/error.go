@@ -61,11 +61,16 @@ func NewError(err error) *Error {
 	}
 }
 
-func (ee *Error) Write(p []byte) (n int, err error) {
+func (ee *Error) Read(p []byte) (n int, err error) {
 	buf, err := json.Marshal(err)
 	Handles(err)
 
 	copy(p, buf)
+	return len(p), err
+}
+
+func (ee *Error) Write(p []byte) (n int, err error) {
+	Handles(json.Unmarshal(p, ee))
 	return len(p), err
 }
 

@@ -10,7 +10,7 @@ import (
 type Workspace struct {
 	io.ReadWriteCloser
 	workloads []*Workload
-	ctx       *twoface.Context
+	ctx       twoface.Context
 }
 
 func NewWorkspace(workloads ...*Workload) *Workspace {
@@ -18,19 +18,18 @@ func NewWorkspace(workloads ...*Workload) *Workspace {
 
 	return &Workspace{
 		workloads: workloads,
+		ctx:       twoface.NewContext(nil),
 	}
 }
 
 func (wrkspc *Workspace) Read(p []byte) (n int, err error) {
 	errnie.Trace()
-	errnie.Debugs("not implemented")
-	return
+	return wrkspc.ctx.Read(p)
 }
 
 func (wrkspc *Workspace) Write(p []byte) (n int, err error) {
 	errnie.Trace()
-	errnie.Debugs("not implemented")
-	return
+	return wrkspc.ctx.Write(p)
 }
 
 func (wrkspc *Workspace) Close() error {

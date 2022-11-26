@@ -11,7 +11,6 @@ import (
 	"github.com/pytimer/k8sutil/apply"
 	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/infra"
 	"helm.sh/helm/v3/pkg/repo"
 	apiextension "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/discovery"
@@ -19,40 +18,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
-
-var manifests = map[string]map[string]string{
-	"system": {
-		"type":  "kubectl",
-		"multi": "false",
-		"sub":   "",
-	},
-	"base": {
-		"type": "helm",
-		"url":  "https://istio-release.storage.googleapis.com/charts",
-	},
-	"istiod": {
-		"type": "helm",
-		"url":  "https://istio-release.storage.googleapis.com/charts",
-	},
-	"vault": {
-		"type": "helm",
-		"url":  "https://helm.releases.hashicorp.com",
-	},
-	"harbor": {
-		"type": "helm",
-		"url":  "https://helm.goharbor.io",
-	},
-	"minio": {
-		"type":  "kubectl",
-		"multi": "false",
-		"sub":   "",
-	},
-	"prometheus": {
-		"type":  "kuebctl",
-		"multi": "true",
-		"sub":   "setup",
-	},
-}
 
 /*
 Client wraps the various Kubernetes clients that are needed to manipulate both
@@ -71,10 +36,10 @@ type Client struct {
 /*
 NewClient returns a handle on the various clients that we will need access to.
 */
-func NewClient() infra.Client {
-	config, err := clientcmd.BuildConfigFromFlags("", brazil.BuildPath(
-		brazil.HomePath(), "/.kube/config",
-	))
+func NewClient() *Client {
+	config, err := clientcmd.BuildConfigFromFlags(
+		"", brazil.NewFile("~/.kube", "config", nil).Location,
+	)
 	errnie.Handles(err)
 
 	kubeClient, err := kubernetes.NewForConfig(config)

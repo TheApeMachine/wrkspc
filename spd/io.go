@@ -18,6 +18,8 @@ func (dg Datagram) Write(p []byte) (n int, err error) {
 	if dg.HasUuid() {
 		return dg.append(p)
 	}
+
+	return len(p), err
 }
 
 func (dg Datagram) append(p []byte) (n int, err error) {

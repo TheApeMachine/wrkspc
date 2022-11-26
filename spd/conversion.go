@@ -1,6 +1,9 @@
 package spd
 
 import (
+	"bytes"
+	"io"
+
 	capnp "capnproto.org/go/capnp/v3"
 	"github.com/theapemachine/wrkspc/errnie"
 )
@@ -14,14 +17,9 @@ func (dg Datagram) Unmarshal(p []byte) Datagram {
 	msg, err := capnp.Unmarshal(p)
 
 	if err := errnie.Handles(err); err != nil {
-		l, ee := dg.Layers()
-		if errnie.Handles(ee) != nil {
-			return dg
-		}
-
-		var p []byte
-		err.Write(p)
-		l.Set(l.Len(), p)
+		buf := bytes.NewBuffer([]byte{})
+		io.Copy(buf, err)
+		dg.Write(buf.Bytes())
 	}
 
 	dg, err = ReadRootDatagram(msg)
