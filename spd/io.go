@@ -22,6 +22,10 @@ func (dg Datagram) Write(p []byte) (n int, err error) {
 	return len(p), err
 }
 
+func (dg Datagram) Close() error {
+	return nil
+}
+
 func (dg Datagram) append(p []byte) (n int, err error) {
 	layers, err := dg.Layers()
 	layers.Set(layers.Len(), p)

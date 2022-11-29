@@ -63,7 +63,7 @@ func NewClient() *Client {
 	hc, err := helmclient.New(&helmclient.Options{})
 	errnie.Handles(err)
 
-	return infra.NewClient(Client{
+	return &Client{
 		KubeClient:       kubeClient,
 		dynamicClient:    dynamicClient,
 		discoveryClient:  discoveryClient,
@@ -71,16 +71,18 @@ func NewClient() *Client {
 		ExtClient:        extClient,
 		PromClient:       promClient,
 		HelmClient:       hc,
-	})
+	}
 }
 
 func (client Client) Apply(name, vendor, namespace string) {
-	if manifests[name]["type"] == "helm" {
-		errnie.Informs("applying", name)
-		// It is a helm chart, so hand it off to helm.
-		client.helm(name, vendor, namespace)
-		return
-	}
+	/*
+		if manifests[name]["type"] == "helm" {
+			errnie.Informs("applying", name)
+			// It is a helm chart, so hand it off to helm.
+			client.helm(name, vendor, namespace)
+			return
+		}
+	*/
 
 	// We have a standard Kubernetes manifest and can just apply it.
 	applyOpts := apply.NewApplyOptions(

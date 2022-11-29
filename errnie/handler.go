@@ -3,21 +3,17 @@ package errnie
 import "os"
 
 func Handles(err error) *Error {
-	if err == nil {
-		return nil
+	if out := NewError(err); out != nil {
+		sendOut(ERROR, out)
+		return out
 	}
 
-	out := NewError(err)
-	sendOut(ERROR, out)
-
-	return out
+	return nil
 }
 
 func Kills(err error) {
-	if err == nil {
-		return
+	if out := NewError(err); out != nil {
+		sendOut(ERROR, out)
+		os.Exit(1)
 	}
-
-	sendOut(ERROR, err)
-	os.Exit(1)
 }

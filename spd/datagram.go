@@ -16,11 +16,11 @@ var Version = []byte("v4")
 New contructs a Datagram message and marshals it to a byte slice before returning
 the object wrapped in a bytes.Buffer.
 */
-func New(role, scope, identity []byte, layers []*bytes.Buffer) *bytes.Buffer {
+func New(role, scope, identity []byte, layers []*bytes.Buffer) Datagram {
 	errnie.Trace()
 
 	arena := capnp.SingleSegment(nil)
-	msg, seg, err := capnp.NewMessage(arena)
+	_, seg, err := capnp.NewMessage(arena)
 	errnie.Handles(err)
 
 	dg, err := NewRootDatagram(seg)
@@ -49,12 +49,7 @@ func New(role, scope, identity []byte, layers []*bytes.Buffer) *bytes.Buffer {
 	errnie.Handles(dg.SetScope(scope))
 	errnie.Handles(dg.SetIdentity(identity))
 
-	// Marshal into a byte slice so it becomes compatible with
-	// network and storage layers.
-	buf, err := msg.MarshalPacked()
-	errnie.Handles(err)
-
-	return bytes.NewBuffer(buf)
+	return dg
 }
 
 /*

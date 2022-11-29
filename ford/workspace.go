@@ -11,14 +11,17 @@ type Workspace struct {
 	io.ReadWriteCloser
 	workloads []*Workload
 	ctx       twoface.Context
+	pool      *twoface.Pool
 }
 
 func NewWorkspace(workloads ...*Workload) *Workspace {
 	errnie.Trace()
+	ctx := twoface.NewContext(nil)
 
 	return &Workspace{
 		workloads: workloads,
-		ctx:       twoface.NewContext(nil),
+		ctx:       ctx,
+		pool:      twoface.NewPool(ctx).Run(),
 	}
 }
 

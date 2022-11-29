@@ -21,8 +21,14 @@ type ErrorContext uint
 const (
 	// NIL represents no error was generated.
 	NIL ErrorContext = iota
+	// INTEGRITY represents a failure to verify the integrity of data.
+	INTEGRITY
 	// VALIDATION represents an error during validation of a value.
 	VALIDATION
+	// CONVERSION represents an error while converting a value type.
+	CONVERSION
+	// IOERROR represents a generic IO operation failure.
+	IOERROR
 	// UNKNOWN represents an error with unknown cause.
 	UNKNOWN
 )
@@ -53,12 +59,37 @@ func NewError(err error) *Error {
 
 	split := strings.Split(err.Error(), "|")
 	ec, et := getType(split[0])
+	msg := split[len(split)-1]
 
-	return &Error{
-		ec:  ec,
-		et:  et,
-		msg: split[1],
+	return &Error{ec: ec, et: et, msg: msg}
+}
+
+func errorWithType(
+	err error, ect ErrorContext, ll LogLevel,
+) *Error {
+	if err == nil {
+		return nil
 	}
+
+	inst := &Error{ec: ect, et: ll, msg: err.Error()}
+	sendOut(ERROR, inst)
+	return inst
+}
+
+func IntegrityError(err error) *Error {
+	return errorWithType(err, INTEGRITY, ERROR)
+}
+
+func ValidationError(err error) *Error {
+	return errorWithType(err, VALIDATION, ERROR)
+}
+
+func ConversionError(err error) *Error {
+	return errorWithType(err, CONVERSION, ERROR)
+}
+
+func IOError(err error) *Error {
+	return errorWithType(err, IOERROR, ERROR)
 }
 
 func (ee *Error) Read(p []byte) (n int, err error) {
@@ -78,6 +109,10 @@ func (ee *Error) Write(p []byte) (n int, err error) {
 Error implements the Go error interface by returning the error message.
 */
 func (ee *Error) Error() string {
+	if ee == nil {
+		return ""
+	}
+
 	return ee.msg
 }
 
@@ -106,7 +141,7 @@ func getType(err string) (ErrorContext, LogLevel) {
 		ec = UNKNOWN
 	}
 
-	switch split[1] {
+	switch split[len(split)-1] {
 	case "ERROR":
 		et = ERROR
 	case "WARNING":
