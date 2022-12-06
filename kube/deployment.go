@@ -14,6 +14,7 @@ import (
 type Deployment struct {
 	name     string
 	manifest *appsv1.Deployment
+	err      error
 }
 
 /*
@@ -39,24 +40,21 @@ func (deployment *Deployment) Drop(
 ) *Deployment {
 	client := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 
-	result, err := client.Create(
+	_, deployment.err = client.Create(
 		context.Background(), deployment.manifest, metav1.CreateOptions{},
 	)
 
-	errnie.Handles(err)
-	errnie.Logs(result).With(errnie.INFO)
+	errnie.Handles(deployment.err)
 
-	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		result, err := client.Get(
+	deployment.err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		_, deployment.err = client.Get(
 			context.Background(), deployment.name, metav1.GetOptions{},
 		)
 
-		errnie.Handles(err)
-		errnie.Logs(result).With(errnie.INFO)
-
-		return err
+		errnie.Handles(deployment.err)
+		return deployment.err
 	})
 
-	errnie.Handles(err)
+	errnie.Handles(deployment.err)
 	return deployment
 }

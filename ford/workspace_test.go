@@ -15,8 +15,8 @@ func NewWorkspaceTestContext() *WorkspaceTestContext {
 	return &WorkspaceTestContext{
 		instance: NewWorkspace(
 			NewWorkload([]*Assembly{
-				NewAssembly(drknow.NewAbstract(nil)),
-			}),
+				NewAssembly(drknow.NewAbstract()),
+			}...),
 		),
 	}
 }

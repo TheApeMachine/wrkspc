@@ -10,7 +10,12 @@ import (
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
-var Version = []byte("v4")
+var (
+	Version = []byte("v4")
+	Empty   = func() *Datagram {
+		return &Datagram{}
+	}()
+)
 
 /*
 New contructs a Datagram message and marshals it to a byte slice before returning

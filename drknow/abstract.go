@@ -1,61 +1,27 @@
 package drknow
 
 import (
-	"io"
-
-	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/hefner"
+	"github.com/theapemachine/wrkspc/spd"
+	"github.com/theapemachine/wrkspc/twoface"
 )
 
 /*
-Abstract is an item that holds both data and behavior,
-which we can group as `knowledge` and `skill`.
+Abstract is a composite object that acts as the single type
+flowing through the system.
+
+It is composed from the following sub types:
+
+- twoface.Context
+- spd.Datagram
+- hefner.Pipe
 */
-type Abstract interface {
-	io.ReadWriteCloser
+type Abstract struct {
+	*twoface.Context
+	*spd.Datagram
+	*hefner.Pipe
 }
 
-func NewAbstract(abstractType Abstract) Abstract {
-	errnie.Trace()
-
-	if abstractType == nil {
-		return &ProtoAbstract{}
-	}
-
-	return abstractType
-}
-
-/*
-ProtoAbstract is composed of Knowledge and Skill, which can be seen
-as data and behavior.
-*/
-type ProtoAbstract struct {
-	*Knowledge
-	*Skill
-}
-
-func NewProtoAbstract(
-	knowledge *Knowledge, skill *Skill,
-) *ProtoAbstract {
-	return &ProtoAbstract{knowledge, skill}
-}
-
-func (proto *ProtoAbstract) Read(p []byte) (n int, err error) {
-	errnie.Trace()
-	errnie.Debugs("not implemented")
-
-	return
-}
-
-func (proto *ProtoAbstract) Write(p []byte) (n int, err error) {
-	errnie.Trace()
-	errnie.Debugs("not implemented")
-
-	return
-}
-
-func (proto *ProtoAbstract) Close() error {
-	errnie.Trace()
-	errnie.Debugs("not implemented")
-
-	return errnie.NewError(nil)
+func NewAbstract() *Abstract {
+	return &Abstract{twoface.NewContext(), spd.Empty, hefner.NewPipe()}
 }

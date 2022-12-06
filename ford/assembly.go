@@ -1,8 +1,6 @@
 package ford
 
 import (
-	"io"
-
 	"github.com/theapemachine/wrkspc/drknow"
 	"github.com/theapemachine/wrkspc/errnie"
 )
@@ -15,22 +13,21 @@ It is responsible for facilitating communication between assemblies
 whenever that is required.
 */
 type Assembly struct {
-	io.ReadWriteCloser
-	abstract drknow.Abstract
+	abstracts []*drknow.Abstract
+	size      int
 }
 
-func NewAssembly(abstract drknow.Abstract) *Assembly {
+func NewAssembly(abstracts ...*drknow.Abstract) *Assembly {
 	errnie.Trace()
 
 	return &Assembly{
-		abstract: abstract,
+		abstracts: abstracts,
+		size:      len(abstracts),
 	}
 }
 
 func (asm *Assembly) Read(p []byte) (n int, err error) {
 	errnie.Trace()
-	errnie.Debugs("not implemented")
-
 	return
 }
 

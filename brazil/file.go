@@ -20,7 +20,7 @@ type File struct {
 	Ext      string
 	Info     os.FileInfo
 	Data     *bytes.Buffer
-	err      *errnie.Error
+	err      error
 }
 
 /*
@@ -68,13 +68,10 @@ already exist, using the buffer we pass in to fill the new file with data.
 func (file *File) createIfNotExists(fullPath string, data *bytes.Buffer) {
 	errnie.Trace()
 
-	info, err := os.Stat(fullPath)
+	file.Info, file.err = os.Stat(fullPath)
 
-	if os.IsNotExist(file.err) {
-		file.err = errnie.Handles(errnie.NewError(err))
+	if os.IsNotExist(errnie.IOError(file.err)) {
 		errnie.Handles(os.WriteFile(fullPath, data.Bytes(), 0644))
-		errnie.Informs("copied config to", fullPath)
+		errnie.Informs("write file", fullPath)
 	}
-
-	file.Info = info
 }

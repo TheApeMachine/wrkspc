@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/theapemachine/wrkspc/test"
 )
 
 type IntContext struct {
@@ -11,7 +12,7 @@ type IntContext struct {
 }
 
 func NewIntContext() *IntContext {
-	NewConfigContext()
+	test.NewConfigContext()
 
 	return &IntContext{
 		expected: map[string]int{
@@ -33,7 +34,7 @@ func TestGetInt(t *testing.T) {
 }
 
 func BenchmarkGetInt(b *testing.B) {
-	NewConfigContext()
+	test.NewConfigContext()
 
 	for i := 0; i < b.N; i++ {
 		_ = GetBool("twoface.pool.job.buffer")

@@ -1,38 +1,28 @@
 package ford
 
 import (
-	"io"
-
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/twoface"
 )
 
 type Workspace struct {
-	io.ReadWriteCloser
 	workloads []*Workload
-	ctx       twoface.Context
-	pool      *twoface.Pool
 }
 
 func NewWorkspace(workloads ...*Workload) *Workspace {
 	errnie.Trace()
-	ctx := twoface.NewContext(nil)
-
-	return &Workspace{
-		workloads: workloads,
-		ctx:       ctx,
-		pool:      twoface.NewPool(ctx).Run(),
-	}
+	return &Workspace{workloads}
 }
 
 func (wrkspc *Workspace) Read(p []byte) (n int, err error) {
 	errnie.Trace()
-	return wrkspc.ctx.Read(p)
+	errnie.Debugs("not implemented")
+	return
 }
 
 func (wrkspc *Workspace) Write(p []byte) (n int, err error) {
 	errnie.Trace()
-	return wrkspc.ctx.Write(p)
+	errnie.Debugs("not implemented")
+	return
 }
 
 func (wrkspc *Workspace) Close() error {

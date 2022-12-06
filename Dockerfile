@@ -4,7 +4,7 @@ ARG USERNAME=n00b
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-ENV GOVERSION="1.19.2"
+ENV GOVERSION="1.19.3"
 ENV PATH /home/$USERNAME/.local/bin:/usr/bin:/usr/local/bin:/usr/local/go/bin:$PATH
 
 RUN groupadd --gid $USER_GID $USERNAME \

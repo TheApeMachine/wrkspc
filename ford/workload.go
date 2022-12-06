@@ -1,8 +1,6 @@
 package ford
 
 import (
-	"io"
-
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
@@ -14,12 +12,12 @@ It is responsible for facilitating communication between assemblies
 whenever that is required.
 */
 type Workload struct {
-	io.ReadWriteCloser
 	assemblies []*Assembly
 }
 
-func NewWorkload(assemblies []*Assembly) *Workload {
+func NewWorkload(assemblies ...*Assembly) *Workload {
 	errnie.Trace()
+
 	return &Workload{
 		assemblies: assemblies,
 	}

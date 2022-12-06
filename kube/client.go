@@ -1,17 +1,11 @@
 package kube
 
 import (
-	"context"
-	"os"
-	"strings"
-
 	clientset "github.com/minio/operator/pkg/client/clientset/versioned"
 	helmclient "github.com/mittwald/go-helm-client"
 	promclientset "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned"
-	"github.com/pytimer/k8sutil/apply"
 	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/errnie"
-	"helm.sh/helm/v3/pkg/repo"
 	apiextension "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
@@ -74,86 +68,6 @@ func NewClient() *Client {
 	}
 }
 
-func (client Client) Apply(name, vendor, namespace string) {
-	/*
-		if manifests[name]["type"] == "helm" {
-			errnie.Informs("applying", name)
-			// It is a helm chart, so hand it off to helm.
-			client.helm(name, vendor, namespace)
-			return
-		}
-	*/
+func (client Client) Apply(name, vendor, namespace string) {}
 
-	// We have a standard Kubernetes manifest and can just apply it.
-	applyOpts := apply.NewApplyOptions(
-		client.dynamicClient, client.discoveryClient,
-	)
-
-	n := []string{}
-
-	if manifests[name]["sub"] != "" {
-		// There is a sub directory which needs to be handled first.
-		// Likely used for some initial setup needed to deploy the main
-		// manifest files.
-		n = append(n, name+"/"+manifests[name]["sub"])
-	}
-
-	// Append the main manifest files to the directory list.
-	n = append(n, name)
-
-	// Loop over the path listing.
-	for _, s := range n {
-		// Start a generator that yields filenames.
-		for fh := range brazil.GeneratePath(
-			brazil.BuildPath(brazil.Workdir(), ".kubernetes", s),
-		) {
-			errnie.Informs("applying", brazil.GetFileFromPrefix(fh))
-
-			if fh == "" {
-				continue
-			}
-
-			// Read the file and store as a byte slice.
-			data, err := os.ReadFile(fh)
-
-			errnie.Handles(err)
-
-			if len(data) > 0 && data != nil {
-				err := applyOpts.Apply(context.TODO(), data)
-				errnie.Handles(err)
-
-			}
-		}
-	}
-}
-
-func (client Client) helm(name, vendor, namespace string) {
-	// Add a chart-repository to the client.
-	errnie.Handles(client.HelmClient.AddOrUpdateChartRepo(
-		repo.Entry{
-			Name: vendor,
-			URL:  manifests[name]["url"],
-		},
-	))
-
-	data, err := os.ReadFile(brazil.BuildPath(
-		brazil.Workdir(), ".kubernetes", name, "values.yml",
-	))
-	errnie.Handles(err)
-
-	chartSpec := helmclient.ChartSpec{
-		ReleaseName:     name,
-		ChartName:       strings.Join([]string{vendor, name}, "/"),
-		Namespace:       namespace,
-		ValuesYaml:      string(data),
-		CreateNamespace: true,
-		UpgradeCRDs:     true,
-		CleanupOnFail:   true,
-	}
-
-	_, err = client.HelmClient.InstallOrUpgradeChart(
-		context.Background(), &chartSpec, nil,
-	)
-
-	errnie.Handles(err)
-}
+func (client Client) helm(name, vendor, namespace string) {}

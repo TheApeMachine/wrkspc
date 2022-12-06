@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/theapemachine/wrkspc/test"
 )
 
 type LogicContext struct {
@@ -12,7 +13,7 @@ type LogicContext struct {
 }
 
 func NewLogicContext() *LogicContext {
-	NewConfigContext()
+	test.NewConfigContext()
 
 	return &LogicContext{
 		expected: map[string]int{
@@ -34,7 +35,7 @@ func TestGetLogic(t *testing.T) {
 }
 
 func BenchmarkGetLogic(b *testing.B) {
-	NewConfigContext()
+	test.NewConfigContext()
 
 	for i := 0; i < b.N; i++ {
 		_ = GetLogic("twoface.pool.workers")

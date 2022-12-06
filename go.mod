@@ -2,11 +2,13 @@ module github.com/theapemachine/wrkspc
 
 go 1.19
 
+replace github.com/theapemachine/golang-ipc => ../golang-ipc
+
 replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.8.0
 
 require (
-	capnproto.org/go/capnp v2.18.2+incompatible
 	capnproto.org/go/capnp/v3 v3.0.0-alpha.8
+	github.com/chromedp/chromedp v0.8.6
 	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.3.0
 	github.com/json-iterator/go v1.1.12
@@ -14,11 +16,10 @@ require (
 	github.com/mittwald/go-helm-client v0.11.5
 	github.com/prometheus-operator/prometheus-operator/pkg/client v0.60.1
 	github.com/pyroscope-io/client v0.4.0
-	github.com/pytimer/k8sutil v0.0.0-20220203142443-87b1dfb13ebc
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.14.0
-	helm.sh/helm/v3 v3.10.2
+	github.com/theapemachine/golang-ipc v0.0.0-00010101000000-000000000000
 	k8s.io/api v0.25.4
 	k8s.io/apiextensions-apiserver v0.25.4
 	k8s.io/apimachinery v0.25.4
@@ -39,6 +40,8 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
+	github.com/chromedp/cdproto v0.0.0-20220924210414-0e3390be1777 // indirect
+	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/containerd/cgroups v1.0.4 // indirect
 	github.com/containerd/containerd v1.6.9 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
@@ -67,6 +70,9 @@ require (
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/swag v0.22.3 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
+	github.com/gobwas/httphead v0.1.0 // indirect
+	github.com/gobwas/pool v0.2.1 // indirect
+	github.com/gobwas/ws v1.1.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.1.2 // indirect
@@ -153,6 +159,7 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	go.starlark.net v0.0.0-20221028183056-acb66ad56dd2 // indirect
 	golang.org/x/crypto v0.2.0 // indirect
+	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/oauth2 v0.2.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
@@ -169,6 +176,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	helm.sh/helm/v3 v3.10.2 // indirect
 	k8s.io/apiserver v0.25.4 // indirect
 	k8s.io/cli-runtime v0.25.4 // indirect
 	k8s.io/component-base v0.25.4 // indirect
@@ -183,7 +191,6 @@ require (
 	sigs.k8s.io/kustomize/kyaml v0.13.9 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
-	zombiezen.com/go/capnproto2 v2.18.2+incompatible // indirect
 )
 
 // Downgrading genproto is needed to fix "panic: protobuf tag not enough fields in Status.state:"
