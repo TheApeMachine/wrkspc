@@ -4,11 +4,28 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/theapemachine/wrkspc/test"
+	"github.com/spf13/viper"
+	"github.com/theapemachine/wrkspc/errnie"
 )
 
+type ConfigContext struct{}
+
+func NewConfigContext() *ConfigContext {
+	// Instantiate viper manually since we are not going through the
+	// CLI while running tests.
+	viper.AddConfigPath("../cmd/cfg")
+	viper.SetConfigType("yml")
+	viper.SetConfigName(".core2ok")
+	errnie.Handles(viper.ReadInConfig())
+
+	// Overwrite the stage to `test` so we are in the correct context.
+	viper.Set("core2ok.stage", "test")
+
+	return &ConfigContext{}
+}
+
 func TestNew(t *testing.T) {
-	test.NewConfigContext()
+	NewConfigContext()
 
 	Convey("Given a new instance", t, func() {
 		Convey("It should have an instance of viper", func() {
@@ -18,7 +35,7 @@ func TestNew(t *testing.T) {
 }
 
 func BenchmarkNew(b *testing.B) {
-	test.NewConfigContext()
+	NewConfigContext()
 
 	for i := 0; i < b.N; i++ {
 		_ = New()

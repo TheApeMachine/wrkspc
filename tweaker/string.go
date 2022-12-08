@@ -1,6 +1,10 @@
 package tweaker
 
-import "github.com/theapemachine/wrkspc/errnie"
+import (
+	"fmt"
+
+	"github.com/theapemachine/wrkspc/errnie"
+)
 
 /*
 GetString returns a value by the key that is passed in and
@@ -22,5 +26,8 @@ This is an internal method bound to the ambient context.
 */
 func (cfg *Config) getString(key string) string {
 	errnie.Trace()
-	return cfg.v.GetString(cfg.withStage(key))
+	k := cfg.withStage(key)
+	v := cfg.v.GetString(k)
+	errnie.Debugs(fmt.Sprintf("tweaker.getString(%s) ->", k), v)
+	return v
 }

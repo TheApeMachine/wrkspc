@@ -18,9 +18,10 @@ Context wraps all data and behavior errnie needs to act as
 error handler, logger, and tracer.
 */
 type Context struct {
-	tracing   bool
-	debugging bool
-	loggers   []Logger
+	tracing     bool
+	debugging   bool
+	breakpoints bool
+	loggers     []Logger
 }
 
 /*
@@ -45,6 +46,13 @@ Debugging modifies the ambient context to turn debugging off or on.
 */
 func Debugging(value bool) {
 	ctx.debugging = value
+}
+
+/*
+Breakpoints modifies the ambient context to turn breakpoints off or on.
+*/
+func Breakpoints(value bool) {
+	ctx.breakpoints = value
 }
 
 /*

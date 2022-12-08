@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/theapemachine/wrkspc/test"
 )
 
 type StringContext struct {
@@ -12,7 +11,7 @@ type StringContext struct {
 }
 
 func NewStringContext() *StringContext {
-	test.NewConfigContext()
+	NewConfigContext()
 
 	return &StringContext{
 		expected: map[string]string{
@@ -34,7 +33,7 @@ func TestGetString(t *testing.T) {
 }
 
 func BenchmarkGetString(b *testing.B) {
-	test.NewConfigContext()
+	NewConfigContext()
 
 	for i := 0; i < b.N; i++ {
 		_ = GetString("server.port")

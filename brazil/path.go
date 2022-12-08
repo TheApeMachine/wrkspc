@@ -28,6 +28,10 @@ func NewPath(segments ...string) *Path {
 	return path
 }
 
+func ClearPath(path string) {
+	errnie.Handles(os.RemoveAll(path))
+}
+
 /*
 toPrefix takes the segments that were passed in and joins
 them into a traditional file system path shape.

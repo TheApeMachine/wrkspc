@@ -3,9 +3,9 @@ package hefner
 import (
 	"io"
 
-	"github.com/google/uuid"
-	ipc "github.com/theapemachine/golang-ipc"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/sockpuppet"
+	"github.com/theapemachine/wrkspc/sockpuppet/ipc"
 )
 
 type PipeType uint
@@ -16,15 +16,12 @@ const (
 	WAN
 )
 
-func (t PipeType) BuildPipe() *Pipe {
+func (t PipeType) BuildPipe() sockpuppet.Server {
 	var server *ipc.Server
 
 	switch t {
 	case IPC:
-		server, err := ipc.StartServer(uuid.NewString(), nil)
-		if errnie.Handles(err) != nil {
-			return nil
-		}
+		return ipc.NewServer()
 	}
 
 	return server

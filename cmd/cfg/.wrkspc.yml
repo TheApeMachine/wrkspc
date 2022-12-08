@@ -18,6 +18,7 @@ wrkspc:
         local: false
         debug: true
         trace: true
+        break: true
 
       # Configuration values for the service.
       server:
@@ -67,6 +68,7 @@ wrkspc:
         local: false
         debug: true
         trace: true
+        break: false
 
       # Configuration values for the service.
       server:
@@ -115,6 +117,7 @@ wrkspc:
         local: false
         debug: false
         trace: false
+        break: false
 
       # Configuration values for the service.
       server:

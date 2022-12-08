@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/theapemachine/wrkspc/test"
 )
 
 type BoolContext struct {
@@ -12,7 +11,7 @@ type BoolContext struct {
 }
 
 func NewBoolContext() *BoolContext {
-	test.NewConfigContext()
+	NewConfigContext()
 
 	return &BoolContext{
 		expected: map[string]bool{
@@ -36,7 +35,7 @@ func TestGetBool(t *testing.T) {
 }
 
 func BenchmarkGetBool(b *testing.B) {
-	test.NewConfigContext()
+	NewConfigContext()
 
 	for i := 0; i < b.N; i++ {
 		_ = GetBool("errnie.local")

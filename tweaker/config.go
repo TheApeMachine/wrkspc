@@ -44,6 +44,10 @@ func New() *Config {
 	}
 }
 
+func SetViper(v *viper.Viper) { cfg.v = v }
+func Program() string         { return cfg.program() }
+func Stage() string           { return cfg.stage() }
+
 /*
 program returns the value under the key with the same name
 from the configuration file.
