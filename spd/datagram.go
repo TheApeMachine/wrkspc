@@ -3,12 +3,8 @@ package spd
 import (
 	"bytes"
 	"math/big"
-	"time"
 
-	"capnproto.org/go/capnp/v3"
-	"github.com/google/uuid"
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/tweaker"
 )
 
 var (
@@ -20,47 +16,23 @@ var (
 New contructs a Datagram message and marshals it to a byte slice before returning
 the object wrapped in a bytes.Buffer.
 */
-func New(
-	role RoleType,
-	scope ScopeType,
-) Datagram {
+func New(media MediaType, role RoleType, scope ScopeType) *Datagram {
 	errnie.Trace()
 
-	arena := capnp.SingleSegment(nil)
-	_, seg, err := capnp.NewMessage(arena)
-	if errnie.Handles(err) != nil {
-		return Empty
-	}
+	var (
+		dg  *Datagram
+		err error
+	)
 
-	dg, err := NewRootDatagram(seg)
-	if errnie.Handles(err) != nil {
-		return Empty
+	// Get a root instance from Cap 'n Proto.
+	if dg, err = root(); errnie.Handles(err) != nil {
+		return dg
 	}
-
-	if errnie.Handles(
-		dg.SetUuid([]byte(uuid.New().String())),
-	) != nil {
-		return Empty
-	}
-
-	if errnie.Handles(dg.SetVersion(Version)) != nil {
-		return Empty
-	}
-
-	dg.SetTimestamp(time.Now().UnixNano())
 
 	// Set the context header values to determine the way this
 	// datagram should be processed.
-	if errnie.Handles(dg.SetRole(role)) != nil {
-		return Empty
-	}
-
-	if errnie.Handles(dg.SetScope(scope)) != nil {
-		return Empty
-	}
-
-	if errnie.Handles(dg.SetIdentity(tweaker.GetIdentity())) != nil {
-		return Empty
+	if errnie.Handles(dg.setContext(media, role, scope)) != nil {
+		return dg
 	}
 
 	return dg
@@ -70,7 +42,7 @@ func New(
 Prefix generates the canonical key under which the datagram
 can be found in the data lake.
 */
-func (dg Datagram) Prefix() *bytes.Buffer {
+func (dg *Datagram) Prefix() *bytes.Buffer {
 	errnie.Trace()
 
 	version, err := dg.Version()

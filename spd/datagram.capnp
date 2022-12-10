@@ -6,6 +6,7 @@ $Go.import("spd/datagram");
 struct Datagram {
     uuid      @6 :Data;
     version   @0 :Data;
+    type      @7 :Data;
     role      @1 :Data;
     scope     @2 :Data;
     identity  @3 :Data;
