@@ -5,7 +5,8 @@ using Go = import "/go.capnp";
 $Go.package("spd");
 $Go.import("spd");
 
-interface Announce {
-    public @0 (datagram :Data) -> (crowd :List(Data));
+interface RWC {
+    read  @0 () -> (out :Data);
+    write @1 (in :Data);
 }
 

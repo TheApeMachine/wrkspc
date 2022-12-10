@@ -1,33 +1,27 @@
 package spd
 
-import "github.com/theapemachine/wrkspc/errnie"
+import (
+	capnp "capnproto.org/go/capnp/v3"
+	"github.com/theapemachine/wrkspc/errnie"
+)
 
 func (dg Datagram) Read(p []byte) (n int, err error) {
-	buf, err := dg.Message().MarshalPacked()
-	if errnie.Handles(err) != nil {
-		return
+	var layers capnp.DataList
+
+	if layers, err = dg.Layers(); err != nil {
+		return len(p), errnie.Handles(err)
 	}
 
-	copy(p, buf)
-	return len(p), err
+	p, err = layers.At(0)
+	return len(p), errnie.Handles(err)
 }
 
 func (dg Datagram) Write(p []byte) (n int, err error) {
-	dg.Unmarshal(p)
-
-	if dg.HasUuid() {
-		return dg.append(p)
-	}
-
+	layers, err := dg.Layers()
+	layers.Set(layers.Len(), p)
 	return len(p), err
 }
 
 func (dg Datagram) Close() error {
 	return nil
-}
-
-func (dg Datagram) append(p []byte) (n int, err error) {
-	layers, err := dg.Layers()
-	layers.Set(layers.Len(), p)
-	return len(p), err
 }
