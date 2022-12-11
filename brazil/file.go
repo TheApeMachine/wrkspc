@@ -38,7 +38,7 @@ func NewFile(path, name string, data *bytes.Buffer) *File {
 	// include dots (.) for private files.
 	nSplit := strings.Split(name, ".")
 	ext := nSplit[len(nSplit)-1]
-	fName := name[:len(name)-len(nSplit)-1]
+	fName := name[:len(name)-len(ext)-1]
 
 	fh := &File{
 		Location: path,
@@ -71,6 +71,8 @@ func (file *File) createIfNotExists(fullPath string, data *bytes.Buffer) {
 
 	if file.Info, file.err = os.Stat(fullPath); file.err != nil {
 		errnie.Warns(fmt.Sprintf("%s does not exist, creating...", fullPath))
+		path := strings.Split(fullPath, "/")
+		NewPath(path[:len(path)-1]...)
 		errnie.Handles(os.WriteFile(fullPath, data.Bytes(), 0644))
 		errnie.Informs("write file", fullPath)
 	}

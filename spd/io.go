@@ -15,33 +15,12 @@ Make sure p has a pre-allocated length that corresponds to the length
 of the data you want to read into it.
 */
 func (dg *Datagram) Read(p []byte) (n int, err error) {
-	var (
-		layers capnp.DataList
-		b      = make([]byte, len(p))
-	)
-
-	if layers, err = dg.Layers(); err != nil {
-		return len(p), err
+	if n, err = dg.ReadAt(p, int64(dg.Ptr())); err != nil {
+		errnie.Handles(err)
+		return n, err
 	}
 
-	if dg.Ptr() < 0 {
-		// Make multiple Read calls return layer data in a
-		// circular fashion.
-		dg.SetPtr(int32(layers.Len() - 1))
-	}
-
-	errnie.Debugs(fmt.Sprintf("READ Layer: %d", dg.Ptr()))
-
-	if b, err = layers.At(int(dg.Ptr())); err != nil {
-		return len(p), err
-	}
-
-	n = copy(p, b)
-
-	// Reduce the Layer Pointer by one layer.
-	dg.SetPtr(dg.Ptr() - 1)
-
-	return n, io.EOF
+	return n, err
 }
 
 /*

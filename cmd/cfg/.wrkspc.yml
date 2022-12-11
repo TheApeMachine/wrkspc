@@ -30,6 +30,13 @@ wrkspc:
         image: flatcar_production_pxe_image.cpio.gz
         ignition: pxe-config.ign
 
+        machines:
+          deepthought:
+            ip: 192.168.0.42
+            port: 22
+            username: <username>
+            password: <password>
+
         # The butane config is given to a flatcar linux provisioning process
         # in order to make dynamic modifications during a PXE boot.
         butane:

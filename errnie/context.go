@@ -1,75 +1,51 @@
 package errnie
 
+import (
+	"bytes"
+)
+
 /*
-ctx holds our ambient context.
+ctx captures the internal state and behavior of errnie as an
+ambient context, which can be accessed anywhere through the
+publicly exposed functions.
 */
 var ctx *Context
 
 /*
-init loads up the ambient context so errnie can be called
-from anywhere without instantiation.
+init makes sure that the ambient context is loaded up and instantiated
+before any other application code executes.
 */
-func init() {
-	ctx = New()
-}
+func init() { ctx = New() }
 
 /*
-Context wraps all data and behavior errnie needs to act as
+Context wraps all state and behavior errnie needs to act as an
 error handler, logger, and tracer.
 */
 type Context struct {
 	tracing     bool
 	debugging   bool
 	breakpoints bool
-	loggers     []Logger
+	log         *bytes.Buffer
 }
 
 /*
-New is a constructor to load up the ambient context with the
-default values.
+New constructs and instantiates the ambient context available to errnie
+internally. Application code can access the instance through the
+publicly exposed functions.
 */
-func New() *Context {
-	return &Context{
-		loggers: []Logger{NewConsoleLogger()},
-	}
-}
+func New() *Context { return &Context{log: bytes.NewBuffer([]byte{})} }
 
 /*
-Tracing modifies the ambient context to turn tracing off or on.
+Ctx returns the ambient context for use of its io.ReadWriteCloser
+interface implementation.
 */
-func Tracing(value bool) {
-	ctx.tracing = value
-}
+func Ctx() *Context { return ctx }
 
-/*
-Debugging modifies the ambient context to turn debugging off or on.
-*/
-func Debugging(value bool) {
-	ctx.debugging = value
-}
+/* Tracing behavior turned on or off. */
+func Tracing(value bool) { ctx.tracing = value }
 
-/*
-Breakpoints modifies the ambient context to turn breakpoints off or on.
-*/
-func Breakpoints(value bool) {
-	ctx.breakpoints = value
-}
+/* Debugging behavior turned on or off. */
+func Debugging(value bool) { ctx.debugging = value }
 
-/*
-sendOut loops over all the log output channels that are active and
-calls the currently activated logging method on them.
-*/
-func sendOut(level LogLevel, msgs ...any) {
-	for _, logger := range ctx.loggers {
-		switch level {
-		case ERROR:
-			logger.Error(msgs...)
-		case WARNING:
-			logger.Warning(msgs...)
-		case INFO:
-			logger.Info(msgs...)
-		case DEBUG:
-			logger.Debug(msgs...)
-		}
-	}
-}
+/* Breakpoints behavior turned on or off. */
+func Breakpoints(value bool) { ctx.breakpoints = value }

@@ -16,7 +16,6 @@ It is composed from the following sub types:
 
 - twoface.Context
 - spd.Datagram
-- hefner.Pipe
 */
 type Abstract struct {
 	ctx      *twoface.Context

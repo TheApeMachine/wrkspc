@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	dc "github.com/docker/docker/api/types/container"
@@ -103,7 +104,7 @@ func (docker *Docker) Create(entrypoint, cmd *[]string) *Docker {
 		config,
 		&dc.HostConfig{
 			Binds: []string{fmt.Sprintf(
-				"/tmp/wrkspc/%s/%s", docker.vendor, docker.name,
+				"~/tmp/wrkspc/%s/%s", docker.vendor, docker.name,
 			)},
 		},
 		&network.NetworkingConfig{},
@@ -126,9 +127,17 @@ func (docker *Docker) Pull() *Docker {
 		err    error
 	)
 
+	tags := []string{fmt.Sprintf(
+		"%s/%s", docker.vendor, docker.name,
+	)}
+
+	if docker.tag != "" {
+		tags = append(tags, ":"+docker.tag)
+	}
+
 	if reader, err = docker.cli.ImagePull(
 		docker.ctx.Root(),
-		fmt.Sprintf("%s/%s:%s", docker.vendor, docker.name, docker.tag),
+		strings.Join(tags, ""),
 		types.ImagePullOptions{},
 	); errnie.Handles(err) != nil {
 		return docker
@@ -143,7 +152,7 @@ func (docker *Docker) Build() *Docker {
 		tar  io.ReadCloser
 		res  types.ImageBuildResponse
 		path = brazil.NewPath(
-			fmt.Sprintf("/tmp/wrkspc/%s/", docker.name),
+			fmt.Sprintf("~/tmp/wrkspc/%s/", docker.name),
 		)
 	)
 
@@ -153,12 +162,18 @@ func (docker *Docker) Build() *Docker {
 		return docker
 	}
 
+	tags := []string{fmt.Sprintf(
+		"%s/%s", docker.vendor, docker.name,
+	)}
+
+	if docker.tag != "" {
+		tags = append(tags, ":"+docker.tag)
+	}
+
 	if res, docker.err = docker.cli.ImageBuild(
 		docker.ctx.Root(), tar, types.ImageBuildOptions{
 			Dockerfile: "Dockerfile",
-			Tags: []string{fmt.Sprintf(
-				"%s/%s:%s", docker.vendor, docker.name, docker.tag,
-			)},
+			Tags:       tags,
 			Remove:     true,
 			PullParent: true,
 			Platform:   "linux/amd64",
