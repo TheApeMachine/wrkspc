@@ -7,7 +7,7 @@ import (
 
 func Handles(err error) *Error {
 	if out := NewError(err); out != nil {
-		sendOut(ERROR, out)
+		sendOut(ERROR, out.msg)
 		Trap()
 		return out
 	}

@@ -4,8 +4,6 @@ import (
 	"io"
 
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/sockpuppet"
-	"github.com/theapemachine/wrkspc/sockpuppet/ipc"
 )
 
 type PipeType uint
@@ -16,26 +14,16 @@ const (
 	WAN
 )
 
-func (t PipeType) BuildPipe() sockpuppet.Server {
-	var server *ipc.Server
-
-	switch t {
-	case IPC:
-		return ipc.NewServer()
-	}
-
-	return server
-}
-
 type Pipe struct {
-	r   *io.PipeReader
-	w   *io.PipeWriter
-	err error
+	r    *io.PipeReader
+	w    *io.PipeWriter
+	err  error
+	Type PipeType
 }
 
-func NewPipe() *Pipe {
+func NewPipe(t PipeType) *Pipe {
 	r, w := io.Pipe()
-	return &Pipe{r, w, nil}
+	return &Pipe{r, w, nil, t}
 }
 
 func (pipe *Pipe) Read(p []byte) (n int, err error) {

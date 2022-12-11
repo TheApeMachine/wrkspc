@@ -1,16 +1,17 @@
 package cmd
 
 import (
-	"bufio"
+	"bytes"
+	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/theapemachine/wrkspc/brazil"
+	"github.com/theapemachine/wrkspc/container"
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/ford"
 	"github.com/theapemachine/wrkspc/gadget"
 	"github.com/theapemachine/wrkspc/tweaker"
+	"github.com/theapemachine/wrkspc/twoface"
 )
-
-var orchestrator string
 
 /*
 runCmd is a proxy for running any terminal command using a container
@@ -29,8 +30,31 @@ var runCmd = &cobra.Command{
 			tweaker.GetString("metrics.pyroscope.endpoint"),
 		).Start()
 
-		wrkspc := bufio.NewReader(ford.NewWorkspace())
-		return <-sockpuppet.NewChannel(wrkspc)
+		ctx := twoface.NewContext()
+		brazil.NewFile(
+			"/tmp/wrkspc/quay.io/coreos/butane", "butane.yml",
+			bytes.NewBuffer([]byte{}),
+		)
+
+		container.NewDocker(
+			ctx, "quay.io/coreos", "butane", "latest",
+		).Pull().Create(
+			nil, &[]string{"brutane.yml", ">", "ignition.json"},
+		).Start()
+
+		container.NewDocker(
+			ctx, "pixiecore", "pixiecore", "latest",
+		).Pull().Create(
+			nil, &[]string{"boot", strings.Join([]string{
+				tweaker.GetString("pxe.channel"),
+				tweaker.GetString("pxe.kernel"),
+			}, "/"), strings.Join([]string{
+				tweaker.GetString("pxe.channel"),
+				tweaker.GetString("pxe.image"),
+			}, "/")},
+		).Start()
+
+		return nil
 	},
 }
 

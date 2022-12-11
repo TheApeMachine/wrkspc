@@ -24,6 +24,77 @@ wrkspc:
         pyroscope:
           endpoint: "http://localhost:4040"
 
+      pxe:
+        channel: http://stable.release.flatcar-linux.net/amd64-usr/current
+        kernel: flatcar_production_pxe.vmlinuz
+        image: flatcar_production_pxe_image.cpio.gz
+        ignition: pxe-config.ign
+
+        # The butane config is given to a flatcar linux provisioning process
+        # in order to make dynamic modifications during a PXE boot.
+        butane:
+          variant: flatcar
+          version: 1.0.0
+          storage:
+            files:
+              - path: /etc/docker/ca.crt
+                filesystem: root
+                mode: 0644
+                contents:
+                  inline: |
+                    -----BEGIN CERTIFICATE-----
+              - path: /etc/docker/tls.crt
+                filesystem: root
+                mode: 0644
+                contents:
+                  inline: |
+                    -----BEGIN CERTIFICATE-----
+              - path: /etc/docker/tls.key
+                filesystem: root
+                mode: 0644
+                contents:
+                  inline: |
+                    -----BEGIN RSA PRIVATE KEY-----
+
+          systemd:
+            units:
+              - name: docker-tls-tcp.socket
+                enable: true
+                contents: |
+                  [Unit]
+                  Description=Docker Secured Socket for the API
+
+                  [Socket]
+                  ListenStream=2376
+                  BindIPv6Only=both
+                  Service=docker.service
+
+                  [Install]
+                  WantedBy=sockets.target
+              - name: docker.service
+                enable: true
+                dropins:
+                  - name: 30-increase-ulimit.conf
+                    contents: |
+                      [Service]
+                      LimitMEMLOCK=infinity
+          networkd:
+            units:
+              - name: 00-eth0.network
+                contents: |
+                  [Match]
+                  Name=eno1
+
+                  [Network]
+                  DNS=192.168.0.1
+                  Address=192.168.0.10/24
+                  Gateway=192.168.0.1
+          docker:
+            flags:
+              - --tlsverify
+              - --tlscacert=/etc/docker/ca.crt
+              - --tlscert=/etc/docker/tls.crt
+              - --tlskey=/etc/docker/tls.key
       # Configuration values for the service.
       server:
         port: "1984"

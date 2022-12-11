@@ -3,19 +3,33 @@ package ford
 import (
 	"github.com/google/uuid"
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/spd"
 )
+
+var Main *Workspace
+
+func init() {
+	Main = NewWorkspace()
+}
 
 type Workspace struct {
 	ID        uuid.UUID
 	workloads []*Workload
-	buffer    spd.Datagram
 	err       chan error
 }
 
 func NewWorkspace(workloads ...*Workload) *Workspace {
 	errnie.Trace()
-	return &Workspace{uuid.New(), workloads, make(chan error)}
+
+	return &Workspace{
+		uuid.New(),
+		workloads,
+		make(chan error),
+	}
+}
+
+func (wrkspc *Workspace) AddWork(work ...*Workload) *Workspace {
+	wrkspc.workloads = append(wrkspc.workloads, work...)
+	return wrkspc
 }
 
 func (wrkspc *Workspace) Read(p []byte) (n int, err error) {

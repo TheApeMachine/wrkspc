@@ -11,5 +11,6 @@ struct Datagram {
     scope     @2 :Data;
     identity  @3 :Data;
     timestamp @4 :Int64;
+    ptr       @8 :Int32;
     layers    @5 :List(Data);
 }

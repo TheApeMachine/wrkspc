@@ -23,6 +23,11 @@ func NewWorkload(assemblies ...*Assembly) *Workload {
 	}
 }
 
+func (wrkld *Workload) AddWork(asm ...*Assembly) *Workload {
+	wrkld.assemblies = append(wrkld.assemblies, asm...)
+	return wrkld
+}
+
 func (wrkld *Workload) Read(p []byte) (n int, err error) {
 	errnie.Trace()
 	errnie.Debugs("not implemented")

@@ -21,7 +21,7 @@ func TestNewFile(t *testing.T) {
 	NewFileTestContext()
 
 	Convey("Given a path that does not exist", t, func() {
-		path := "tmp/noexist"
+		path := "/tmp/noexist"
 
 		Convey("And a file name that does not exist", func() {
 			name := "noexist.tmp"

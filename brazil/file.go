@@ -2,6 +2,7 @@ package brazil
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"strings"
 
@@ -68,9 +69,8 @@ already exist, using the buffer we pass in to fill the new file with data.
 func (file *File) createIfNotExists(fullPath string, data *bytes.Buffer) {
 	errnie.Trace()
 
-	file.Info, file.err = os.Stat(fullPath)
-
-	if os.IsNotExist(errnie.IOError(file.err)) {
+	if file.Info, file.err = os.Stat(fullPath); file.err != nil {
+		errnie.Warns(fmt.Sprintf("%s does not exist, creating...", fullPath))
 		errnie.Handles(os.WriteFile(fullPath, data.Bytes(), 0644))
 		errnie.Informs("write file", fullPath)
 	}

@@ -1,7 +1,8 @@
 package drknow
 
 import (
-	"github.com/theapemachine/wrkspc/hefner"
+	"io"
+
 	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/twoface"
 )
@@ -17,11 +18,29 @@ It is composed from the following sub types:
 - hefner.Pipe
 */
 type Abstract struct {
-	*twoface.Context
-	*spd.Datagram
-	*hefner.Pipe
+	ctx      *twoface.Context
+	datagram *spd.Datagram
 }
 
 func NewAbstract() *Abstract {
-	return &Abstract{twoface.NewContext(), spd.Empty, hefner.NewPipe()}
+	return &Abstract{
+		twoface.NewContext(),
+		&spd.Empty,
+	}
+}
+
+func (abstract *Abstract) Read(p []byte) (n int, err error) {
+	abstract.datagram.Encode(p)
+	n = len(p)
+	err = io.EOF
+	return
+}
+
+func (abstract *Abstract) Write(p []byte) (n int, err error) {
+	abstract.datagram.Decode(p)
+	return
+}
+
+func (abstract *Abstract) Close() error {
+	return nil
 }

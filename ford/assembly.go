@@ -1,6 +1,8 @@
 package ford
 
 import (
+	"io"
+
 	"github.com/theapemachine/wrkspc/drknow"
 	"github.com/theapemachine/wrkspc/errnie"
 )
@@ -33,8 +35,9 @@ func (asm *Assembly) Read(p []byte) (n int, err error) {
 
 func (asm *Assembly) Write(p []byte) (n int, err error) {
 	errnie.Trace()
-	errnie.Debugs("not implemented")
-
+	asm.abstracts = append(asm.abstracts, drknow.NewAbstract(p))
+	n = len(p)
+	err = io.EOF
 	return
 }
 

@@ -44,6 +44,10 @@ func NewContext() *Context {
 	}
 }
 
+func (ctx *Context) Root() context.Context {
+	return ctx.root
+}
+
 /*
 Error implements Go's native error interface and wraps errnie around
 it to provide more context and more flexible output.

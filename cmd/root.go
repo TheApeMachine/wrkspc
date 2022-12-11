@@ -23,7 +23,9 @@ binary, so it is easier to manage.
 var embedded embed.FS
 
 var (
-	cfgFile string
+	cfgFile      string
+	orchestrator string
+	provision    string
 
 	rootCmd = &cobra.Command{
 		Use:   "wrkspc",
@@ -49,6 +51,12 @@ func Execute() error {
 	rootCmd.PersistentFlags().StringVarP(
 		&orchestrator, "orchestrator", "o", "kubernetes",
 		"The orchestrator to use <nomad|kubernetes>.",
+	)
+
+	// Set the provisioning mode.
+	rootCmd.PersistentFlags().StringVarP(
+		&provision, "provision", "p", "auto",
+		"The provisioning mode to run with.",
 	)
 
 	// Add the `run` command to the CLI.

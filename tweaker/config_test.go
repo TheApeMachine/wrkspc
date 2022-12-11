@@ -15,11 +15,11 @@ func NewConfigContext() *ConfigContext {
 	// CLI while running tests.
 	viper.AddConfigPath("../cmd/cfg")
 	viper.SetConfigType("yml")
-	viper.SetConfigName(".core2ok")
+	viper.SetConfigName(".wrkspc")
 	errnie.Handles(viper.ReadInConfig())
 
 	// Overwrite the stage to `test` so we are in the correct context.
-	viper.Set("core2ok.stage", "test")
+	viper.Set("wrkspc.stage", "test")
 
 	return &ConfigContext{}
 }
