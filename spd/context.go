@@ -30,34 +30,30 @@ func (dg *Datagram) setContext(
 ) error {
 	var err error
 
-	if err = errnie.Handles(
-		dg.SetUuid([]byte(uuid.New().String())),
-	); err != nil {
-		return err
+	if err = dg.SetUuid([]byte(uuid.New().String())); err != nil {
+		return errnie.Handles(err)
 	}
 
-	if err = errnie.Handles(dg.SetVersion(Version)); err != nil {
-		return err
+	if err = dg.SetVersion(Version); err != nil {
+		return errnie.Handles(err)
 	}
 
 	dg.SetTimestamp(time.Now().UnixNano())
 
-	if err = errnie.Handles(dg.SetType(media)); err != nil {
-		return err
+	if err = dg.SetType(media); err != nil {
+		return errnie.Handles(err)
 	}
 
-	if err = errnie.Handles(dg.SetRole(role)); err != nil {
-		return err
+	if err = dg.SetRole(role); err != nil {
+		return errnie.Handles(err)
 	}
 
-	if err = errnie.Handles(dg.SetScope(scope)); err != nil {
-		return err
+	if err = dg.SetScope(scope); err != nil {
+		return errnie.Handles(err)
 	}
 
-	if err = errnie.Handles(
-		dg.SetIdentity(tweaker.GetIdentity()),
-	); err != nil {
-		return err
+	if err = dg.SetIdentity(tweaker.GetIdentity()); err != nil {
+		return errnie.Handles(err)
 	}
 
 	return err

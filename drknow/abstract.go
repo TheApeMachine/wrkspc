@@ -3,6 +3,7 @@ package drknow
 import (
 	"io"
 
+	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/twoface"
 )
@@ -30,15 +31,19 @@ func NewAbstract() *Abstract {
 }
 
 func (abstract *Abstract) Read(p []byte) (n int, err error) {
-	abstract.datagram.Encode(p)
-	n = len(p)
-	err = io.EOF
-	return
+	if err = abstract.datagram.Encode(p); err != nil {
+		return n, errnie.Handles(err)
+	}
+
+	return len(p), io.EOF
 }
 
 func (abstract *Abstract) Write(p []byte) (n int, err error) {
-	abstract.datagram.Decode(p)
-	return
+	if err = abstract.datagram.Decode(p); err != nil {
+		return n, errnie.Handles(err)
+	}
+
+	return len(p), io.EOF
 }
 
 func (abstract *Abstract) Close() error {

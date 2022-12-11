@@ -14,7 +14,7 @@ type PipeTestContext struct {
 
 func NewPipeTestContext() *PipeTestContext {
 	return &PipeTestContext{
-		pipe: NewPipe(),
+		pipe: NewPipe(IPC),
 	}
 }
 
@@ -55,6 +55,6 @@ func TestNewPipe(t *testing.T) {
 
 func BenchmarkNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = NewPipe()
+		_ = NewPipe(IPC)
 	}
 }

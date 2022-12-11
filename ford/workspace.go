@@ -2,6 +2,7 @@ package ford
 
 import (
 	"github.com/google/uuid"
+	"github.com/theapemachine/wrkspc/drknow"
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
@@ -13,6 +14,7 @@ func init() {
 
 type Workspace struct {
 	ID        uuid.UUID
+	tree      *drknow.Tree
 	workloads []*Workload
 	err       chan error
 }
@@ -22,6 +24,7 @@ func NewWorkspace(workloads ...*Workload) *Workspace {
 
 	return &Workspace{
 		uuid.New(),
+		drknow.NewTree(),
 		workloads,
 		make(chan error),
 	}

@@ -8,6 +8,7 @@ replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.8.0
 
 require (
 	capnproto.org/go/capnp/v3 v3.0.0-alpha.8
+	github.com/arriqaaq/art v0.1.2
 	github.com/chromedp/chromedp v0.8.6
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v20.10.21+incompatible
