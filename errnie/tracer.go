@@ -1,7 +1,6 @@
 package errnie
 
 import (
-	"log"
 	"runtime"
 	"strings"
 
@@ -29,5 +28,5 @@ func Trace() {
 	fnchunks := strings.Split(frame.Function, "/")
 	fnstr := fnchunks[len(fnchunks)-1]
 
-	log.Println("TRACE", fstr, fnstr, frame.Line)
+	write("TRACE", fstr, fnstr, frame.Line)
 }

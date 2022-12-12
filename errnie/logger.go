@@ -3,7 +3,9 @@ package errnie
 import (
 	"bytes"
 	"fmt"
+	"time"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -28,9 +30,70 @@ type Logger interface {
 	Inspect(...any)
 }
 
+var styles = map[string]lipgloss.Style{
+	"darkest": lipgloss.NewStyle().Bold(true).Italic(true).Foreground(
+		lipgloss.Color("#323232"),
+	),
+	"darker": lipgloss.NewStyle().Bold(true).Italic(true).Foreground(
+		lipgloss.Color("#424242"),
+	),
+	"dark": lipgloss.NewStyle().Bold(true).Italic(true).Foreground(
+		lipgloss.Color("#626262"),
+	),
+	"TRACE": lipgloss.NewStyle().Bold(true).Foreground(
+		lipgloss.Color("#A2A2A2"),
+	).Background(
+		lipgloss.Color("#626262"),
+	),
+	"DEBUG": lipgloss.NewStyle().Bold(true).Foreground(
+		lipgloss.Color("#626262"),
+	).Background(
+		lipgloss.Color("#A2A2A2"),
+	),
+	"INFO": lipgloss.NewStyle().Bold(true).Foreground(
+		lipgloss.Color("#EFEFEF"),
+	).Background(
+		lipgloss.Color("#33AAFF"),
+	),
+	"WARNING": lipgloss.NewStyle().Bold(true).Foreground(
+		lipgloss.Color("#EFEFEF"),
+	).Background(
+		lipgloss.Color("#FFAA33"),
+	),
+	"ERROR": lipgloss.NewStyle().Bold(true).Foreground(
+		lipgloss.Color("#EFEFEF"),
+	).Background(
+		lipgloss.Color("#FF0055"),
+	),
+}
+
 func write(level string, msgs ...any) {
 	buf := bytes.NewBuffer([]byte{})
-	buf.WriteString(level)
+
+	t := time.Now().Format("2006-01-02 15:04:05.999999")
+	for len(t) < 26 {
+		t += "0"
+	}
+
+	buf.WriteString(
+		styles["darkest"].Render("[") +
+			styles["dark"].Render(t) +
+			styles["darkest"].Render("]"),
+	)
+	buf.WriteString(" ")
+
+	prfx, sufx := "", ""
+
+	for len(prfx+level+sufx) < 7 {
+		if len(prfx+level+sufx)%2 == 1 {
+			prfx += " "
+			continue
+		}
+
+		sufx += " "
+	}
+
+	buf.WriteString(styles[level].Render(prfx + level + sufx))
 
 	for _, msg := range msgs {
 		buf.WriteString(" ")
@@ -54,7 +117,7 @@ Informs is syntactic sugar to call the Info method on
 a Logger interface.
 */
 func Informs(msgs ...any) {
-	write(" INFO  ", msgs...)
+	write("INFO", msgs...)
 }
 
 /*
@@ -62,7 +125,7 @@ Debugs is syntactic sugar to call the Debug method on
 a Logger interface.
 */
 func Debugs(msgs ...any) {
-	write(" DEBUG ", msgs...)
+	write("DEBUG", msgs...)
 }
 
 /*
