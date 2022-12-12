@@ -22,19 +22,15 @@ type Abstract struct {
 	datagram *spd.Datagram
 }
 
-func NewAbstract() *Abstract {
+func NewAbstract(datagram *spd.Datagram) *Abstract {
 	return &Abstract{
 		twoface.NewContext(),
-		&spd.Empty,
+		datagram,
 	}
 }
 
 func (abstract *Abstract) Read(p []byte) (n int, err error) {
-	if err = abstract.datagram.Encode(p); err != nil {
-		return n, errnie.Handles(err)
-	}
-
-	return len(p), io.EOF
+	return abstract.datagram.Read(p)
 }
 
 func (abstract *Abstract) Write(p []byte) (n int, err error) {

@@ -2,6 +2,7 @@ package ford
 
 import (
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/spd"
 )
 
 /*
@@ -30,7 +31,22 @@ func (wrkld *Workload) AddWork(asm ...*Assembly) *Workload {
 
 func (wrkld *Workload) Read(p []byte) (n int, err error) {
 	errnie.Trace()
-	errnie.Debugs("not implemented")
+
+	for _, asm := range wrkld.assemblies {
+		if n, err = asm.Read(p); err != nil {
+			return n, errnie.Handles(err)
+		}
+
+		dg := &spd.Empty
+		if err = dg.Decode(p); errnie.Handles(err) != nil {
+			return
+		}
+
+		if err = wrkld.interpret(dg); errnie.Handles(err) != nil {
+			return
+		}
+	}
+
 	return
 }
 
@@ -44,4 +60,10 @@ func (wrkld *Workload) Close() error {
 	errnie.Trace()
 	errnie.Debugs("not implemented")
 	return errnie.NewError(nil)
+}
+
+func (wrkld *Workload) interpret(dg *spd.Datagram) error {
+	errnie.Trace()
+	errnie.Debugs("not implemented...")
+	return errnie.Handles(nil)
 }

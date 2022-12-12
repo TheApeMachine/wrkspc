@@ -1,10 +1,7 @@
 package http
 
 import (
-	"io"
-
 	"github.com/theapemachine/wrkspc/drknow"
-	"github.com/theapemachine/wrkspc/ford"
 	"github.com/theapemachine/wrkspc/spd"
 	"github.com/valyala/fasthttp"
 )
@@ -28,10 +25,7 @@ func (server *Server) Up(port string) error {
 			// Write the entire request as a Layer in the
 			// Datagram instance.
 			ctx.Request.WriteTo(dg)
-			a := drknow.NewAbstract()
-			io.Copy(a, dg)
-
-			ford.Main.AddWork(ford.NewWorkload(ford.NewAssembly(a)))
+			drknow.NewAbstract(dg)
 		},
 	)
 

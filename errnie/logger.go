@@ -1,7 +1,5 @@
 package errnie
 
-import "github.com/davecgh/go-spew/spew"
-
 type LogLevel uint
 
 const (
@@ -28,7 +26,6 @@ Warns is syntactic sugar to call the Warning method on
 a Logger interface.
 */
 func Warns(msgs ...any) {
-	sendOut(WARNING, msgs...)
 }
 
 /*
@@ -36,7 +33,6 @@ Informs is syntactic sugar to call the Info method on
 a Logger interface.
 */
 func Informs(msgs ...any) {
-	sendOut(INFO, msgs...)
 }
 
 /*
@@ -44,7 +40,6 @@ Debugs is syntactic sugar to call the Debug method on
 a Logger interface.
 */
 func Debugs(msgs ...any) {
-	sendOut(DEBUG, msgs...)
 }
 
 /*
@@ -52,5 +47,4 @@ Inspects is syntactic sugar to dump the structure and values
 of objects with arbitrary complexity to logger output channels.
 */
 func Inspects(msgs ...any) {
-	spew.Sdump(msgs...)
 }

@@ -72,7 +72,6 @@ func errorWithType(
 	}
 
 	inst := &Error{ec: ect, et: ll, msg: err.Error()}
-	sendOut(ERROR, inst)
 	return inst
 }
 
@@ -120,7 +119,6 @@ func (ee *Error) Error() string {
 Dump the error to the log output channels.
 */
 func (ee *Error) Dump() {
-	sendOut(ee.et, ee.msg)
 }
 
 /*

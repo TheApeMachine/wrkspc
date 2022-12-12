@@ -9,11 +9,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/theapemachine/wrkspc/brazil"
 	"github.com/theapemachine/wrkspc/container"
+	"github.com/theapemachine/wrkspc/drknow"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/ford"
 	"github.com/theapemachine/wrkspc/gadget"
 	"github.com/theapemachine/wrkspc/infra"
-	"github.com/theapemachine/wrkspc/tui"
+	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/tweaker"
 	"github.com/theapemachine/wrkspc/twoface"
 )
@@ -35,11 +36,33 @@ var runCmd = &cobra.Command{
 			tweaker.GetString("metrics.pyroscope.endpoint"),
 		).Start()
 
-		ui := tui.NewUI("WRKSPC")
-		out := io.MultiReader(errnie.Ctx(), ui)
-		wrkspc := ford.NewWorkspace()
-		io.Copy(os.Stdout, out)
+		uipipe := drknow.NewAbstract(spd.New(
+			spd.APPBIN, spd.PIPE, spd.UI,
+		))
 
+		errpipe := drknow.NewAbstract(spd.New(
+			spd.APPBIN, spd.PIPE, spd.WAN,
+		))
+
+		wanpipe := drknow.NewAbstract(spd.New(
+			spd.APPBIN, spd.PIPE, spd.WAN,
+		))
+
+		wrkspc := ford.NewWorkspace(
+			ford.NewWorkload(
+				ford.NewAssembly(errpipe),
+			),
+			ford.NewWorkload(
+				ford.NewAssembly(uipipe),
+			),
+			ford.NewWorkload(
+				ford.NewAssembly(wanpipe),
+			),
+		)
+
+		// Only messages with the ScopeType of UI should be read from
+		// a Workspace.
+		io.Copy(os.Stdout, wrkspc)
 		os.Exit(0)
 
 		ctx := twoface.NewContext()

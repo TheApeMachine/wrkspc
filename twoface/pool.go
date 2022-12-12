@@ -9,7 +9,7 @@ worker pool, which keeps the amount of goroutines in check, while still being
 able to benefit from high concurrency in all kinds of scenarios.
 */
 type Pool struct {
-	ctx     Context
+	ctx     *Context
 	workers chan chan Job
 	jobs    chan Job
 }
@@ -18,7 +18,7 @@ type Pool struct {
 NewPool instantiates a worker pool with bound size of maxWorkers, taking in a
 Context type to be able to cleanly cancel all of the sub processes it starts.
 */
-func NewPool(ctx Context) *Pool {
+func NewPool(ctx *Context) *Pool {
 	return &Pool{
 		ctx:     ctx,
 		workers: make(chan chan Job),

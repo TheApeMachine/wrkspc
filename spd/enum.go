@@ -17,6 +17,7 @@ var (
 	DATAPOINT RoleType = []byte("datapoint")
 	QUESTION  RoleType = []byte("question")
 	REQUEST   RoleType = []byte("request")
+	PIPE      RoleType = []byte("pipe")
 
 	UNKNOWN    ScopeType = []byte("unknown")
 	IO         ScopeType = []byte("io")
@@ -27,4 +28,6 @@ var (
 	WORKSPACE  ScopeType = []byte("workspace")
 	DATALAKE   ScopeType = []byte("datalake")
 	HTTP       ScopeType = []byte("http")
+	WAN        ScopeType = []byte("wan")
+	UI         ScopeType = []byte("ui")
 )

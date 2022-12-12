@@ -1,31 +1,34 @@
 package ford
 
 import (
+	"bytes"
+
 	"github.com/google/uuid"
 	"github.com/theapemachine/wrkspc/drknow"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/spd"
+	"github.com/theapemachine/wrkspc/twoface"
 )
-
-var Main *Workspace
-
-func init() {
-	Main = NewWorkspace()
-}
 
 type Workspace struct {
 	ID        uuid.UUID
+	ctx       *twoface.Context
 	tree      *drknow.Tree
 	workloads []*Workload
+	pool      *twoface.Pool
 	err       chan error
 }
 
 func NewWorkspace(workloads ...*Workload) *Workspace {
 	errnie.Trace()
+	ctx := twoface.NewContext()
 
 	return &Workspace{
 		uuid.New(),
+		ctx,
 		drknow.NewTree(),
 		workloads,
+		twoface.NewPool(ctx).Run(),
 		make(chan error),
 	}
 }
@@ -38,9 +41,31 @@ func (wrkspc *Workspace) AddWork(work ...*Workload) *Workspace {
 func (wrkspc *Workspace) Read(p []byte) (n int, err error) {
 	errnie.Trace()
 
-	for _, workload := range wrkspc.workloads {
-		if n, err = workload.Read(p); err != nil {
-			wrkspc.Close()
+	var b []byte
+
+	for _, wrkld := range wrkspc.workloads {
+		if n, err = wrkld.Read(b); err != nil {
+			return n, errnie.Handles(err)
+		}
+
+		dg := &spd.Empty
+		if err = dg.Decode(b); errnie.Handles(err) != nil {
+			return
+		}
+
+		if err = wrkspc.interpret(dg); errnie.Handles(err) != nil {
+			return
+		}
+
+		var scope spd.ScopeType
+		if scope, err = dg.Scope(); errnie.Handles(err) != nil {
+			return
+		}
+
+		if bytes.Equal(scope, spd.UI) {
+			// This is a ui related message, so we should send it
+			// to the buffer, which is copied to stdout.
+			n = copy(p, b)
 		}
 	}
 
@@ -69,4 +94,10 @@ func (wrkspc *Workspace) Close() error {
 
 	wrkspc.err <- errnie.NewError(nil)
 	return nil
+}
+
+func (wrkspc *Workspace) interpret(dg *spd.Datagram) error {
+	errnie.Trace()
+	errnie.Debugs("not implemented...")
+	return errnie.Handles(nil)
 }

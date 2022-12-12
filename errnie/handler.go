@@ -7,7 +7,6 @@ import (
 
 func Handles(err error) *Error {
 	if out := NewError(err); out != nil {
-		sendOut(ERROR, out.msg)
 		Trap()
 		return out
 	}
@@ -27,7 +26,6 @@ func Trap() {
 
 func Kills(err error) {
 	if out := NewError(err); out != nil {
-		sendOut(ERROR, out)
 		os.Exit(1)
 	}
 }
