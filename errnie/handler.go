@@ -5,7 +5,7 @@ import (
 	"runtime"
 )
 
-func Handles(err error) *Error {
+func Handles(err error) error {
 	if out := NewError(err); out != nil {
 		Trap()
 		return out

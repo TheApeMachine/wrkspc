@@ -1,13 +1,11 @@
 package twoface
 
-import "github.com/theapemachine/wrkspc/errnie"
-
 /*
 Job is an interface any type can implement if they want to be able to use the
 generics goroutine pool.
 */
 type Job interface {
-	Do() *errnie.Error
+	Do() error
 }
 
 /*
@@ -39,6 +37,6 @@ func NewRetriableJob(ctx Context, fn Job, tries int) Job {
 /*
 Do the job and retry x amount of times when needed.
 */
-func (job RetriableJob) Do() *errnie.Error {
+func (job RetriableJob) Do() error {
 	return NewRetrier(NewFibonacci(job.tries)).Do(job.fn)
 }

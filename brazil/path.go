@@ -13,7 +13,7 @@ some specific functionality, and improving developer ergonomics.
 */
 type Path struct {
 	Location string
-	err      *errnie.Error
+	err      error
 }
 
 /*

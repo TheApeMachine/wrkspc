@@ -17,7 +17,7 @@ func (layer *Layer) Init() tea.Cmd {
 }
 
 func (layer *Layer) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	return layer.Update(msg)
+	return layer.model.Update(msg)
 }
 
 func (layer *Layer) View() string {

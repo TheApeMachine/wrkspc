@@ -8,7 +8,7 @@ import (
 )
 
 type ErrorTestContext struct {
-	instance *Error
+	instance error
 	msg      string
 }
 

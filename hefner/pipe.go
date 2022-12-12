@@ -6,44 +6,25 @@ import (
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
-type PipeType uint
-
-const (
-	IPC PipeType = iota
-	LAN
-	WAN
-)
-
 type Pipe struct {
-	r    *io.PipeReader
-	w    *io.PipeWriter
-	err  error
-	Type PipeType
+	origin io.ReadWriteCloser
 }
 
-func NewPipe(t PipeType) *Pipe {
-	r, w := io.Pipe()
-	return &Pipe{r, w, nil, t}
+func NewPipe(origin io.ReadWriteCloser) *Pipe {
+	return &Pipe{origin}
 }
 
 func (pipe *Pipe) Read(p []byte) (n int, err error) {
-	if n, err = pipe.r.Read(p); errnie.Handles(err) != nil {
-		pipe.err = err
-	}
-	return
+	errnie.Trace()
+	return pipe.origin.Read(p)
 }
 
 func (pipe *Pipe) Write(p []byte) (n int, err error) {
-	go func() {
-		defer pipe.w.Close()
-		if n, err = pipe.w.Write(p); errnie.Handles(err) != nil {
-			pipe.err = err
-		}
-	}()
-
-	return
+	errnie.Trace()
+	return pipe.origin.Write(p)
 }
 
 func (pipe *Pipe) Close() error {
-	return pipe.err
+	errnie.Trace()
+	return pipe.origin.Close()
 }

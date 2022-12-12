@@ -19,9 +19,6 @@ func NewContextContext() *ContextContext {
 func TestNew(t *testing.T) {
 	Convey("Given a new instance", t, func() {
 		NewContextContext()
-		Convey("It should have an instance of ConsoleLogger", func() {
-			So(ctx.loggers[0], ShouldHaveSameTypeAs, &ConsoleLogger{})
-		})
 	})
 }
 

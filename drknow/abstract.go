@@ -3,8 +3,6 @@ package drknow
 import (
 	"io"
 
-	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/twoface"
 )
 
@@ -18,29 +16,22 @@ It is composed from the following sub types:
 - spd.Datagram
 */
 type Abstract struct {
-	ctx      *twoface.Context
-	datagram *spd.Datagram
+	ctx *twoface.Context
+	rwc io.ReadWriteCloser
 }
 
-func NewAbstract(datagram *spd.Datagram) *Abstract {
-	return &Abstract{
-		twoface.NewContext(),
-		datagram,
-	}
+func NewAbstract(rwc io.ReadWriteCloser) *Abstract {
+	return &Abstract{twoface.NewContext(), rwc}
 }
 
 func (abstract *Abstract) Read(p []byte) (n int, err error) {
-	return abstract.datagram.Read(p)
+	return abstract.rwc.Read(p)
 }
 
 func (abstract *Abstract) Write(p []byte) (n int, err error) {
-	if err = abstract.datagram.Decode(p); err != nil {
-		return n, errnie.Handles(err)
-	}
-
-	return len(p), io.EOF
+	return abstract.rwc.Write(p)
 }
 
 func (abstract *Abstract) Close() error {
-	return nil
+	return abstract.rwc.Close()
 }

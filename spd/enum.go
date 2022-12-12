@@ -18,6 +18,7 @@ var (
 	QUESTION  RoleType = []byte("question")
 	REQUEST   RoleType = []byte("request")
 	PIPE      RoleType = []byte("pipe")
+	LINK      RoleType = []byte("link")
 
 	UNKNOWN    ScopeType = []byte("unknown")
 	IO         ScopeType = []byte("io")
@@ -30,4 +31,5 @@ var (
 	HTTP       ScopeType = []byte("http")
 	WAN        ScopeType = []byte("wan")
 	UI         ScopeType = []byte("ui")
+	ERRNIE     ScopeType = []byte("errnie")
 )

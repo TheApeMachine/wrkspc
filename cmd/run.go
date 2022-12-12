@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"bytes"
 	"io"
 	"os"
@@ -41,8 +42,15 @@ var runCmd = &cobra.Command{
 		))
 
 		errpipe := drknow.NewAbstract(spd.New(
-			spd.APPBIN, spd.PIPE, spd.WAN,
+			spd.APPBIN, spd.PIPE, spd.ERRNIE,
 		))
+
+		go func() {
+			scanner := bufio.NewScanner(errnie.Ctx())
+			for scanner.Scan() {
+				os.Stdout.Write(append(scanner.Bytes(), byte('\n')))
+			}
+		}()
 
 		wanpipe := drknow.NewAbstract(spd.New(
 			spd.APPBIN, spd.PIPE, spd.WAN,

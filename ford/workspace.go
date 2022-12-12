@@ -2,11 +2,14 @@ package ford
 
 import (
 	"bytes"
+	"io"
 
 	"github.com/google/uuid"
 	"github.com/theapemachine/wrkspc/drknow"
 	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/theapemachine/wrkspc/hefner"
 	"github.com/theapemachine/wrkspc/spd"
+	"github.com/theapemachine/wrkspc/tui"
 	"github.com/theapemachine/wrkspc/twoface"
 )
 
@@ -14,6 +17,8 @@ type Workspace struct {
 	ID        uuid.UUID
 	ctx       *twoface.Context
 	tree      *drknow.Tree
+	pipes     map[string]*hefner.Pipe
+	links     map[string][]io.ReadWriteCloser
 	workloads []*Workload
 	pool      *twoface.Pool
 	err       chan error
@@ -27,6 +32,8 @@ func NewWorkspace(workloads ...*Workload) *Workspace {
 		uuid.New(),
 		ctx,
 		drknow.NewTree(),
+		make(map[string]*hefner.Pipe),
+		make(map[string][]io.ReadWriteCloser),
 		workloads,
 		twoface.NewPool(ctx).Run(),
 		make(chan error),
@@ -69,6 +76,12 @@ func (wrkspc *Workspace) Read(p []byte) (n int, err error) {
 		}
 	}
 
+	for key, pipe := range wrkspc.pipes {
+		for _, link := range wrkspc.links[key] {
+			io.Copy(link, pipe)
+		}
+	}
+
 	return
 }
 
@@ -98,6 +111,37 @@ func (wrkspc *Workspace) Close() error {
 
 func (wrkspc *Workspace) interpret(dg *spd.Datagram) error {
 	errnie.Trace()
-	errnie.Debugs("not implemented...")
+
+	var (
+		role  spd.RoleType
+		scope spd.ScopeType
+		err   error
+	)
+
+	if role, err = dg.Role(); errnie.Handles(err) != nil {
+		return err
+	}
+
+	if scope, err = dg.Scope(); errnie.Handles(err) != nil {
+		return err
+	}
+
+	if bytes.Equal(role, spd.PIPE) {
+		if bytes.Equal(scope, spd.UI) {
+			ui := tui.NewUI(dg)
+			wrkspc.pipes[string(scope)] = hefner.NewPipe(ui)
+
+			wrkspc.AddWork(NewWorkload(NewAssembly(
+				drknow.NewAbstract(ui),
+			)))
+		}
+	}
+
+	if bytes.Equal(role, spd.LINK) {
+		wrkspc.links[string(scope)] = append(
+			wrkspc.links[string(scope)], dg,
+		)
+	}
+
 	return errnie.Handles(nil)
 }

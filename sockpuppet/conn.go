@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/hefner"
 )
 
 /*
@@ -17,7 +16,6 @@ It implements the net.Conn interface native to Go, which makes it very
 compatible as a generic network abstraction.
 */
 type Conn struct {
-	pipes map[hefner.PipeType][]*hefner.Pipe
 }
 
 func NewConn() *Conn {
@@ -26,13 +24,7 @@ func NewConn() *Conn {
 	// Return a Conn instance with one instance of each PipeType.
 	// TODO: Should auto scale, and load balance the amount of
 	//       Pipes of each type.
-	return &Conn{
-		map[hefner.PipeType][]*hefner.Pipe{
-			hefner.IPC: {hefner.NewPipe(hefner.IPC)},
-			hefner.LAN: {hefner.NewPipe(hefner.LAN)},
-			hefner.WAN: {hefner.NewPipe(hefner.WAN)},
-		},
-	}
+	return &Conn{}
 }
 
 func (conn *Conn) Read(p []byte) (n int, err error) {

@@ -12,7 +12,7 @@ Retrier is an interface that can be implemented by any object that wants to
 schedule itself onto a worker pool and be retried under certain conditions.
 */
 type Retrier interface {
-	Do(Job) *errnie.Error
+	Do(Job) error
 }
 
 func NewRetrier(retrierType Retrier) Retrier {
@@ -35,7 +35,7 @@ func NewFibonacci(max int) Retrier {
 	})
 }
 
-func (strategy *Fibonacci) Do(fn Job) *errnie.Error {
+func (strategy *Fibonacci) Do(fn Job) error {
 	errnie.Trace()
 
 	// We have reached the maximum number of retries.
@@ -46,8 +46,6 @@ func (strategy *Fibonacci) Do(fn Job) *errnie.Error {
 
 	// Error, retry.
 	if err := fn.Do(); err != nil {
-		err.Dump()
-
 		// Backoff delay time by using Fibonacci sequence.
 		strategy.n = int(
 			math.Round((math.Pow(
