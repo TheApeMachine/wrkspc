@@ -8,38 +8,45 @@ import (
 
 type Pyroscope struct {
 	endpoint string
+	profiler *pyroscope.Profiler
+	err      chan error
 }
 
 func NewPyroscope(endpoint string) *Pyroscope {
-	return &Pyroscope{endpoint}
+	errnie.Trace()
+	return &Pyroscope{endpoint, nil, make(chan error)}
 }
 
-func (inspector *Pyroscope) Start() {
+func (inspector *Pyroscope) Start() chan error {
+	errnie.Trace()
 	errnie.Informs("connecting to pyroscope at", inspector.endpoint)
 
-	pyroscope.Start(pyroscope.Config{
+	var err error
+
+	// Pyroscope will give you flame charts and metrics about the
+	// program resource usage. It needs to be running as a service
+	// somewhere, then the endpoint should point to that service.
+	if inspector.profiler, err = pyroscope.Start(pyroscope.Config{
 		ApplicationName: string(tweaker.GetIdentity()),
-
-		// replace this with the address of pyroscope server
-		ServerAddress: inspector.endpoint,
-
-		// you can disable logging by setting this to nil
-		Logger: nil,
-
+		ServerAddress:   inspector.endpoint,
+		Logger:          nil,
 		ProfileTypes: []pyroscope.ProfileType{
-			// these profile types are enabled by default:
 			pyroscope.ProfileCPU,
 			pyroscope.ProfileAllocObjects,
 			pyroscope.ProfileAllocSpace,
 			pyroscope.ProfileInuseObjects,
 			pyroscope.ProfileInuseSpace,
-
-			// these profile types are optional:
 			pyroscope.ProfileGoroutines,
 			pyroscope.ProfileMutexCount,
 			pyroscope.ProfileMutexDuration,
 			pyroscope.ProfileBlockCount,
 			pyroscope.ProfileBlockDuration,
 		},
-	})
+	}); err != nil {
+		// Send the error out over the channel, so the booter will
+		// unblock and allow the program to die.
+		inspector.err <- err
+	}
+
+	return inspector.err
 }

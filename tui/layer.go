@@ -2,6 +2,17 @@ package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/theapemachine/wrkspc/tui/layers"
+)
+
+type LayerType []byte
+
+func (lt LayerType) Bytes() []byte {
+	return []byte(lt)
+}
+
+var (
+	LOGO LayerType = []byte("logo")
 )
 
 type Layer struct {
@@ -22,4 +33,8 @@ func (layer *Layer) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (layer *Layer) View() string {
 	return layer.model.View()
+}
+
+var core = map[string]tea.Model{
+	"logo": layers.NewLogo(),
 }

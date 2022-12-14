@@ -1,7 +1,10 @@
 package errnie
 
 import (
-	"bytes"
+	"io"
+	"os"
+
+	"github.com/pkg/errors"
 )
 
 /*
@@ -15,17 +18,34 @@ var ctx *Context
 init makes sure that the ambient context is loaded up and instantiated
 before any other application code executes.
 */
-func init() { ctx = New() }
+func init() {
+	ctx = New()
+	go func() {
+		defer ctx.reader.Close()
+
+		for {
+			if _, err := io.Copy(ctx.log, ctx.reader); err != nil {
+				Handles(err)
+				Handles(ctx.reader.CloseWithError(
+					errors.Wrap(err, "pipe closed with error"),
+				))
+				return
+			}
+		}
+	}()
+}
 
 /*
 Context wraps all state and behavior errnie needs to act as an
 error handler, logger, and tracer.
 */
 type Context struct {
+	log         io.Writer
+	reader      *io.PipeReader
+	writer      *io.PipeWriter
 	tracing     bool
 	debugging   bool
 	breakpoints bool
-	log         *bytes.Buffer
 }
 
 /*
@@ -33,7 +53,21 @@ New constructs and instantiates the ambient context available to errnie
 internally. Application code can access the instance through the
 publicly exposed functions.
 */
-func New() *Context { return &Context{log: bytes.NewBuffer([]byte{})} }
+func New() *Context {
+	wd, err := os.Getwd()
+	Handles(err)
+
+	f, err := os.Open(wd + "/log")
+	Handles(err)
+
+	r, w := io.Pipe()
+
+	return &Context{
+		log:    io.MultiWriter(os.Stdout, f),
+		reader: r,
+		writer: w,
+	}
+}
 
 /*
 Ctx returns the ambient context for use of its io.ReadWriteCloser

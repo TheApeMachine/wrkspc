@@ -101,7 +101,7 @@ func write(level string, msgs ...any) {
 	}
 
 	buf.WriteString("\n")
-	ctx.log.Write(buf.Bytes())
+	ctx.writer.Write(buf.Bytes())
 }
 
 /*
@@ -124,8 +124,11 @@ func Informs(msgs ...any) {
 Debugs is syntactic sugar to call the Debug method on
 a Logger interface.
 */
-func Debugs(msgs ...any) {
-	write("DEBUG", msgs...)
+func Debugs(msgs ...any) []byte {
+	if ctx.debugging {
+		write("DEBUG", msgs...)
+	}
+	return []byte(fmt.Sprint(msgs...))
 }
 
 /*

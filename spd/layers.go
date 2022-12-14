@@ -7,21 +7,46 @@ import (
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
+/* Next ... */
+func (dg *Datagram) Next() (p []byte) {
+	if _, err := dg.Read(p); errnie.Handles(err) != nil {
+		errnie.Inspects(p)
+		return
+	}
+
+	return
+}
+
 /*
-ReadAt ...
+ReadAt read the entire payload of a Layer at a specified offset.
+
+This was designed to work as a circular buffer, so if we assume a
+DataList of [0, 1, 2], off = 2 returns 2 and off = 3 returns 0.
 */
 func (dg *Datagram) ReadAt(b []byte, off int64) (n int, err error) {
 	if !dg.HasLayers() {
-		return 0, io.EOF
+		// Signals to the caller that a read was attempted before
+		// any data was ever written.
+		return 0, io.ErrUnexpectedEOF
 	}
 
-	dg.SetPtr(int32(off))
+	// Set the Layer Pointer, making it circular if it is set outside
+	// of its length in either direction.
+	dg.SetPtr(int32(off) % int32(dg.layers().Len()))
 	var p []byte
 
+	// Get the layer we are interested in.
 	if p, err = dg.layers().At(int(dg.Ptr())); err != nil {
 		return 0, err
 	}
 
+	// Grow the buffer if needed.
+	if lb, lp := len(b), len(p); lb < lp {
+		b = b[:lp]
+	}
+
+	// Move the layer into the read buffer, and return io.EOF to
+	// signal a graceful return.
 	n = copy(b, p)
 	return n, io.EOF
 }
@@ -33,17 +58,8 @@ func (dg *Datagram) newLayer() capnp.DataList {
 	)
 
 	if !dg.HasLayers() {
-		// If we have never written any data to a Layer, we need to make
-		// sure to instantiate a new DataList first.
-		if layers, err = capnp.NewDataList(dg.Segment(), 1); err != nil {
+		if _, err = dg.NewLayers(1); err != nil {
 			errnie.Handles(err)
-			return layers
-		}
-
-		// Load the DataList into the Datagram Layers property.
-		if err = dg.SetLayers(layers); err != nil {
-			errnie.Handles(err)
-			return layers
 		}
 	}
 

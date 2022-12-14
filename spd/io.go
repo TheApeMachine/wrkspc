@@ -7,10 +7,10 @@ import (
 )
 
 /*
-Read the contents of the first layer into p.
+Read data layer by layer into p sequentially..
 
-Make sure p has a pre-allocated length that corresponds to the length
-of the data you want to read into it.
+Each time the Read method is called it will return the
+next layer down the stack.
 */
 func (dg *Datagram) Read(p []byte) (n int, err error) {
 	if n, err = dg.ReadAt(p, int64(dg.Ptr())); err != nil {

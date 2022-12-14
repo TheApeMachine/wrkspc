@@ -8,21 +8,23 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spd"
-	"github.com/theapemachine/wrkspc/tui/layers"
 )
 
 type UI struct {
-	datagram *spd.Datagram
-	screens  []*Screen
-	builder  strings.Builder
-	out      string
+	dg      *spd.Datagram
+	screens []*Screen
+	builder strings.Builder
+	out     string
 }
 
-func NewUI(datagram *spd.Datagram) *UI {
-	ui := &UI{
-		datagram: datagram,
-		screens:  []*Screen{NewScreen(NewLayer(layers.NewLogo()))},
-	}
+func NewUI(dg *spd.Datagram) *UI {
+	errnie.Trace()
+
+	ui := &UI{dg: dg, screens: []*Screen{
+		NewScreen(
+			NewLayer(core[string(dg.Next())]),
+		),
+	}}
 
 	if _, err := tea.NewProgram(ui).Run(); err != nil {
 		log.Panic(err)
@@ -32,6 +34,8 @@ func NewUI(datagram *spd.Datagram) *UI {
 }
 
 func (ui *UI) Init() tea.Cmd {
+	errnie.Trace()
+
 	for _, screen := range ui.screens {
 		screen.Init()
 	}
@@ -40,6 +44,8 @@ func (ui *UI) Init() tea.Cmd {
 }
 
 func (ui *UI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	errnie.Trace()
+
 	for _, screen := range ui.screens {
 		screen.Update(msg)
 	}
@@ -48,6 +54,8 @@ func (ui *UI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (ui *UI) View() string {
+	errnie.Trace()
+
 	for _, screen := range ui.screens {
 		ui.builder.WriteString(screen.View())
 	}
@@ -58,13 +66,19 @@ func (ui *UI) View() string {
 }
 
 func (ui *UI) Read(p []byte) (n int, err error) {
+	errnie.Trace()
+	errnie.Warns("not implemented...")
 	return len(p), io.EOF
 }
 
 func (ui *UI) Write(p []byte) (n int, err error) {
+	errnie.Trace()
+	errnie.Warns("not implemented...")
 	return
 }
 
 func (ui *UI) Close() error {
+	errnie.Trace()
+	errnie.Warns("not implemented...")
 	return errnie.Handles(nil)
 }
