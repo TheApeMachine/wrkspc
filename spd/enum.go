@@ -36,4 +36,5 @@ var (
 	BOOT       ScopeType = []byte("boot")
 	SCREEN     ScopeType = []byte("screen")
 	LAYER      ScopeType = []byte("layer")
+	SPINNER    ScopeType = []byte("spinner")
 )

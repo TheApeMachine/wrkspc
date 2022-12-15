@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/pkg/errors"
+	"github.com/theapemachine/wrkspc/berrt"
 )
 
 /*
@@ -20,19 +20,6 @@ before any other application code executes.
 */
 func init() {
 	ctx = New()
-	go func() {
-		defer ctx.reader.Close()
-
-		for {
-			if _, err := io.Copy(ctx.log, ctx.reader); err != nil {
-				Handles(err)
-				Handles(ctx.reader.CloseWithError(
-					errors.Wrap(err, "pipe closed with error"),
-				))
-				return
-			}
-		}
-	}()
 }
 
 /*
@@ -40,9 +27,8 @@ Context wraps all state and behavior errnie needs to act as an
 error handler, logger, and tracer.
 */
 type Context struct {
-	log         io.Writer
-	reader      *io.PipeReader
-	writer      *io.PipeWriter
+	output      io.Writer
+	fh          *os.File
 	tracing     bool
 	debugging   bool
 	breakpoints bool
@@ -57,17 +43,23 @@ func New() *Context {
 	wd, err := os.Getwd()
 	Handles(err)
 
-	f, err := os.Open(wd + "/log")
+	fh, err := os.Open(wd + "/log")
 	Handles(err)
 
-	r, w := io.Pipe()
-
+	// Return the context instance loaded with any desired output
+	// channels (of type io.Writer). Our logging operations will
+	// pipe data directly to them.
 	return &Context{
-		log:    io.MultiWriter(os.Stdout, f),
-		reader: r,
-		writer: w,
+		output: io.MultiWriter(
+			os.Stdout,
+			fh,
+			berrt.NewSequenceDiagram(),
+		),
+		fh: fh,
 	}
 }
+
+func Quiet() { ctx.output = io.MultiWriter(ctx.fh) }
 
 /*
 Ctx returns the ambient context for use of its io.ReadWriteCloser

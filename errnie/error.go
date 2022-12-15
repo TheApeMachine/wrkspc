@@ -1,15 +1,6 @@
 package errnie
 
-import (
-	jsoniter "github.com/json-iterator/go"
-)
-
-/*
-json provides us with a faster way to marshal and unmarshal
-json data. This will replace the json package from the standard
-library globally in any project that includes this package.
-*/
-var json = jsoniter.ConfigCompatibleWithStandardLibrary
+import "io"
 
 /*
 ErrorContext adds a strongly typed context to the error.
@@ -56,4 +47,16 @@ Error implements the Go error interface by returning the error message.
 */
 func (ee *Error) Error() string {
 	return ee.presenter.Message
+}
+
+/*
+IOError ...
+*/
+func IOError(err error) bool {
+	if err != nil && err != io.EOF {
+		Handles(err)
+		return true
+	}
+
+	return false
 }

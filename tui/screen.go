@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	term "github.com/inancgumus/screen"
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
@@ -18,6 +19,8 @@ func NewScreen(layers ...*Layer) *Screen {
 }
 
 func (screen *Screen) Init() tea.Cmd {
+	term.Clear()
+
 	for _, layer := range screen.layers {
 		layer.Init()
 	}

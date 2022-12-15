@@ -1,8 +1,6 @@
 package spd
 
 import (
-	"io"
-
 	"github.com/theapemachine/wrkspc/errnie"
 )
 
@@ -13,11 +11,18 @@ Each time the Read method is called it will return the
 next layer down the stack.
 */
 func (dg *Datagram) Read(p []byte) (n int, err error) {
-	if n, err = dg.ReadAt(p, int64(dg.Ptr())); err != nil {
+	errnie.Trace()
+
+	errnie.Debugs("spd.Datagram.Read Ptr ->", dg.Ptr())
+
+	var b []byte
+	if b, err = dg.ReadAt(int64(dg.Ptr())); errnie.IOError(err) {
 		errnie.Handles(err)
-		return n, err
+		return
 	}
 
+	p = append(p, b...)
+	errnie.Debugs("spd.Datagram.Read ->", string(p))
 	return n, err
 }
 
@@ -25,11 +30,18 @@ func (dg *Datagram) Read(p []byte) (n int, err error) {
 Write the contents of p into a new Layer on the Datagram instance.
 */
 func (dg *Datagram) Write(p []byte) (n int, err error) {
-	if err = dg.newLayer().Set(int(dg.Ptr()), p); err != nil {
+	errnie.Trace()
+	errnie.Debugs("spd.Datagram.Write <-", string(p))
+
+	layers := dg.newLayer()
+	errnie.Debugs("spd.Datagram.Write Ptr ->", dg.Ptr())
+
+	if err = layers.Set(int(dg.Ptr()), p); errnie.IOError(err) {
 		return 0, err
 	}
 
-	return len(p), io.EOF
+	errnie.Debugs("spd.Datagram.Write ->", layers)
+	return len(p), err
 }
 
 /*

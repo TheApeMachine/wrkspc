@@ -7,19 +7,31 @@ import (
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/tui"
+	"github.com/theapemachine/wrkspc/twoface"
 )
 
 type UIBooter struct {
-	err chan error
+	Ctx *twoface.Context
+	err error
 }
 
 func (booter *UIBooter) Kick() chan error {
 	errnie.Trace()
-	booter.err = make(chan error)
+	out := make(chan error)
 
-	dg := spd.New(spd.APPBIN, spd.UI, spd.LAYER)
-	dg.Write(tui.LOGO)
+	go func() {
+		defer close(out)
+		errnie.Informs("ui booting...")
 
-	io.Copy(os.Stdout, tui.NewUI(dg))
-	return booter.err
+		dg := spd.New(spd.APPBIN, spd.UI, spd.LAYER)
+		dg.Write(tui.LOGO)
+
+		if _, booter.err = io.Copy(
+			os.Stdout, tui.NewUI(dg),
+		); errnie.Handles(booter.err) != nil {
+			return
+		}
+	}()
+
+	return out
 }

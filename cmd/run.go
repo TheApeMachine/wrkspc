@@ -27,12 +27,16 @@ var runCmd = &cobra.Command{
 		ctx := twoface.NewContext()
 
 		errnie.Informs("booting wrkspc for", os.Getenv("USER"))
-		system.Boot(
+		for err := range system.Boot(
+			&system.SystemBooter{Ctx: ctx},
 			&system.KraftBooter{Ctx: ctx},
-			&system.SystemBooter{},
-			&system.UIBooter{},
-			&system.WorkspaceBooter{},
-		)
+			&system.UIBooter{Ctx: ctx},
+			&system.WorkspaceBooter{Ctx: ctx},
+		) {
+			errnie.Handles(err)
+		}
+
+		defer errnie.Ctx().Close()
 
 		os.Exit(0)
 

@@ -1,6 +1,9 @@
 package berrt
 
-import "strings"
+import (
+	"bytes"
+	"strings"
+)
 
 /*
 Diagram is an interface that all objects within `berrt` have to
@@ -12,10 +15,20 @@ type Diagram interface {
 
 type SequenceDiagram struct {
 	lines []Diagram
+	out   *bytes.Buffer
 }
 
 func NewSequenceDiagram() *SequenceDiagram {
-	return &SequenceDiagram{}
+	return &SequenceDiagram{
+		[]Diagram{}, bytes.NewBuffer([]byte{}),
+	}
+}
+
+/*
+Write implements the io.Writer interface.
+*/
+func (diagram *SequenceDiagram) Write(p []byte) (n int, err error) {
+	return
 }
 
 func (diagram *SequenceDiagram) Render() string {

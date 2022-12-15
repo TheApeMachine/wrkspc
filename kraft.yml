@@ -1,0 +1,20 @@
+specification: '0.5'
+name: wrkspc
+unikraft:
+  version: '0.6'
+  kconfig:
+    - CONFIG_LIBSYSCALL_SHIM_LIBCSTUBS=y
+targets:
+  - architecture: x86_64
+    platform: kvm
+libraries:
+  gcc: '0.6'
+  libgo: '0.6'
+  pthread-embedded: '0.6'
+  lwip: '0.6'
+  compiler-rt: '0.6'
+  libcxx: '0.6'
+  libcxxabi: '0.6'
+  libunwind: '0.6'
+  libucontext: '0.6'
+  newlib: '0.6'

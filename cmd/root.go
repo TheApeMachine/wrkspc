@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/elewis787/boa"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 	"github.com/spf13/viper"
@@ -45,6 +46,9 @@ values that were passed in from the command line.
 */
 func Execute() error {
 	errnie.Trace()
+
+	rootCmd.SetUsageFunc(boa.UsageFunc)
+	rootCmd.SetHelpFunc(boa.HelpFunc)
 
 	// Set the orchestrator we will use to build the infrastructure
 	// of our platform.

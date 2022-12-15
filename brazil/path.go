@@ -56,6 +56,7 @@ func (path *Path) toPrefix(segments ...string) string {
 		return ""
 	}
 
+	errnie.Debugs("brazil.Path.toPrefix ->", out)
 	return out
 }
 

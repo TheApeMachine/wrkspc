@@ -2,8 +2,8 @@ package layers
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/common-nighthawk/go-figure"
+	"github.com/theapemachine/wrkspc/errnie"
 )
 
 type Logo struct {
@@ -11,30 +11,27 @@ type Logo struct {
 }
 
 func NewLogo() *Logo {
+	errnie.Trace()
 	return &Logo{}
 }
 
 func (logo *Logo) Init() tea.Cmd {
-	logo.out = lipgloss.Place(
-		96, 9, lipgloss.Center, lipgloss.Center,
-		lipgloss.NewStyle().Width(50).Align(lipgloss.Center).Render(
-			figure.NewColorFigure(
-				"WRKSPC", "isometric1", "purple", true,
-			).String(),
-		),
-		lipgloss.WithWhitespaceChars("猫咪"),
-		lipgloss.WithWhitespaceForeground(
-			lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"},
-		),
-	)
+	errnie.Trace()
+
+	logo.out = figure.NewColorFigure(
+		"WRKSPC", "isometric1", "purple", true,
+	).String()
 
 	return nil
 }
 
 func (logo *Logo) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	errnie.Trace()
+
 	return logo, nil
 }
 
 func (logo *Logo) View() string {
+	errnie.Trace()
 	return logo.out
 }

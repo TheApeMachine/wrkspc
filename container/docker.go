@@ -52,13 +52,13 @@ func (docker *Docker) Start() *Docker {
 	)
 
 	if err = docker.cli.ContainerStart(
-		docker.ctx, docker.ID, types.ContainerStartOptions{},
+		docker.ctx.Root(), docker.ID, types.ContainerStartOptions{},
 	); errnie.Handles(err) != nil {
 		return docker
 	}
 
 	statusCh, errCh := docker.cli.ContainerWait(
-		docker.ctx,
+		docker.ctx.Root(),
 		docker.ID,
 		dc.WaitConditionNotRunning,
 	)
@@ -72,7 +72,7 @@ func (docker *Docker) Start() *Docker {
 	}
 
 	if out, err = docker.cli.ContainerLogs(
-		docker.ctx, docker.ID, types.ContainerLogsOptions{
+		docker.ctx.Root(), docker.ID, types.ContainerLogsOptions{
 			ShowStdout: true,
 		},
 	); errnie.Handles(err) != nil {

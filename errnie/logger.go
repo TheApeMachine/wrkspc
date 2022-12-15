@@ -55,6 +55,11 @@ var styles = map[string]lipgloss.Style{
 	).Background(
 		lipgloss.Color("#33AAFF"),
 	),
+	"SUCCESS": lipgloss.NewStyle().Bold(true).Foreground(
+		lipgloss.Color("#EFEFEF"),
+	).Background(
+		lipgloss.Color("#00FF55"),
+	),
 	"WARNING": lipgloss.NewStyle().Bold(true).Foreground(
 		lipgloss.Color("#EFEFEF"),
 	).Background(
@@ -101,7 +106,15 @@ func write(level string, msgs ...any) {
 	}
 
 	buf.WriteString("\n")
-	ctx.writer.Write(buf.Bytes())
+	ctx.Write(buf.Bytes())
+}
+
+/*
+Errors is syntactic sugar to call the Warning method on
+a Logger interface.
+*/
+func Errors(msgs ...any) {
+	write("ERROR", msgs...)
 }
 
 /*
@@ -110,6 +123,14 @@ a Logger interface.
 */
 func Warns(msgs ...any) {
 	write("WARNING", msgs...)
+}
+
+/*
+Success is syntactic sugar to call the Info method on
+a Logger interface.
+*/
+func Success(msgs ...any) {
+	write("SUCCESS", msgs...)
 }
 
 /*
@@ -143,5 +164,5 @@ func Inspects(msgs ...any) {
 	}
 
 	buf.WriteString("\n")
-	ctx.log.Write(buf.Bytes())
+	ctx.Write(buf.Bytes())
 }
