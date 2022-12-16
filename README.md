@@ -1,5 +1,7 @@
 # wrkspc
 
+A single binary that takes you from development into production, and beyond.
+
 ## Development Guidelines
 
 Should you want to develop on this code, here are a couple of pointers.
@@ -56,8 +58,10 @@ modification.
 **Abstracts** can exchange messages with other **Abstracts**.
 
 By grouping them into `Assembly` types, we end up with a pipeline of
-message sending operations, to which any arbitrary operation can be
-performed before it is sent of to its next destination in the pipeline.
+message sending operations.
+
+Messages can be *mutated* (though in an append-only fashion), before
+they enter the next stage of the process.
 
 By grouping Assemblies into `Workload` types, we obtain yet another level
 of composition, which can be used to perform operations on the results
