@@ -59,7 +59,9 @@ func New() *Context {
 	}
 }
 
-func Quiet() { ctx.output = io.MultiWriter(ctx.fh) }
+func Quiet(output io.Writer) {
+	ctx.output = io.MultiWriter(output)
+}
 
 /*
 Ctx returns the ambient context for use of its io.ReadWriteCloser

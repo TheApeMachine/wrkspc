@@ -21,7 +21,7 @@ func (booter *UIBooter) Kick() chan error {
 
 	go func() {
 		defer close(out)
-		errnie.Informs("ui booting...")
+		errnie.Informs("booting ui...")
 
 		dg := spd.New(spd.APPBIN, spd.UI, spd.LAYER)
 		dg.Write(tui.LOGO)
@@ -31,6 +31,8 @@ func (booter *UIBooter) Kick() chan error {
 		); errnie.Handles(booter.err) != nil {
 			return
 		}
+
+		out <- nil
 	}()
 
 	return out

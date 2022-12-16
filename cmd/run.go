@@ -1,17 +1,11 @@
 package cmd
 
 import (
-	"bytes"
 	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/theapemachine/wrkspc/brazil"
-	"github.com/theapemachine/wrkspc/container"
 	"github.com/theapemachine/wrkspc/errnie"
-	"github.com/theapemachine/wrkspc/infra"
 	"github.com/theapemachine/wrkspc/system"
-	"github.com/theapemachine/wrkspc/tweaker"
 	"github.com/theapemachine/wrkspc/twoface"
 )
 
@@ -29,7 +23,7 @@ var runCmd = &cobra.Command{
 		errnie.Informs("booting wrkspc for", os.Getenv("USER"))
 		for err := range system.Boot(
 			&system.SystemBooter{Ctx: ctx},
-			&system.KraftBooter{Ctx: ctx},
+			//&system.KraftBooter{Ctx: ctx},
 			&system.UIBooter{Ctx: ctx},
 			&system.WorkspaceBooter{Ctx: ctx},
 		) {
@@ -37,40 +31,6 @@ var runCmd = &cobra.Command{
 		}
 
 		defer errnie.Ctx().Close()
-
-		os.Exit(0)
-
-		/* TODO: Clean up... */
-		brazil.NewFile(
-			"~/tmp/wrkspc/quay.io/coreos/butane", "butane.yml",
-			bytes.NewBuffer([]byte{}),
-		)
-
-		container.NewDocker(
-			ctx, "quay.io/coreos", "butane", "latest",
-		).Pull().Create(
-			nil, &[]string{"butane.yml", ">", "ignition.json"},
-		).Start()
-
-		container.NewDocker(
-			ctx, "pixiecore", "pixiecore", "",
-		).Pull().Create(
-			nil, &[]string{"boot", strings.Join([]string{
-				tweaker.GetString("pxe.channel"),
-				tweaker.GetString("pxe.kernel"),
-			}, "/"), strings.Join([]string{
-				tweaker.GetString("pxe.channel"),
-				tweaker.GetString("pxe.image"),
-			}, "/")},
-		).Start()
-
-		ip := tweaker.GetString("pxe.machines.deepthought.ip")
-		user := tweaker.GetString("pxe.machines.deepthought.username")
-		pass := tweaker.GetString("pxe.machines.deepthought.password")
-
-		dt := infra.NewIDRAC(ip, user, pass)
-		dt.Reboot()
-
 		return nil
 	},
 }

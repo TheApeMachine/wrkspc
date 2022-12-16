@@ -41,7 +41,7 @@ func (booter *SystemBooter) Kick() chan error {
 
 	go func() {
 		defer close(out)
-		errnie.Informs("system booting...")
+		errnie.Informs("booting system...")
 
 		out <- gadget.NewPyroscope(
 			tweaker.GetString("metrics.pyroscope.endpoint"),

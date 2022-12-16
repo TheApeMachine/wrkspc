@@ -1,10 +1,8 @@
 package system
 
 import (
-	"github.com/theapemachine/wrkspc/drknow"
 	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/ford"
-	"github.com/theapemachine/wrkspc/spd"
 	"github.com/theapemachine/wrkspc/twoface"
 )
 
@@ -19,16 +17,15 @@ func (booter *WorkspaceBooter) Kick() chan error {
 
 	go func() {
 		defer close(out)
-		spinner := spd.New(spd.APPBIN, spd.UI, spd.SPINNER)
-		spinner.Write([]byte("loading your wrkspc"))
+		errnie.Informs("booting workspace...")
 
 		ford.NewWorkspace(
 			ford.NewWorkload(
-				ford.NewAssembly(
-					drknow.NewAbstract(spinner),
-				),
+				ford.NewAssembly(),
 			),
 		)
+
+		out <- nil
 	}()
 
 	return out

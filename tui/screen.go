@@ -5,7 +5,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	term "github.com/inancgumus/screen"
-	"github.com/theapemachine/wrkspc/errnie"
 )
 
 type Screen struct {
@@ -47,20 +46,9 @@ func (screen *Screen) View() string {
 }
 
 /*
-Read implements the io.Reader interface.
-*/
-func (screen *Screen) Read(p []byte) (n int, err error) {
-	errnie.Trace()
-	errnie.Debugs("not implemented...")
-	return
-}
-
-/*
 Write implements the io.Writer interface.
 */
 func (screen *Screen) Write(p []byte) (n int, err error) {
-	errnie.Trace()
-	errnie.Debugs("not implemented...")
 	return
 }
 
@@ -68,7 +56,5 @@ func (screen *Screen) Write(p []byte) (n int, err error) {
 Close implements the io.Closer interface.
 */
 func (screen *Screen) Close() error {
-	errnie.Trace()
-	errnie.Debugs("not implemented...")
-	return errnie.Handles(nil)
+	return nil
 }

@@ -37,6 +37,7 @@ func (stage *BuildStage) Make() error {
 
 	ctx := stage.ctx.Root()
 	opts := NewOpts()
+	opts.Project()
 
 	parallel := !config.G(ctx).NoParallel
 	norender := log.LoggerTypeFromString(
