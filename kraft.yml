@@ -5,8 +5,8 @@ unikraft:
   kconfig:
     - CONFIG_LIBSYSCALL_SHIM_LIBCSTUBS=y
 targets:
-  - architecture: x86_64
-    platform: kvm
+  - architecture: arm
+    platform: qemu
 libraries:
   gcc: '0.6'
   libgo: '0.6'
