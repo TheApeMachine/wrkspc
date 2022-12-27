@@ -20,7 +20,7 @@ Embed a mini filesystem into the binary to hold the config file,
 and some front end templates. This will be compiled into the
 binary, so it is easier to manage.
 */
-//go:embed cfg/* tmpl/*
+//go:embed cfg/*
 var embedded embed.FS
 
 var (
