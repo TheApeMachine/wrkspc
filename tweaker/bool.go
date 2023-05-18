@@ -1,6 +1,6 @@
 package tweaker
 
-import "github.com/theapemachine/wrkspc/errnie"
+import "github.com/wrk-grp/errnie"
 
 /*
 GetBool returns a value by the key that is passed in and

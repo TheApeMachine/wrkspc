@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra/doc"
 	"github.com/spf13/viper"
 	"github.com/theapemachine/wrkspc/brazil"
-	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/tweaker"
+	"github.com/wrk-grp/errnie"
 )
 
 /*

@@ -3,7 +3,7 @@ package tweaker
 import (
 	"fmt"
 
-	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/wrk-grp/errnie"
 )
 
 /*

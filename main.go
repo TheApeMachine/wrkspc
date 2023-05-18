@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/theapemachine/wrkspc/cmd"
-	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/wrk-grp/errnie"
 )
 
 func main() {

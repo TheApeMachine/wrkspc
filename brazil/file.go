@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/wrk-grp/errnie"
 )
 
 /*

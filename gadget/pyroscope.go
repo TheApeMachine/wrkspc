@@ -2,8 +2,8 @@ package gadget
 
 import (
 	"github.com/pyroscope-io/client/pyroscope"
-	"github.com/theapemachine/wrkspc/errnie"
 	"github.com/theapemachine/wrkspc/tweaker"
+	"github.com/wrk-grp/errnie"
 )
 
 type Pyroscope struct {

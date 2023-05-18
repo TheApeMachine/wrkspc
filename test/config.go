@@ -2,7 +2,7 @@ package test
 
 import (
 	"github.com/spf13/viper"
-	"github.com/theapemachine/wrkspc/errnie"
+	"github.com/wrk-grp/errnie"
 )
 
 type ConfigContext struct{}
