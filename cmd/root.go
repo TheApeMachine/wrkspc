@@ -17,16 +17,15 @@ import (
 
 /*
 Embed a mini filesystem into the binary to hold the config file,
-and some front end templates. This will be compiled into the
+and some javascript used by chromedp. This will be compiled into the
 binary, so it is easier to manage.
 */
 //go:embed cfg/*
 var embedded embed.FS
 
 var (
-	cfgFile      string
-	orchestrator string
-	provision    string
+	cfgFile string
+	target  string
 
 	rootCmd = &cobra.Command{
 		Use:   "wrkspc",
@@ -50,17 +49,10 @@ func Execute() error {
 	rootCmd.SetUsageFunc(boa.UsageFunc)
 	rootCmd.SetHelpFunc(boa.HelpFunc)
 
-	// Set the orchestrator we will use to build the infrastructure
-	// of our platform.
-	rootCmd.PersistentFlags().StringVarP(
-		&orchestrator, "orchestrator", "o", "kubernetes",
-		"The orchestrator to use <nomad|kubernetes>.",
-	)
-
 	// Set the provisioning mode.
 	rootCmd.PersistentFlags().StringVarP(
-		&provision, "provision", "p", "auto",
-		"The provisioning mode to run with.",
+		&target, "target", "p", "test",
+		"The target to chase.",
 	)
 
 	// Add the `run` command to the CLI.
