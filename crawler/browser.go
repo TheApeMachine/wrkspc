@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/chromedp/chromedp"
-	"github.com/theapemachine/wrkspc/luthor"
 )
 
 /*
@@ -48,7 +47,7 @@ func (b *Browser) Run(target string) error {
 			chromedp.Navigate("https://www.nu.nl/spanningen-oekraine/6262108/onrust-en-onduidelijkheid-na-vermeende-droneaanval-op-kremlin.html"),
 			NewScript(b.embedded, "humanize").Run(ctx, "getpage", "", &b.result),
 			chromedp.ActionFunc(func(ctx context.Context) error {
-				return luthor.NewParser(b.result).GetArticle(&b.result)
+				return nil
 			}),
 		},
 	); err != nil {

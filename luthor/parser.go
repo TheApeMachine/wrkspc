@@ -1,10 +1,11 @@
 package luthor
 
 import (
-	"strings"
+	"bytes"
+	"io"
+	"net/http"
 
-	goose "github.com/advancedlogic/GoOse"
-	"golang.org/x/net/html"
+	"github.com/wrk-grp/errnie"
 )
 
 /*
@@ -12,59 +13,44 @@ Parser is the top level object which directs the parsing and extraction of
 information from a string of HTML.
 */
 type Parser struct {
-	html string
+	nlpClient *http.Client
+	text      *bytes.Buffer
+	entities  map[string][]Entity
 }
 
 /*
 NewParser creates a new Parser.
 */
-func NewParser(html string) *Parser {
-	return &Parser{html}
+func NewParser() *Parser {
+	errnie.Trace()
+
+	return &Parser{
+		&http.Client{},
+		bytes.NewBuffer([]byte{}),
+		map[string][]Entity{},
+	}
 }
 
 /*
-GetElements returns a slice of strings containing all the instances
-found of the element type that is passed in.
+Read implements the io.Reader interface.
 */
-func (p *Parser) GetElements(element string) ([]*html.Node, error) {
-	elements := []*html.Node{}
-
-	doc, err := html.Parse(strings.NewReader(p.html))
-	if err != nil {
-		return nil, err
-	}
-
-	var traverse func(*html.Node)
-	traverse = func(node *html.Node) {
-		if node.Type == html.ElementNode && node.Data == element {
-			elements = append(elements, node)
-		}
-
-		for child := node.FirstChild; child != nil; child = child.NextSibling {
-			traverse(child)
-		}
-	}
-
-	traverse(doc)
-
-	return elements, nil
+func (p *Parser) Read(b []byte) (n int, err error) {
+	errnie.Trace()
+	return 0, io.EOF
 }
 
 /*
-GetArticle returns the article content
+Write implements the io.Writer interface.
 */
-func (p *Parser) GetArticle(result *string) error {
-	g := goose.New()
-	var extract string
-	article, _ := g.ExtractFromRawHTML(p.html, extract)
-	println("title", article.Title)
-	println("description", article.MetaDescription)
-	println("keywords", article.MetaKeywords)
-	println("content", article.CleanedText)
-	println("url", article.FinalURL)
-	println("top image", article.TopImage)
+func (p *Parser) Write(b []byte) (int, error) {
+	errnie.Trace()
+	return 0, nil
+}
 
-	extract = article.Doc.Text()
-	result = &extract
+/*
+Close implements the io.Closer interface.
+*/
+func (p *Parser) Close() error {
+	errnie.Trace()
 	return nil
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type Parameters struct {
-	CandidateLabels []string `json:"candidate_labels"`
+	AggregationStrategy string `json:"aggregation_strategy"`
 }
 
 type Msg struct {
@@ -21,6 +21,7 @@ func NewMsg(input string) *Msg {
 	return &Msg{
 		Inputs: input,
 		Parameters: Parameters{
+			AggregationStrategy: "average",
 		},
 	}
 }

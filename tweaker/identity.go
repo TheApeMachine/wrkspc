@@ -1,8 +1,6 @@
 package tweaker
 
 import (
-	"fmt"
-
 	"github.com/wrk-grp/errnie"
 )
 
@@ -27,6 +25,5 @@ This is an internal method bound to the ambient context.
 func (cfg *Config) getIdentity() []byte {
 	errnie.Trace()
 	identity := cfg.stage() + "." + cfg.program()
-	errnie.Debugs(fmt.Sprintf("tweaker.Config.getIdentity -> %s", identity))
 	return []byte(identity)
 }

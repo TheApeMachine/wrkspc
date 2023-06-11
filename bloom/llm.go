@@ -1,56 +1,62 @@
 package bloom
 
 import (
-	"encoding/json"
-	"fmt"
+	"bytes"
+	"io"
 
-	"github.com/theapemachine/am/network"
 	"github.com/theapemachine/wrkspc/tweaker"
 	"github.com/wrk-grp/errnie"
+	"github.com/wrk-grp/please"
 )
 
+var models = map[string]string{
+	"ner":   "dslim/bert-base-NER",
+	"bloom": "bigscience/bloom",
+}
+
 type LLM struct {
-	req *network.Request
+	key      string
+	endpoint string
+	output   *bytes.Buffer
 }
 
-func NewLLM() *LLM {
+func NewLLM(task string) *LLM {
 	errnie.Trace()
 
-	endpoint := tweaker.GetString("models.bloom.endpoint")
-	key := tweaker.GetString("models.bloom.key")
-	req := network.NewRequest(network.POST, endpoint)
-	req.AddHeader("Authorization", "Bearer "+key)
-	req.AddHeader("Content-Type", "application/json")
-
-	return &LLM{req}
+	return &LLM{
+		endpoint: tweaker.GetString("bloom.endpoint") + models[task],
+		key:      tweaker.GetString("bloom.key"),
+		output:   bytes.NewBuffer([]byte{}),
+	}
 }
 
-func (llm *LLM) Predict(input []map[string]string) chan string {
+func (llm *LLM) Read(p []byte) (n int, err error) {
 	errnie.Trace()
 
-	out := make(chan string)
+	if llm.output.Len() == 0 {
+		return 0, io.EOF
+	}
 
-	go func() {
-		defer close(out)
+	return llm.output.Read(p)
+}
 
-		res := []Result{}
-		msgs := ""
+func (llm *LLM) Write(p []byte) (n int, err error) {
+	errnie.Trace()
 
-		for _, in := range input {
-			for key, val := range in {
-				msgs += fmt.Sprintf("%s: %s\n", key, val)
-			}
-		}
+	req := please.NewRequest(llm.endpoint, "POST")
+	req.AddHeaders(map[string]string{
+		"Authorization": "Bearer " + llm.key,
+	})
 
-		msg := llm.req.Do(NewMsg(msgs).Marshal())
+	data := bytes.NewBuffer(NewMsg(string(p)).Marshal())
 
-		errnie.Handles(json.Unmarshal(
-			msg,
-			&res,
-		))
+	io.Copy(req, data)
+	errnie.Debugs("LLM: %s", llm.output.String())
+	return n, nil
+}
 
-		out <- res[0].GeneratedText
-	}()
-
-	return out
+func (llm *LLM) Close() error {
+	errnie.Trace()
+	llm.output.Reset()
+	return nil
 }

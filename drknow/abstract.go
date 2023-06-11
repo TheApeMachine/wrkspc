@@ -11,7 +11,7 @@ graphs that can be combined in a variety of ways to evaluate a mental model abou
 world. The world is used as an alias for a useful scope of knowledge to achieve a goal.
 */
 type Abstract struct {
-	*spd.Datagram
+	dg *spd.Datagram
 }
 
 /*
